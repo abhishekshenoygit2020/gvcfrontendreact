@@ -1,0 +1,25 @@
+{
+  "files": {
+    "main.css": "/static/css/main.5c6edb7f.css",
+    "main.js": "/static/js/main.96ca712c.js",
+    "static/js/830.bf0e445e.chunk.js": "/static/js/830.bf0e445e.chunk.js",
+    "static/js/787.98860dfa.chunk.js": "/static/js/787.98860dfa.chunk.js",
+    "static/media/BC3.jpg": "/static/media/BC3.5da04bc8387e01aecee6.jpg",
+    "static/media/DIGITAL-Financial-GAP-Warranties-2020-ENGLISH.pdf": "/static/media/DIGITAL-Financial-GAP-Warranties-2020-ENGLISH.e34f5acd40e23098a083.pdf",
+    "static/media/BC1.jpg": "/static/media/BC1.95e1255c13523cbc9fe0.jpg",
+    "static/media/carCanada.png": "/static/media/carCanada.60b8157ae4d1fff5f1ef.png",
+    "static/media/Build Warantee.png": "/static/media/Build Warantee.ca4903e10257817294ec.png",
+    "static/media/GVClogo.png": "/static/media/GVClogo.e7344f7636b4197813a9.png",
+    "static/media/Dealership.png": "/static/media/Dealership.48932207600030879b47.png",
+    "static/media/Dashboard.png": "/static/media/Dashboard.e1fd0c7fdeefa1caa9e1.png",
+    "index.html": "/index.html",
+    "main.5c6edb7f.css.map": "/static/css/main.5c6edb7f.css.map",
+    "main.96ca712c.js.map": "/static/js/main.96ca712c.js.map",
+    "830.bf0e445e.chunk.js.map": "/static/js/830.bf0e445e.chunk.js.map",
+    "787.98860dfa.chunk.js.map": "/static/js/787.98860dfa.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.5c6edb7f.css",
+    "static/js/main.96ca712c.js"
+  ]
+}
