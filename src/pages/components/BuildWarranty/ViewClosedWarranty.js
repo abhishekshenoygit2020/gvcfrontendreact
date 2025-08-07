@@ -320,7 +320,7 @@ function ViewClosedWarranty() {
                             ['', { text: ``, border: [false, false, false, false] }],
                             [
                                 { text: 'Application for GAP Bundle Warranty Coverage', rowSpan: 3, border: [false, false, false, false], fontSize: 10, alignment: 'right', bold: true },
-                                { text: `25 Sheppard Avenue West, Suite 300, North York, Ontario, M2N 6S6, Phone: 905.291.2940`, border: [false, false, false, false], fontSize: 10, alignment: 'right', bold: true }
+                                { text: `1200 Bay Street, Suite #1201 Toronta, Ontario, M5R 2A5, Phone: 905.291.2940`, border: [false, false, false, false], fontSize: 10, alignment: 'right', bold: true }
                             ],
 
                             [{ text: 'Get Covered Canada', border: [false, false, false, false], fontSize: 10, bold: true }, { text: 'claims@getcoveredcanada.com', border: [false, false, false, false], fontSize: 10, alignment: 'right', bold: true }],
@@ -939,7 +939,7 @@ function ViewClosedWarranty() {
                             ['', { text: ``, border: [false, false, false, false] }],
                             [
                                 { text: 'Application for GAP Bundle Warranty Coverage', rowSpan: 3, border: [false, false, false, false], fontSize: 10, alignment: 'right', bold: true },
-                                { text: `25 Sheppard Avenue West, Suite 300, North York, Ontario, M2N 6S6, Phone: 905.291.2940`, border: [false, false, false, false], fontSize: 10, alignment: 'right', bold: true }
+                                { text: `1200 Bay Street, Suite #1201 Toronta, Ontario,M5R 2A5, Phone: 905.291.2940`, border: [false, false, false, false], fontSize: 10, alignment: 'right', bold: true }
                             ],
 
                             [{ text: 'Get Covered Canada', border: [false, false, false, false], fontSize: 10, bold: true }, { text: 'claims@getcoveredcanada.com', border: [false, false, false, false], fontSize: 10, alignment: 'right', bold: true }],
@@ -2641,8 +2641,8 @@ function ViewClosedWarranty() {
                                 },
                                 { text: ``, border: [false, false, false, false] }
                             ],
-                            ['', { text: `25 Sheppard Avenue West, Suite 300, North York, Ontario,`, fontSize: 10, alignment: 'right', bold: true, border: [false, false, false, false], }],
-                            ['', { text: ` M2N 6S6, Phone: 905.291.2940`, fontSize: 10, bold: true, border: [false, false, false, false], alignment: 'right' }],
+                            ['', { text: `1200 Bay Street, Suite #1201 Toronta, Ontario,`, fontSize: 10, alignment: 'right', bold: true, border: [false, false, false, false], }],
+                            ['', { text: ` M5R 2A5, Phone: 905.291.2940`, fontSize: 10, bold: true, border: [false, false, false, false], alignment: 'right' }],
                             ['', { text: `claims@getcoveredcanada.com`, fontSize: 10, bold: true, border: [false, false, false, false], alignment: 'right' }],
                             ['', { text: `www.getcoveredcanada.com`, bold: true, fontSize: 10, border: [false, false, false, false], alignment: 'right' }],
                             [{ text: `Get Covered Canada`, fontSize: 12, bold: true, border: [false, false, false, false] }, { text: ``, bold: true, border: [false, false, false, false] }],

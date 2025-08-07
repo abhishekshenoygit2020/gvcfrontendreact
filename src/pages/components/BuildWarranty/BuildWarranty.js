@@ -73,7 +73,7 @@ export default function BuildWarranty() {
     const [activeStep, setActiveStep] = React.useState(0);
     const [skipped, setSkipped] = React.useState(new Set());
     const [oldUser, setOlduser] = useState("");
-
+    const productRef = useRef("");
     const [id, setId] = useState("");
 
     const [alertOpen, setAlertopen] = useState(false);
@@ -134,6 +134,7 @@ export default function BuildWarranty() {
     const [odometer, setOdometer] = useState('');
     const [salePriceofVehicle, setSalePriceofVehicle] = useState('');
     const [comprehensiveFactoryWarrantyValid, setComprehensiveFactoryWarrantyValid] = useState("No");
+    const [commercialVehicle, setCommercialVehicle] = useState("No");
     const [language, setLanguage] = useState('0');
     const [serviceDate, setServiceDate] = useState('');
 
@@ -189,6 +190,8 @@ export default function BuildWarranty() {
     const [originalCost, setOriginalCost] = useState(0);
 
     const [errorText, setErrorText] = useState("");
+
+
 
     /** model open */
     const [open, setOpen] = React.useState(false);
@@ -282,7 +285,7 @@ export default function BuildWarranty() {
             setProductName(data.productName);
             setProductIndex(Number(data.productIndex));
             setPackagesText(data.packagesText);
-
+            setCommercialVehicle(data.commercialVehicle);
             setVinNo(data.vinNo);
             setVinNoText(data.vinNoText);
             setMake(data.make);
@@ -410,7 +413,7 @@ export default function BuildWarranty() {
             setOdometerText(data.odometerText);
             setSalePriceofVehicle(data.salePriceofVehicle);
             setSalePriceofVehicleText(data.salePriceofVehicleText);
-
+            setCommercialVehicle(data.commercialVehicle);
             setComprehensiveFactoryWarrantyValid(data.comprehensiveFactoryWarrantyValid);
             setComprehensiveFactoryWarrantyValidText(data.comprehensiveFactoryWarrantyValidText);
             setServiceDate(data.serviceDate);
@@ -528,7 +531,7 @@ export default function BuildWarranty() {
             setOdometerText("");
             setSalePriceofVehicle("");
             setSalePriceofVehicleText("");
-
+            setCommercialVehicle("No");
             setComprehensiveFactoryWarrantyValid(false);
             setComprehensiveFactoryWarrantyValidText("");
             setServiceDate("");
@@ -838,7 +841,7 @@ export default function BuildWarranty() {
 
 
     const isStepOptional = (step) => {
-        return step === 1;
+        // return step === 1;
     };
 
     const isStepSkipped = (step) => {
@@ -846,6 +849,8 @@ export default function BuildWarranty() {
     };
 
     const handleNext = () => {
+
+        const productName = productRef.current;
 
         if (activeStep == 0) {
 
@@ -904,8 +909,12 @@ export default function BuildWarranty() {
         }
 
         if (activeStep == 2) {
-            if (productName == "") {
+
+            if (productName === "") {
                 validateField("Please Select Product");
+                return false;
+            } else if (productName.toLowerCase().includes("unlimited") && parseInt(odometer) > 200000) {
+                alert("Unlimted Product cannot be selected!")
                 return false;
             }
 
@@ -1236,7 +1245,7 @@ export default function BuildWarranty() {
 
     const ClosedWon = async (e) => {
         saveStatusRef.current = 2;
-        const data = { id, giftCardCredit, originalCost, warrantyApplicationDate, user, oldUser, useromvicno: omvic_no, dealership, highRatioCoveragePriceText, warrantyOptionPriceText, vinNo, vinNoText, make, makeText, model, modelText, year, yearText, odometer, odometerText, salePriceofVehicle, salePriceofVehicleText, comprehensiveFactoryWarrantyValid, comprehensiveFactoryWarrantyValidText, serviceDate, serviceDateText, warrantyClass, warrantyClassText, warrantyType, warrantyTypeText, warrantyProtection, warrantyProtectionText, warrantyOption, warrantyOptionText, highRatioCoverage, highRatioCoverageText, deductible, deductibleText, customerFirstName, customerFirstNameText, language, languageText, customerLastName, customerLastNameText, streetAddress, streetAddressText, town, townText, province, provinceText, postalCode, postalCodeText, customerPhone, customerPhoneText, customerEmail, customerEmailText, driverLicence, driverLicenceText, customerLanguage, customerLanguageText, dealNotes, dealNotesText, vinCust, vinCustText, salePriceofVehicleCust, salePriceofVehicleCustText, financeCompany, financeCompanyText, vehicleDeliveryDate, vehicleDeliveryDateText, warrantySoldFor, warrantySoldForText, packages, packagesTypes, productIndex, productCost, packagesText, productName, Status: "Closed Won", commission, userId };
+        const data = { id, commercialVehicle, giftCardCredit, originalCost, warrantyApplicationDate, user, oldUser, useromvicno: omvic_no, dealership, highRatioCoveragePriceText, warrantyOptionPriceText, vinNo, vinNoText, make, makeText, model, modelText, year, yearText, odometer, odometerText, salePriceofVehicle, salePriceofVehicleText, comprehensiveFactoryWarrantyValid, comprehensiveFactoryWarrantyValidText, serviceDate, serviceDateText, warrantyClass, warrantyClassText, warrantyType, warrantyTypeText, warrantyProtection, warrantyProtectionText, warrantyOption, warrantyOptionText, highRatioCoverage, highRatioCoverageText, deductible, deductibleText, customerFirstName, customerFirstNameText, language, languageText, customerLastName, customerLastNameText, streetAddress, streetAddressText, town, townText, province, provinceText, postalCode, postalCodeText, customerPhone, customerPhoneText, customerEmail, customerEmailText, driverLicence, driverLicenceText, customerLanguage, customerLanguageText, dealNotes, dealNotesText, vinCust, vinCustText, salePriceofVehicleCust, salePriceofVehicleCustText, financeCompany, financeCompanyText, vehicleDeliveryDate, vehicleDeliveryDateText, warrantySoldFor, warrantySoldForText, packages, packagesTypes, productIndex, productCost, packagesText, productName, Status: "Closed Won", commission, userId };
         // generateInvoicePdf(data);
         if (!termsConditonChecked) {
             alert("Please tick the terms & conditions")
@@ -3950,7 +3959,7 @@ export default function BuildWarranty() {
 
     const SaveAsPending = async (e) => {
         saveStatusRef.current = 1;
-        const data = { id, originalCost, giftCardCredit, warrantyApplicationDate, user, oldUser, useromvicno: omvic_no, dealership, vinNo, highRatioCoveragePriceText, warrantyOptionPriceText, vinNoText, make, makeText, model, modelText, year, yearText, odometer, odometerText, salePriceofVehicle, salePriceofVehicleText, comprehensiveFactoryWarrantyValid, comprehensiveFactoryWarrantyValidText, serviceDate, serviceDateText, warrantyClass, warrantyClassText, warrantyType, warrantyTypeText, warrantyProtection, warrantyProtectionText, warrantyOption, warrantyOptionText, highRatioCoverage, highRatioCoverageText, deductible, deductibleText, customerFirstName, customerFirstNameText, language, languageText, customerLastName, customerLastNameText, streetAddress, streetAddressText, town, townText, province, provinceText, postalCode, postalCodeText, customerPhone, customerPhoneText, customerEmail, customerEmailText, driverLicence, driverLicenceText, customerLanguage, customerLanguageText, dealNotes, dealNotesText, vinCust, vinCustText, salePriceofVehicleCust, salePriceofVehicleCustText, financeCompany, financeCompanyText, vehicleDeliveryDate, vehicleDeliveryDateText, warrantySoldFor, warrantySoldForText, packages, packagesTypes, productIndex, productCost, packagesText, productName, Status: "Pending", commission, userId };
+        const data = { id, commercialVehicle, originalCost, giftCardCredit, warrantyApplicationDate, user, oldUser, useromvicno: omvic_no, dealership, vinNo, highRatioCoveragePriceText, warrantyOptionPriceText, vinNoText, make, makeText, model, modelText, year, yearText, odometer, odometerText, salePriceofVehicle, salePriceofVehicleText, comprehensiveFactoryWarrantyValid, comprehensiveFactoryWarrantyValidText, serviceDate, serviceDateText, warrantyClass, warrantyClassText, warrantyType, warrantyTypeText, warrantyProtection, warrantyProtectionText, warrantyOption, warrantyOptionText, highRatioCoverage, highRatioCoverageText, deductible, deductibleText, customerFirstName, customerFirstNameText, language, languageText, customerLastName, customerLastNameText, streetAddress, streetAddressText, town, townText, province, provinceText, postalCode, postalCodeText, customerPhone, customerPhoneText, customerEmail, customerEmailText, driverLicence, driverLicenceText, customerLanguage, customerLanguageText, dealNotes, dealNotesText, vinCust, vinCustText, salePriceofVehicleCust, salePriceofVehicleCustText, financeCompany, financeCompanyText, vehicleDeliveryDate, vehicleDeliveryDateText, warrantySoldFor, warrantySoldForText, packages, packagesTypes, productIndex, productCost, packagesText, productName, Status: "Pending", commission, userId };
         // generateInvoicePdf(data);    
         // generatePdf(data);
 
@@ -4517,6 +4526,43 @@ export default function BuildWarranty() {
                                                         </Box>
                                                     )}
 
+                                                    <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+                                                        <Typography variant="subtitle2" gutterBottom sx={{ marginBottom: '0.5em' }}>
+                                                            Is a Commercial Vehicle?
+                                                        </Typography>
+                                                        <FormControl fullWidth required >
+                                                            <Select
+                                                                value={commercialVehicle}
+                                                                onChange={(e) => {
+                                                                    setCommercialVehicle(e.target.value);
+                                                                }}
+                                                                MenuProps={{
+                                                                    PaperProps: {
+                                                                        style: {
+                                                                            maxHeight: 200,
+                                                                        },
+                                                                    },
+                                                                }}
+                                                                sx={{
+                                                                    '& .MuiOutlinedInput-root': {
+                                                                        '& fieldset': {
+                                                                            borderColor: 'lightgray',
+                                                                        },
+                                                                        '&:hover fieldset': {
+                                                                            borderColor: 'lightgray',
+                                                                        },
+                                                                        '&.Mui-focused fieldset': {
+                                                                            borderColor: 'lightgray',
+                                                                        },
+                                                                    },
+                                                                }}
+                                                            >
+                                                                <MenuItem value="Yes">Yes</MenuItem>
+                                                                <MenuItem value="No">No</MenuItem>
+                                                            </Select>
+                                                        </FormControl>
+                                                    </Box>
+
                                                 </Stack>
 
 
@@ -4746,7 +4792,7 @@ export default function BuildWarranty() {
                                                 >
                                                     {/* <Toolbar /> */}
 
-                                                    <PricingTab packages={packages} setPackages={setPackages} packagesTypes={packagesTypes} setPackagesType={setPackagesType} productIndex={productIndex} setProductIndex={setProductIndex} setProductName={setProductName} setProductCost={setProductCost} handleNext={handleNext} setPackagesText={setPackagesText} setGiftCardCredit={setGiftCardCredit} setOriginalCost={setOriginalCost} />
+                                                    <PricingTab packages={packages} setPackages={setPackages} packagesTypes={packagesTypes} setPackagesType={setPackagesType} productIndex={productIndex} setProductIndex={setProductIndex} setProductName={setProductName} setProductCost={setProductCost} handleNext={handleNext} setPackagesText={setPackagesText} setGiftCardCredit={setGiftCardCredit} setOriginalCost={setOriginalCost} productRef={productRef} />
                                                 </Box>
 
                                             </form>
@@ -5530,7 +5576,7 @@ Exceptions:
 
                                                                 <FormControl fullWidth required >
                                                                     <Typography variant="body1" sx={{ marginBottom: '0.5em' }}>Deal Notes &nbsp;
-                                                                       </Typography>
+                                                                    </Typography>
                                                                     <TextField
                                                                         required
 
@@ -6126,9 +6172,9 @@ Exceptions:
                                                                                         <Typography variant="body1" sx={{ textAlign: "left" }}>Roadside: {warrantyOptionText + " Year"}</Typography>
                                                                                         <Typography variant="body1" sx={{ textAlign: "left" }}>Driver License: {driverLicenceText}</Typography>
                                                                                         {
-                                                                                            warrantyClass == 26 ? <Typography variant="body1" sx={{ textAlign: "left" }}>GAP Bundle Price: ${warrantySoldForText}</Typography>: <Typography variant="body1" sx={{ textAlign: "left" }}>Warranty Bundle Price: ${warrantySoldForText}</Typography>
+                                                                                            warrantyClass == 26 ? <Typography variant="body1" sx={{ textAlign: "left" }}>GAP Bundle Price: ${warrantySoldForText}</Typography> : <Typography variant="body1" sx={{ textAlign: "left" }}>Warranty Bundle Price: ${warrantySoldForText}</Typography>
                                                                                         }
-                                                                                        
+
                                                                                     </Box>
                                                                                 </Stack>
                                                                                 <br></br>
@@ -6564,7 +6610,7 @@ This Agreement complies with the requirements under the new Motor Vehicle Dealer
                                 </Button>
                             )}
                             <Button onClick={handleNext}>
-                                {activeStep === steps.length - 1 ? '' : 'Next'}
+                                {activeStep === steps.length - 1 ? '' : activeStep == 2 ? '' : 'Next'}
                             </Button>
                         </Box>
                         <Snackbar open={alertOpen} autoHideDuration={6000} onClose={handleCloseSnack}>

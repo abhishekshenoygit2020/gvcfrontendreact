@@ -394,9 +394,9 @@ function ViewInvoicingDetailData() {
                                 },
                                 {
                                     text: [
-                                        { text: '1200 Bay Street, Suite #1201 \n', fontSize: 10 },
-                                        { text: 'Toronta, Ontario \n', fontSize: 10 },
-                                        { text: 'M5R 2A5', fontSize: 10 },
+                                        { text: ' \n', fontSize: 10 },
+                                        { text: ' \n', fontSize: 10 },
+                                        { text: '', fontSize: 10 },
                                         { text: '', fontSize: 10 }
                                     ],
                                     alignment: 'center',
@@ -404,7 +404,7 @@ function ViewInvoicingDetailData() {
                                     border: [false, false, false, false]
                                 },
                                 {
-                                    text: '25 Sheppard Avenue West, Suite 300, North York, Ontario,',
+                                    text: '1200 Bay Street, Suite #1201 Toronta, Ontario,',
                                     fontSize: 12,
                                     alignment: 'right',
                                     bold: true,
@@ -415,7 +415,7 @@ function ViewInvoicingDetailData() {
                                 { text: '', border: [false, false, false, false] },
                                 { text: '', border: [false, false, false, false] },
                                 {
-                                    text: 'M2N 6S6, Phone: 905.291.2940',
+                                    text: ' M5R 2A5, Phone: 905.291.2940',
                                     fontSize: 12,
                                     alignment: 'right',
                                     bold: true,

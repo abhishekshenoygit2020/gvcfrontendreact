@@ -377,7 +377,7 @@ function ViewPendingWarranty() {
                             ['', { text: ``, border: [false, false, false, false] }],
                             [
                                 { text: 'Application for GAP Bundle Warranty Coverage', rowSpan: 3, border: [false, false, false, false], fontSize: 10, alignment: 'right', bold: true },
-                                { text: `25 Sheppard Avenue West, Suite 300, North York, Ontario, M2N 6S6, Phone: 905.291.2940`, border: [false, false, false, false], fontSize: 10, alignment: 'right', bold: true }
+                                { text: `1200 Bay Street, Suite #1201 Toronta, Ontario, M5R 2A5 Phone: 905.291.2940`, border: [false, false, false, false], fontSize: 10, alignment: 'right', bold: true }
                             ],
 
                             [{ text: 'Get Covered Canada', border: [false, false, false, false], fontSize: 10, bold: true }, { text: 'claims@getcoveredcanada.com', border: [false, false, false, false], fontSize: 10, alignment: 'right', bold: true }],
@@ -996,7 +996,7 @@ function ViewPendingWarranty() {
                             ['', { text: ``, border: [false, false, false, false] }],
                             [
                                 { text: 'Application for GAP Bundle Warranty Coverage', rowSpan: 3, border: [false, false, false, false], fontSize: 10, alignment: 'right', bold: true },
-                                { text: `25 Sheppard Avenue West, Suite 300, North York, Ontario, M2N 6S6, Phone: 905.291.2940`, border: [false, false, false, false], fontSize: 10, alignment: 'right', bold: true }
+                                { text: `1200 Bay Street, Suite #1201 Toronta, Ontario, M5R 2A5 Phone: 905.291.2940`, border: [false, false, false, false], fontSize: 10, alignment: 'right', bold: true }
                             ],
 
                             [{ text: 'Get Covered Canada', border: [false, false, false, false], fontSize: 10, bold: true }, { text: 'claims@getcoveredcanada.com', border: [false, false, false, false], fontSize: 10, alignment: 'right', bold: true }],

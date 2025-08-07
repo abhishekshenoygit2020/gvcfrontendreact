@@ -47,7 +47,7 @@ function a11yProps(index) {
   };
 }
 
-export default function PricingTab({ packages, setPackages, packagesTypes, setPackagesType, productIndex, setProductIndex, setProductName, setProductCost, handleNext, setPackagesText, setGiftCardCredit, setOriginalCost }) {
+export default function PricingTab({ packages, setPackages, packagesTypes, setPackagesType, productIndex, setProductIndex, setProductName, setProductCost, handleNext, setPackagesText, setGiftCardCredit, setOriginalCost, productRef}) {
   const theme = useTheme();
   const [value, setValue] = React.useState(packages);
 
@@ -123,7 +123,7 @@ export default function PricingTab({ packages, setPackages, packagesTypes, setPa
       </AppBar>
       {packagesTypesLabel.map((label, index) => (
         <TabPanel value={value} index={index} dir={theme.direction}>
-          <PricingSubCategoryTab categoryId={label.id} packagesTypes={packagesTypes} setPackagesType={setPackagesType} productIndex={productIndex} setProductIndex={setProductIndex} setProductName={setProductName} setProductCost={setProductCost} setGiftCardCredit={setGiftCardCredit} handleNext={handleNext} setOriginalCost={setOriginalCost} />
+          <PricingSubCategoryTab categoryId={label.id} packagesTypes={packagesTypes} setPackagesType={setPackagesType} productIndex={productIndex} setProductIndex={setProductIndex} setProductName={setProductName} setProductCost={setProductCost} setGiftCardCredit={setGiftCardCredit} handleNext={handleNext} setOriginalCost={setOriginalCost} productRef={productRef} />
         </TabPanel>
       ))}
 

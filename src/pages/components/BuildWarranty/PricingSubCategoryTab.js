@@ -61,7 +61,7 @@ const packagesLabelOLD = [
     "Gold Elite Hi-Tech No Per Claim Max",
 
 ];
-export default function PricingSubCategoryTab({ categoryId, packagesTypes, setPackagesType, productIndex, setProductIndex, setProductName, setProductCost, setGiftCardCredit, handleNext, setOriginalCost }) {
+export default function PricingSubCategoryTab({ categoryId, packagesTypes, setPackagesType, productIndex, setProductIndex, setProductName, setProductCost, setGiftCardCredit, handleNext, setOriginalCost, productRef}) {
     const theme = useTheme();
     const [packagesLabel, setPackagesLabel] = useState([]);
     const [value, setValue] = useState(2);
@@ -140,7 +140,7 @@ export default function PricingSubCategoryTab({ categoryId, packagesTypes, setPa
             {
                 packagesLabel.map((label, index) => (
                     <TabPanel value={value} index={index} dir={theme.direction}>
-                        <ProductCategoryList categoryId={categoryId} subcategory={label.subcategory} productIndex={productIndex} setProductIndex={setProductIndex} setProductName={setProductName} setProductCost={setProductCost} setGiftCardCredit={setGiftCardCredit} handleNext={handleNext} setOriginalCost={setOriginalCost}/>
+                        <ProductCategoryList categoryId={categoryId} subcategory={label.subcategory} productIndex={productIndex} setProductIndex={setProductIndex} setProductName={setProductName} setProductCost={setProductCost} setGiftCardCredit={setGiftCardCredit} handleNext={handleNext} setOriginalCost={setOriginalCost}  productRef={productRef}/>
                     </TabPanel>
                 ))
             }

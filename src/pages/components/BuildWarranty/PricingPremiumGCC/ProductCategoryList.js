@@ -120,7 +120,7 @@ const tabContents = [
     <h1>36 Months Content</h1>, // Content for 36 Months tab
 ];
 
-export default function ProductCategoryList({ categoryId, subcategory, productIndex, setProductIndex, setProductName, setProductCost, setGiftCardCredit, handleNext, setOriginalCost }) {
+export default function ProductCategoryList({ categoryId, subcategory, productIndex, setProductIndex, setProductName, setProductCost, setGiftCardCredit, handleNext, setOriginalCost, productRef }) {
 
     const [tabLabels, setTabLabels] = useState([]);
     const [prices, setPrices] = useState([]);
@@ -134,8 +134,8 @@ export default function ProductCategoryList({ categoryId, subcategory, productIn
         event.preventDefault();
         setValue(newValue);
         setProductIndex(newValue);
-        console.log("tabLabels:" + tabLabels[newValue]);
-        console.log("price :" + prices[newValue]);
+        // console.log("tabLabels:" + tabLabels[newValue]);
+        // console.log("price :" + prices[newValue]);
     };
 
     const [products, setProducts] = useState([]);
@@ -159,27 +159,41 @@ export default function ProductCategoryList({ categoryId, subcategory, productIn
     ];
 
     const ProductData = (e) => {
-        setProductCost(prices[value]);
-        setProductIndex(value);
-        setProductName(`${subcategory}(${tabLabels[value]})`);
+
+        // const str = tabLabels[value];
+        // const containsUnlimited = str.toLowerCase().includes("unlimited");
+
+        // console.log("test:"+containsUnlimited);
+        // console.log("odometer:"+odometer);
+
+        // if (parseInt(odometer) > 20000 && containsUnlimited) {
+        //     alert("Current product cannot be selected!");
+        // } else {
+            setProductCost(prices[value]);
+            setProductIndex(value);
+            setProductName(`${subcategory}(${tabLabels[value]})`);
+            productRef.current = tabLabels[value];
+            const productNameToFind = tabLabels[value];
+            setOriginalCost(prices[value]);
+
+            const filteredProducts = originalProducts.filter(p => p.productName === productNameToFind);
+
+            if (filteredProducts.length > 0) {
+                const productPrice = filteredProducts[0].productPrice;
+                console.log("Product Price:", productPrice);
+                setOriginalCost(productPrice);
+                setGiftCardCredit(prices[value] - productPrice);
+
+            } else {
+                // console.log("Product not found");
+                setGiftCardCredit(0);
+            }
+
+            handleNext();
+        // }
 
 
-        const productNameToFind = tabLabels[value];
-        setOriginalCost(prices[value]);
 
-        const filteredProducts = originalProducts.filter(p => p.productName === productNameToFind);
-
-        if (filteredProducts.length > 0) {
-            const productPrice = filteredProducts[0].productPrice;
-            console.log("Product Price:", productPrice);
-            setOriginalCost(productPrice);
-            setGiftCardCredit(prices[value]-productPrice);
-           
-        } else {
-            // console.log("Product not found");
-              setGiftCardCredit(0);
-        }
-        handleNext();
 
     }
 
@@ -190,7 +204,7 @@ export default function ProductCategoryList({ categoryId, subcategory, productIn
         // setTabLabels(extractedProductNames);
         loadProductFeatures(categoryId, subcategory);
 
-    }, [categoryId, subcategory]);
+    }, [categoryId, subcategory, productRef]);
 
 
     const loadProductFeatures = async (categoryId, subcategory) => {
@@ -299,7 +313,7 @@ export default function ProductCategoryList({ categoryId, subcategory, productIn
                                             }
                                         }}
                                             disabled fullWidth>
-                                            {`$`+prices[index]}
+                                            {`$` + prices[index]}
                                             {/* <b>${dealership == 48 ? categoryId == 6 ? Number(prices[index])+100  : Number(prices[index]) + 150 : dealership == 72 ? Number(prices[index]) + 100 : dealership == 57 ? Number(prices[index])*2 : prices[index]}</b> */}
                                         </Button>
                                     </Grid>
