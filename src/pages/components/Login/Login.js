@@ -88,6 +88,7 @@ function Login() {
       if (dataResponse.data.success === 1) {
         const resData = dataResponse.data.data;
         const initialLogin = resData.initialLogin;
+        const isRelationshipManager =  resData.user_type == "Relationship Manager" ? 1 : 0;
         const userType = resData.user_type == "Relationship Manager" ? "admin" : resData.user_type;
         const userData = {
           userName: resData.username,
@@ -99,7 +100,8 @@ function Login() {
           omvic_no: resData.ovmic_no,
           accovmicno: resData.accovmicno,
           salesrep: resData.salesrep,
-          commission: resData.commission
+          commission: resData.commission,
+          isRelationshipManager:isRelationshipManager
         };
 
         Login(userData);

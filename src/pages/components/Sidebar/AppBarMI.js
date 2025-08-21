@@ -46,6 +46,7 @@ function ResponsiveAppBar({
   const userType = ApplicationStore().getStorage("user_type");
   const userEmail = ApplicationStore().getStorage("user_email");
   const username = ApplicationStore().getStorage("userName");
+  const isRelationshipManager = ApplicationStore().getStorage("isRelationshipManager");
 
   const [notificationAnchorEl, setNotificationAnchorEl] = useState(null);
   const [notifications, setNotifications] = useState([]);
@@ -227,7 +228,7 @@ function ResponsiveAppBar({
             <IconButton
               size="large"
               onClick={handleNotificationClick}
-              sx={{ color: "navy", mr: 1 }}
+              sx={{ color: "navy", mr: 1, display:  isRelationshipManager == 0 ? "none": "flex" }}
             >
               <Badge badgeContent={unreadCount} color="error">
                 <NotificationsIcon />
@@ -247,7 +248,7 @@ function ResponsiveAppBar({
                 horizontal: "right",
               }}
             >
-              {notifications.length > 0 ? (
+              { notifications.length > 0 ? (
                 <>
                   {notifications.slice(0, 6).map((note, index) => (
                     <MenuItem key={index} onClick={handleNotificationClose}>

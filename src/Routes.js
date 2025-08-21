@@ -46,6 +46,7 @@ import ViewSalesrepGiftCommission from "./pages/components/BuildWarranty/ViewSal
 import NotificationsPage from "./pages/components/Admin/Notifications/NotificationsPage";
 import ViewRestoreWarranty from "./pages/components/BuildWarranty/ViewRestoreWarranty";
 import ViewInvoicingDetailData from "./pages/components/BuildWarranty/ViewInvoicingDetailData";
+import RelationshipDealershipUser from "./pages/components/Admin/Dealership/RelationshipDealershipUser";
 
 const MainRoutes = () => {
   return (
@@ -54,6 +55,7 @@ const MainRoutes = () => {
       <Route path="/Registration" element={<Registration />} />
       <Route path="/InitialPasswordChange" element={<ChangePassword />} />
       <Route path="/ForgotPasswordRequest" element={<ForgotPassword />} />
+      
       <Route
         path="/ForgotPassword/:emailId"
         element={<ForgotChangePassword />}
@@ -109,6 +111,8 @@ const MainRoutes = () => {
             element={<ViewCustomiseWarrantyProduct />}
           />
           <Route path="/Users" element={<UserList />} />
+         
+          <Route path="/RelationshipDealershipUser" element={<RelationshipDealershipUser />} />
           <Route
             path="/Personalinformation"
             element={<AddPersonalInformation />}

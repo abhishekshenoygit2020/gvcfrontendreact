@@ -52,6 +52,16 @@ function AddDealership() {
   const [relationshipManager, setRelationshipManager] = useState([]);
   const [relationshipManagerPerc, setRelationshipManagerPerc] = useState('');
 
+  const [dealershipEmail, setDealershipEmail] = useState('');
+  const [dealershipPassword, setDealershipPassword] = useState('');
+  const [dealershipFirstname, setDealershipFirstname] = useState('');
+  const [dealershipLastname, setDealershipLastname] = useState('');
+
+  const [dealershipEmailOld, setDealershipEmailOld] = useState('');
+  const [dealershipPasswordOld, setDealershipPasswordOld] = useState('');
+
+  const [dealershipId, setDealershipId] = useState("");
+
   const { value, type } = state;
 
   const handleClick = () => {
@@ -66,7 +76,6 @@ function AddDealership() {
   };
 
   const serviceMethod = async (mainURL, method, data, handleSuccess, handleException) => {
-    console.log("helo")
     try {
       const response = await axios.post(mainURL, data);
       return handleSuccess(response.data);
@@ -83,6 +92,7 @@ function AddDealership() {
   const handleEmailChange = (e) => {
     const email = e.target.value;
     setAccountUserEmail(email);
+    setDealershipEmail(email);
 
     // Check if the email includes ".com"
     if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -157,8 +167,7 @@ function AddDealership() {
   const handleSave = async (e) => {
     e.preventDefault();
 
-    if (type != "updateCommission") {
-
+    if (type != "addCommission" && type != "updateUser" && type != "updateCommission") {
       if (accountUserEmail == "") {
         alert("Please enter your Account Email");
         return false;
@@ -178,23 +187,35 @@ function AddDealership() {
         alert("Please enter the Account Name");
         return false;
       }
+
       if (password == "") {
         alert("Please enter your Password");
         return false;
       }
+
       if (accountPhone == "") {
         alert("Please enter your Phone Number");
         return false;
       }
+
       if (nameLegal == "") {
         alert("Please enter your Legal Name");
         return false;
-      }
+      }      
+    }
+
+    if(type == "updateCommission"  || type == "addCommission"){
       if (relationshipManager == "") {
         alert("Please Select Relationship Manager")
         return false;
       }
+      if (relationshipManagerPerc <= 0) {
+        alert("Please enter the percentage")
+        return false;
+      }
     }
+
+
 
     const data = {
       accountUserEmail,
@@ -220,14 +241,42 @@ function AddDealership() {
       relationshipManager,
       relationshipManagerPerc
     };
+
+    const userData = {
+      dealershipEmail, dealershipEmailOld, dealershipPassword, dealershipId, dealershipFirstname, dealershipLastname
+    }
+
+
     console.log("type" + type);
     if (type === "add") {
       const mainURL = URL + '/add';
       serviceMethod(mainURL, 'POST', data, handleSuccess, handleException);
-    } else if (type === "updateCommission") {
-      const mainURL = URL + '/' + id + '/update';
+    } else if (type === "addCommission") {
+      const mainURL = 'relationshipManager/add';
+      const relationshipData = {
+        dealershipId, "userId": relationshipManager, relationsipPerc: relationshipManagerPerc
+      }
       console.log("url", mainURL);
-      serviceMethod(mainURL, 'POST', data, handleSuccess, handleException);
+      serviceMethod(mainURL, 'POST', relationshipData, handleSuccess, handleException);
+    } else if (type === "updateCommission") {
+      const mainURL = 'relationshipManager/update';
+      const relationshipData = {
+        dealershipId, "userId": relationshipManager, relationsipPerc: relationshipManagerPerc, id
+      }
+      console.log("url", mainURL);
+      serviceMethod(mainURL, 'POST', relationshipData, handleSuccess, handleException);
+    } else if (type == "updateUser") {
+
+      if (dealershipEmail === dealershipEmailOld && dealershipPassword === dealershipPasswordOld) {
+        alert("Email and password are the same as before. Please change them.");
+        return false;
+      } else {
+        console.log("data is changed", userData);
+        const mainURL = '/user/updateDealershipUser';
+        console.log("url", mainURL);
+        serviceMethod(mainURL, 'POST', userData, handleSuccess, handleException);
+      }
+
     } else {
       const mainURL = URL + '/' + id + '/update';
       console.log("url", mainURL);
@@ -248,13 +297,14 @@ function AddDealership() {
 
   useEffect(() => {
     loadRelationshipManagerData();
-    if (type == "update" || type == "updateCommission") {
+    if (type == "update") {
+      loadDealershipUserAcc(value.accountUserEmail, value.id);
       setId(value.id || '');
       setTradeName(value.tradeName || '');
       setAccountUserEmail(value.accountUserEmail || '');
       setFirstname(value.firstname || '');
       setLastname(value.lastname || '');
-      setPassword('*****************');
+      setPassword("******");
       setAccountPhone(value.accountPhone || '');
       setNameLegal(value.nameLegal || '');
       setAccountFax(value.accountFax || '');
@@ -269,8 +319,16 @@ function AddDealership() {
       setAcc_ovmic_no(value.acc_ovmic_no || '');
       setOvmic_no(value.ovmic_no || '');
       setCommision(value.commission || '');
-      setRelationshipManager(value.relationshipManager || '');
-      setRelationshipManagerPerc(value.relationshipManagerPerc || '');
+
+    } else if (type == "updateCommission") {
+      setRelationshipManager(value.userid || '');
+      setRelationshipManagerPerc(value.relationsipPerc || '');
+      setDealershipId(value.dealershipId || "");
+      setId(value.id || "");
+    } else if (type == "addCommission") {
+      setDealershipId(value.id || "");
+    } else if (type == "updateUser") {
+      loadDealershipUserAcc(value.accountUserEmail, value.id, value.firstname, value.lastname);
     } else {
       setId('');
       setTradeName('');
@@ -297,9 +355,33 @@ function AddDealership() {
 
   const loadRelationshipManagerData = async () => {
     try {
-      const response = await axios.post("user/getRelationshipManagerUser");
+      const response = await axios.post("./user/getRelationshipManagerUser");
       console.log("relationship data" + response.data.data);
       setRelationshipManagerData(response.data.data || '');
+      // setDataList(response.data.data || '');
+    } catch (err) {
+      if (!err?.response) {
+        console.log("No server response");
+      } else {
+        console.log(err?.response.data);
+      }
+    }
+  };
+
+  const loadDealershipUserAcc = async (user_email, dealership) => {
+    try {
+      const response = await axios.post("user/getUser", { dealership, user_email });
+      // console.log("relationship data" + response.data.data[0]);
+
+      setDealershipEmail(response.data.data[0].user_email);
+      setDealershipPassword(response.data.data[0].user_password);
+      setDealershipFirstname(response.data.data[0].firstname);
+      setDealershipLastname(response.data.data[0].lastname);
+      setDealershipEmailOld(response.data.data[0].user_email);
+      setDealershipPasswordOld(response.data.data[0].user_password);
+      setDealershipId(dealership);
+
+
       // setDataList(response.data.data || '');
     } catch (err) {
       if (!err?.response) {
@@ -325,6 +407,7 @@ function AddDealership() {
     }
     // console.log("Generated Password:", password);
     setPassword(password);
+    setDealershipPassword(password);
   }
 
   const handleRelationshipManagerChange = (data) => {
@@ -351,7 +434,68 @@ function AddDealership() {
           <Toolbar />
           <br />
           <>
-            <div style={{ display: type == "updateCommission" ? "none" : "block" }}>
+            <div style={{ display: type === "updateUser" ? "block" : "none" }}>
+              <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+                <FormControl fullWidth>
+                  <Typography variant="subtitle2">Account User Email</Typography>
+                  <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    id="account-user-email"
+                    value={dealershipEmail}
+                    onChange={handleEmailChange}
+                    disabled={type == 'update'}
+                    error={error} // Set error state
+                    helperText={error ? "Please enter a valid email with similar to 'test@tt.com'" : ""}
+                    sx={textfieldStyles}
+                  />
+                </FormControl>
+                <FormControl fullWidth>
+                  <Typography variant="subtitle2">Account User Password</Typography>
+                  <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    id="account-user-email"
+                    // disabled={type == 'update'}
+                    value={dealershipPassword}
+                    onChange={(e) => setDealershipPassword(e.target.value)}
+                    sx={textfieldStyles}
+                  />
+                </FormControl>
+                <FormControl fullWidth>
+                  <Typography variant="subtitle2">Account Firstname</Typography>
+                  <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    id="account-user-email"
+                    // disabled={type == 'update'}
+                    value={dealershipFirstname}
+                    onChange={(e) => setDealershipFirstname(e.target.value)}
+                    sx={textfieldStyles}
+                  />
+                </FormControl>
+                <FormControl fullWidth>
+                  <Typography variant="subtitle2">Account Lastname</Typography>
+                  <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    id="account-user-email"
+                    // disabled={type == 'update'}
+                    value={dealershipLastname}
+                    onChange={(e) => setDealershipLastname(e.target.value)}
+                    sx={textfieldStyles}
+                  />
+                </FormControl>
+
+
+              </Stack>
+            </div>
+
+            <div style={{ display: type === "add" || type === "update" ? "block" : "none" }}>
               <Typography variant="h6">Account Information</Typography>
               <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
                 <FormControl fullWidth>
@@ -639,7 +783,7 @@ function AddDealership() {
                 </FormControl>
               </Stack>
             </div>
-            <div style={{ display: type == "updateCommission" ? "block" : type == "add" ? "block" : "none" }}>
+            <div style={{ display: type === "addCommission" || type === "updateCommission" ? "block" : "none" }}>
               <br />
               <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
                 <FormControl fullWidth >
@@ -735,7 +879,7 @@ function AddDealership() {
                 >
                   Save
                 </Button>
-                {type != "update" && type != "updateCommission" ?
+                {type != "update" && type != "addCommission" && type != "updateCommission" ?
                   <Button
                     size="large"
                     variant="contained"
@@ -756,8 +900,6 @@ function AddDealership() {
 
               </Stack>
             </div>
-
-
           </>
 
 
@@ -793,3 +935,4 @@ const textfieldStyles = {
 };
 
 export default AddDealership;
+

@@ -494,7 +494,16 @@ function ViewPendingWarranty() {
                                 { text: `Year:`, border: [false, false, false, false], fontSize: 8, bold: true },
                                 { text: `${data.year}`, border: [false, false, false, false], fontSize: 8, bold: false },
                                 { text: `Sale Price:`, border: [false, false, false, false], fontSize: 8, bold: true },
-                                { text: `$ ${warrantySold}`, border: [false, false, false, false], fontSize: 8, bold: false }
+                                // { text: `$ ${warrantySold}`, border: [false, false, false, false], fontSize: 8, bold: false }
+                                {
+                                    text: `$${Number(warrantySold).toLocaleString(undefined, {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                    })} `,
+                                    border: [false, false, false, false],
+                                    fontSize: 8,
+                                    bold: false
+                                }
                             ],
                             [
                                 { text: `Make:`, border: [false, false, false, false], fontSize: 8, bold: true },
@@ -519,7 +528,7 @@ function ViewPendingWarranty() {
 
                             [
                                 { text: `Odometer:`, border: [false, false, false, false], fontSize: 8, bold: true },
-                                { text: `${data.odometerText} KM`, border: [false, false, false, false], fontSize: 8, bold: false },
+                                { text: `${(Number(data.odometerText)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} KM`, border: [false, false, false, false], fontSize: 8, bold: false },
                                 { text: `Finance Company:`, border: [false, false, false, false], fontSize: 8, bold: true },
                                 { text: `${data.financeCompanyText}`, border: [false, false, false, false], fontSize: 8, bold: false }
                             ],
@@ -1113,7 +1122,16 @@ function ViewPendingWarranty() {
                                 { text: `Year:`, border: [false, false, false, false], fontSize: 8, bold: true },
                                 { text: `${data.year}`, border: [false, false, false, false], fontSize: 8, bold: false },
                                 { text: `Sale Price:`, border: [false, false, false, false], fontSize: 8, bold: true },
-                                { text: `$ ${warrantySold}`, border: [false, false, false, false], fontSize: 8, bold: false }
+                                // { text: `$ ${warrantySold}`, border: [false, false, false, false], fontSize: 8, bold: false }
+                                {
+                                    text: `$${Number(warrantySold).toLocaleString(undefined, {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                    })} `,
+                                    border: [false, false, false, false],
+                                    fontSize: 8,
+                                    bold: false
+                                }
                             ],
                             [
                                 { text: `Make:`, border: [false, false, false, false], fontSize: 8, bold: true },
@@ -1138,7 +1156,7 @@ function ViewPendingWarranty() {
 
                             [
                                 { text: `Odometer:`, border: [false, false, false, false], fontSize: 8, bold: true },
-                                { text: `${data.odometerText} KM`, border: [false, false, false, false], fontSize: 8, bold: false },
+                               { text: `${(Number(data.odometerText)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} KM`, border: [false, false, false, false], fontSize: 8, bold: false },
                                 { text: `Finance Company:`, border: [false, false, false, false], fontSize: 8, bold: true },
                                 { text: `${data.financeCompanyText}`, border: [false, false, false, false], fontSize: 8, bold: false }
                             ],

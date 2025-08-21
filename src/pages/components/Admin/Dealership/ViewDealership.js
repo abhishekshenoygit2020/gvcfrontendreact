@@ -18,6 +18,8 @@ import LockIcon from '@material-ui/icons/Lock';
 import AddIcon from '@mui/icons-material/Add';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import { useState, useEffect } from 'react';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 import { useNavigate } from "react-router-dom";
 import { CSVLink } from 'react-csv';
 import axios from '../../../../api/axios';
@@ -63,12 +65,17 @@ function ViewDealership() {
                     [
                         <EditData selectedRow={params.row} />,
                         <BlockUser selectedRow={params.row} />,
-                        <Commission selectedRow={params.row} />
+                        // <Commission selectedRow={params.row} />,
+                        <ManageAccount selectedRow={params.row} />,
+                        <Relationshipusers selectedRow={params.row} />,
+
                     ] :
                     [
                         <EditData selectedRow={params.row} />, ,
                         <UnBlockUser selectedRow={params.row} />,
-                        <Commission selectedRow={params.row} />
+                        // <Commission selectedRow={params.row} />,
+                        <ManageAccount selectedRow={params.row} />,
+                        <Relationshipusers selectedRow={params.row} />,
                     ]
             }
         },
@@ -94,7 +101,7 @@ function ViewDealership() {
                 let dataWithIndex = response.data.data.map((item, index) => ({
                     slNo: index + 1,
                     ...item,
-                     // Assign sequential SL No starting from 1
+                    // Assign sequential SL No starting from 1
                 })) || "";
 
                 dataWithIndex = dataWithIndex.filter(row => row.accountName !== 'GVC');
@@ -134,8 +141,31 @@ function ViewDealership() {
             <Tooltip title="Update Commission">
                 <MonetizationOnIcon style={{ cursor: "pointer" }} onClick={(e) => {
                     e.stopPropagation();
-                    navigate('/AddDealership', { state: { type: "updateCommission", value: props.selectedRow } });
+                    navigate('/AddDealership', { state: { type: "addCommission", value: props.selectedRow } });
 
+                }} />
+            </Tooltip>
+
+        );
+    }
+
+    const ManageAccount = (props) => {
+        return (
+            <Tooltip title="Update Dealership User">
+                <ManageAccountsIcon style={{ cursor: "pointer" }} onClick={(e) => {
+                    e.stopPropagation();
+                    navigate('/AddDealership', { state: { type: "updateUser", value: props.selectedRow } });
+                }} />
+            </Tooltip>
+
+        );
+    }
+    const Relationshipusers = (props) => {
+        return (
+            <Tooltip title="Update Dealership User">
+                <MonetizationOnIcon style={{ cursor: "pointer" }} onClick={(e) => {
+                    e.stopPropagation();
+                    navigate('/RelationshipDealershipUser', { state: { type: "fetchUsers", value: props.selectedRow } });
                 }} />
             </Tooltip>
 
@@ -162,10 +192,6 @@ function ViewDealership() {
 
     const handleSubmit = (e) => {
         navigate('/AddDealership', { state: { type: "add", value: "" } });
-        // const method = "POST";
-        // const data = { oldPassword: currentPassword, newPassword, email: user_email };
-        // const mainURL = URL;
-        // serviceMethod(mainURL, method, data, handleSuccess, handleException);
     }
 
     let filteredRows = dataList;
@@ -225,7 +251,6 @@ function ViewDealership() {
                 />
             </Tooltip>
 
-
         );
     };
 
@@ -243,7 +268,7 @@ function ViewDealership() {
         console.log(data);
     };
 
-    
+
 
     return (
         <div style={{ marginTop: "100px", padding: "0px" }}>
@@ -310,7 +335,7 @@ function ViewDealership() {
                                 sx={{
                                     padding: 2,
                                     display: 'flex',
-                                     justifyContent: 'space-between', // Aligns to the left
+                                    justifyContent: 'space-between', // Aligns to the left
                                     borderBottom: '0.2px solid grey',  // Adds bottom border
                                 }}
                             >

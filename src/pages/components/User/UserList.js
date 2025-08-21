@@ -18,6 +18,7 @@ import Typography from '@mui/material/Typography';
 import BlockIcon from '@mui/icons-material/Block';
 import Alert from '@mui/material/Alert';
 import UserModelComponent from "./UserModelComponent";
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 
 import Snackbar from '@mui/material/Snackbar';
 import { useNavigate } from "react-router-dom";
@@ -85,7 +86,8 @@ const UserList = () => {
                         <PasswordResetLink selectedRow={params.row} />,
                         <BlockUser selectedRow={params.row} />,
                         <EditData selectedRow={params.row} />,
-                        <Commission selectedRow={params.row} />
+                        <Commission selectedRow={params.row} />,
+
                     ] :
                     [
                         // <DeleteData selectedRow={params.row} />,
@@ -170,7 +172,7 @@ const UserList = () => {
                 }} />
             </Tooltip>
         );
-    }
+    }  
 
 
 

@@ -913,8 +913,8 @@ export default function BuildWarranty() {
             if (productName === "") {
                 validateField("Please Select Product");
                 return false;
-            } else if (productName.toLowerCase().includes("unlimited") && parseInt(odometer) > 200000) {
-                alert("Unlimted Product cannot be selected!")
+            } else if (productName.toLowerCase().includes("unlimited") && (parseInt(odometer) > 200000 || commercialVehicle == "Yes")) {
+                alert("Unlimted Product cannot be selectled!")
                 return false;
             }
 
@@ -1391,7 +1391,7 @@ export default function BuildWarranty() {
                             ['', { text: ``, border: [false, false, false, false] }],
                             [
                                 { text: 'Application for GAP Bundle Warranty Coverage', rowSpan: 3, border: [false, false, false, false], fontSize: 10, alignment: 'right', bold: true },
-                                { text: `25 Sheppard Avenue West, Suite 300, North York, Ontario, M2N 6S6, Phone: 905.291.2940`, border: [false, false, false, false], fontSize: 10, alignment: 'right', bold: true }
+                                { text: `1200 Bay Street, Suite #1201 Toronta, Ontario, M5R 2A5, Phone: 905.291.2940`, border: [false, false, false, false], fontSize: 10, alignment: 'right', bold: true }
                             ],
 
                             [{ text: 'Get Covered Canada', border: [false, false, false, false], fontSize: 10, bold: true }, { text: 'claims@getcoveredcanada.com', border: [false, false, false, false], fontSize: 10, alignment: 'right', bold: true }],
@@ -2010,7 +2010,7 @@ export default function BuildWarranty() {
                             ['', { text: ``, border: [false, false, false, false] }],
                             [
                                 { text: 'Application for GAP Bundle Warranty Coverage', rowSpan: 3, border: [false, false, false, false], fontSize: 10, alignment: 'right', bold: true },
-                                { text: `25 Sheppard Avenue West, Suite 300, North York, Ontario, M2N 6S6, Phone: 905.291.2940`, border: [false, false, false, false], fontSize: 10, alignment: 'right', bold: true }
+                                { text: `1200 Bay Street, Suite #1201 Toronta, Ontario,  M5R 2A5, Phone: 905.291.2940`, border: [false, false, false, false], fontSize: 10, alignment: 'right', bold: true }
                             ],
 
                             [{ text: 'Get Covered Canada', border: [false, false, false, false], fontSize: 10, bold: true }, { text: 'claims@getcoveredcanada.com', border: [false, false, false, false], fontSize: 10, alignment: 'right', bold: true }],
@@ -3713,8 +3713,8 @@ export default function BuildWarranty() {
                                 },
                                 { text: ``, border: [false, false, false, false] }
                             ],
-                            ['', { text: `25 Sheppard Avenue West, Suite 300, North York, Ontario,`, fontSize: 10, alignment: 'right', bold: true, border: [false, false, false, false], }],
-                            ['', { text: ` M2N 6S6, Phone: 905.291.2940`, fontSize: 10, bold: true, border: [false, false, false, false], alignment: 'right' }],
+                            ['', { text: `1200 Bay Street, Suite #1201 Toronta, Ontario,`, fontSize: 10, alignment: 'right', bold: true, border: [false, false, false, false], }],
+                            ['', { text: `M5R 2A5, Phone: 905.291.2940`, fontSize: 10, bold: true, border: [false, false, false, false], alignment: 'right' }],
                             ['', { text: `claims@getcoveredcanada.com`, fontSize: 10, bold: true, border: [false, false, false, false], alignment: 'right' }],
                             ['', { text: `www.getcoveredcanada.com`, bold: true, fontSize: 10, border: [false, false, false, false], alignment: 'right' }],
                             [{ text: `Get Covered Canada`, fontSize: 12, bold: true, border: [false, false, false, false] }, { text: ``, bold: true, border: [false, false, false, false] }],
@@ -4282,6 +4282,7 @@ export default function BuildWarranty() {
                                                                 {make}
                                                             </MenuItem>
                                                         ))}
+                                                       
                                                     </Select>
                                                 </FormControl>
 
@@ -4323,7 +4324,7 @@ export default function BuildWarranty() {
                                                         <MenuItem value="">
                                                             <em>Please Select Year</em>
                                                         </MenuItem>
-                                                        {Array.from({ length: 2025 - 1998 + 1 }, (_, index) => (
+                                                        {Array.from({ length: 2026 - 1998 + 1 }, (_, index) => (
                                                             <MenuItem key={index} value={1998 + index}>
                                                                 {1998 + index}
                                                             </MenuItem>
@@ -5888,6 +5889,9 @@ Exceptions:
                                                                                         borderColor: 'lightgray', // Disable focus border change
                                                                                     },
                                                                                 },
+                                                                            }}
+                                                                            InputProps={{
+                                                                                startAdornment: <InputAdornment position="start">$</InputAdornment>,
                                                                             }}
                                                                             value={warrantySoldFor}
                                                                             onChange={(e) => {

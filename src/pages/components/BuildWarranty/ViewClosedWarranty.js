@@ -437,7 +437,16 @@ function ViewClosedWarranty() {
                                 { text: `Year:`, border: [false, false, false, false], fontSize: 8, bold: true },
                                 { text: `${data.year}`, border: [false, false, false, false], fontSize: 8, bold: false },
                                 { text: `Sale Price:`, border: [false, false, false, false], fontSize: 8, bold: true },
-                                { text: `$ ${warrantySold}`, border: [false, false, false, false], fontSize: 8, bold: false }
+                                {
+                                    text: `$ ${Number(warrantySold).toLocaleString(undefined, {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                    })} `,
+                                    border: [false, false, false, false],
+                                    fontSize: 8,
+                                    bold: false
+                                }
+                                // { text: `$ ${warrantySold}`, border: [false, false, false, false], fontSize: 8, bold: false }
                             ],
                             [
                                 { text: `Make:`, border: [false, false, false, false], fontSize: 8, bold: true },
@@ -462,7 +471,8 @@ function ViewClosedWarranty() {
 
                             [
                                 { text: `Odometer:`, border: [false, false, false, false], fontSize: 8, bold: true },
-                                { text: `${data.odometerText} KM`, border: [false, false, false, false], fontSize: 8, bold: false },
+                                // {text: `: $${(totalCost * 1.13).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+                                { text: `${(Number(data.odometerText)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} KM`, border: [false, false, false, false], fontSize: 8, bold: false },
                                 { text: `Finance Company:`, border: [false, false, false, false], fontSize: 8, bold: true },
                                 { text: `${data.financeCompanyText}`, border: [false, false, false, false], fontSize: 8, bold: false }
                             ],
@@ -1056,7 +1066,16 @@ function ViewClosedWarranty() {
                                 { text: `Year:`, border: [false, false, false, false], fontSize: 8, bold: true },
                                 { text: `${data.year}`, border: [false, false, false, false], fontSize: 8, bold: false },
                                 { text: `Sale Price:`, border: [false, false, false, false], fontSize: 8, bold: true },
-                                { text: `$ ${warrantySold}`, border: [false, false, false, false], fontSize: 8, bold: false }
+                                // { text: `$ ${warrantySold}`, border: [false, false, false, false], fontSize: 8, bold: false }
+                                {
+                                    text: `$${Number(warrantySold).toLocaleString(undefined, {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                    })} `,
+                                    border: [false, false, false, false],
+                                    fontSize: 8,
+                                    bold: false
+                                }
                             ],
                             [
                                 { text: `Make:`, border: [false, false, false, false], fontSize: 8, bold: true },
@@ -1081,7 +1100,7 @@ function ViewClosedWarranty() {
 
                             [
                                 { text: `Odometer:`, border: [false, false, false, false], fontSize: 8, bold: true },
-                                { text: `${data.odometerText} KM`, border: [false, false, false, false], fontSize: 8, bold: false },
+                                { text: `${(Number(data.odometerText)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} KM`, border: [false, false, false, false], fontSize: 8, bold: false },
                                 { text: `Finance Company:`, border: [false, false, false, false], fontSize: 8, bold: true },
                                 { text: `${data.financeCompanyText}`, border: [false, false, false, false], fontSize: 8, bold: false }
                             ],
@@ -2621,7 +2640,7 @@ function ViewClosedWarranty() {
         // Convert back to numbers for calculation and update totTrueCost
         totTrueCost = parseFloat(totTrueCost) + parseFloat(liabilityLimit) + parseFloat(unLimitedMileage) + parseFloat(deductible);
 
-        const date = new Date("10-03-2025");
+        const date = new Date(data.CurrentDate);
         const formattedDate = date.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: '2-digit' });
         const docDefinition = {
             pageSize: 'A4',
@@ -2769,12 +2788,12 @@ function ViewClosedWarranty() {
                             [
                                 { text: `Warranty Admin Cost:  `, fontSize: 10, bold: true, border: [false, false, false, true] },
                                 { text: ``, border: [false, false, false, true] },
-                                { text: `$${warrantyAdminCost}`, fontSize: 8, border: [false, false, false, true], alignment: 'right' }
+                                { text: `$${Number(warrantyAdminCost).toFixed(2)}`, fontSize: 8, border: [false, false, false, true], alignment: 'right' }
                             ],
                             [
                                 { text: `Total Cost:  `, fontSize: 10, bold: true, border: [false, false, false, false] },
                                 { text: ``, border: [false, false, false, false] },
-                                { text: `$${warrantyAdminCost}`, fontSize: 8, border: [false, false, false, false], alignment: 'right' }
+                                { text: `$${Number(warrantyAdminCost).toFixed(2)}`, fontSize: 8, border: [false, false, false, false], alignment: 'right' }
                             ],
                             [
                                 { text: ``, fontSize: 10, bold: true, border: [false, false, false, false] },
@@ -2784,15 +2803,15 @@ function ViewClosedWarranty() {
                             [
                                 { text: `Tax 13%:  `, fontSize: 10, bold: true, border: [false, false, false, true] },
                                 { text: ``, border: [false, false, false, true] },
-                                { text: `$${taxCost}`, fontSize: 8, border: [false, false, false, true], alignment: 'right' }
+                                { text: `$${Number(taxCost).toFixed(2)}`, fontSize: 8, border: [false, false, false, true], alignment: 'right' }
                             ],
                             [
                                 { text: `Total Cost:  `, fontSize: 10, bold: true, border: [false, false, false, false] },
                                 { text: ``, border: [false, false, false, false] },
-                                { text: `$${totalCost}`, fontSize: 8, bold: true, border: [false, false, false, false], alignment: 'right' }
+                                { text: `$${Number(totalCost).toFixed(2)}`, fontSize: 8, bold: true, border: [false, false, false, false], alignment: 'right' }
                             ],
                             [
-                                { text: `HST #: 105511554RP002  `, fontSize: 10, bold: true, border: [false, false, false, false] },
+                                { text: `HST #: 737149310  RP0001  `, fontSize: 10, bold: true, border: [false, false, false, false] },
                                 { text: ``, border: [false, false, false, false] },
                                 { text: ``, border: [false, false, false, false], alignment: 'right' }
                             ],
@@ -3089,7 +3108,7 @@ function ViewClosedWarranty() {
                         const isConfirmed = window.confirm("Are you sure you want to delete?");
                         if (isConfirmed) {
                             console.log(props.selectedRow.id);
-                            const data = { id: props.selectedRow.id, user: userName, VINNO: props.selectedRow.vinNo, dealership: props.selectedRow.dealership,deleteStatus:1 };
+                            const data = { id: props.selectedRow.id, user: userName, VINNO: props.selectedRow.vinNo, dealership: props.selectedRow.dealership, deleteStatus: 1 };
                             const mainURL = './dealership/warrantyRestore';
                             serviceMethod(mainURL, "POST", data, handleSuccess, handleException);
                         }
@@ -3386,7 +3405,7 @@ function ViewClosedWarranty() {
                 <DataGrid
                     rows={filteredRows}
                     columns={columns}
-                     pageSizeOptions={[5, 10, 25, 50, 100]}
+                    pageSizeOptions={[5, 10, 25, 50, 100]}
                     pagination
                     initialState={{
                         pagination: {

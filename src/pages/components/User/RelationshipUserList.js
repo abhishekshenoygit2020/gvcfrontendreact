@@ -20,6 +20,7 @@ import Alert from '@mui/material/Alert';
 import RelationshipModelComponent from "./RelationshipUserModelComponent";
 import Snackbar from '@mui/material/Snackbar';
 import { useNavigate } from "react-router-dom";
+
 import axios from "../../../api/axios";
 import LockPersonIcon from '@mui/icons-material/LockPerson';
 import { useAuthContext } from "../../../context/AuthContext";
@@ -84,22 +85,26 @@ const RelationshipUserList = () => {
                         <PasswordResetLink selectedRow={params.row} />,
                         <BlockUser selectedRow={params.row} />,
                         <EditData selectedRow={params.row} />,
+                        <DeleteData selectedRow={params.row} />
                         // <Commission selectedRow={params.row} />
                     ] :
                     [
                         // <DeleteData selectedRow={params.row} />,
                         <BlockUser selectedRow={params.row} />,
-                        <EditData selectedRow={params.row} />
+                        <EditData selectedRow={params.row} />,
+                        // <DeleteData selectedRow={params.row} />
                     ] : user_type == "admin" ?
                     [
                         <PasswordResetLink selectedRow={params.row} />,
                         <UnBlockUser selectedRow={params.row} />,
                         <EditData selectedRow={params.row} />,
+                        <DeleteData selectedRow={params.row} />
                         // <Commission selectedRow={params.row} />
                     ] :
                     [
                         <UnBlockUser selectedRow={params.row} />,
-                        <EditData selectedRow={params.row} />
+                        <EditData selectedRow={params.row} />,
+                        // <DeleteData selectedRow={params.row} />
                     ];
             }
         },
@@ -172,6 +177,25 @@ const RelationshipUserList = () => {
         );
     }
 
+    const DeleteData = (props) => {
+        return (
+            <Tooltip title="Delete">
+                <DeleteIcon style={{ cursor: "pointer" }}
+                    onClick={() => {
+                        const isConfirmed = window.confirm("Are you sure you want to delete?");
+                        if (isConfirmed) {
+                            console.log(props.selectedRow.id);
+                            const data = { id: props.selectedRow.id };
+                            const mainURL = './user/deletesByIdRelationshipUser';
+                            serviceUpdateMethod(mainURL, data, handleSuccess, handleException);
+                        }
+                    }}
+                />
+            </Tooltip>
+
+        );
+    };
+
 
 
     const loadData = async () => {
@@ -180,7 +204,7 @@ const RelationshipUserList = () => {
             const dataWithIndex = response.data.data.map((item, index) => ({
                 ...item,
                 slNo: index + 1, // Assign sequential SL No starting from 1
-                userRole:item.user_type,
+                userRole: item.user_type,
                 user_type: item.user_type == "admin" ? "ADMIN" : item.user_type == "dealership" ? "Dealership Admin" : item.user_type == "user" ? "Dealership User" : item.user_type == "manager" ? "Dealership Manager" : item.user_type
             })) || "";
             setDataList(dataWithIndex || '');
@@ -206,21 +230,7 @@ const RelationshipUserList = () => {
         );
     };
 
-    const DeleteData = (props) => {
-        return (
-            <DeleteIcon style={{ cursor: "pointer" }}
-                onClick={() => {
-                    const isConfirmed = window.confirm("Are you sure you want to delete?");
-                    if (isConfirmed) {
-                        const data = { id: props.selectedRow.id, type: "delete" };
-                        const mainURL = './user' + '/' + data.id + '/deleteUser';
-                        serviceMethod(mainURL, data, handleSuccess, handleException);
-                    }
-
-                }}
-            />
-        );
-    };
+   
 
     const PasswordResetLink = (props) => {
         return (
@@ -367,8 +377,8 @@ const RelationshipUserList = () => {
                                 fullWidth  // Make it full width
                             />
                         </Grid>
-                        <Grid item xs={7} />
-                        <Grid item xs={2}>
+                        <Grid item xs={5} />
+                        <Grid item xs={4}>
                             <Button variant="contained"
                                 sx={{
                                     backgroundColor: '#0d2365',  // Change background color to navy

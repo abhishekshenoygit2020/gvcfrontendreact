@@ -107,6 +107,7 @@ export const AuthContextProvider = ({ children }) => {
     ApplicationStore().setStorage('accovmicno', userData.accovmicno);
     ApplicationStore().setStorage('salesrep', userData.salesrep);
     ApplicationStore().setStorage('commission', userData.commission);
+    ApplicationStore().setStorage('isRelationshipManager', userData.isRelationshipManager);
 
     // setStudent_id(userData.student_id);
     setLoggedIn(true);
@@ -129,6 +130,7 @@ export const AuthContextProvider = ({ children }) => {
     ApplicationStore().removeStorage('userName');
     ApplicationStore().removeStorage('salesrep');
     ApplicationStore().removeStorage('commission');
+    ApplicationStore().removeStorage('isRelationshipManager');
 
     setUser(null);
     setLoggedIn(false);
