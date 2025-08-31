@@ -13,6 +13,7 @@ import { Box, Stack, Typography } from "@mui/material";
 import styled from "styled-components";
 import { NavLink } from "react-router-dom";
 import { useLocation } from "react-router-dom";
+import axios from "../../../api/axios";
 import StoreIcon from "@mui/icons-material/Store";
 import LOGOimg from "./../../../../src/Images/GVClogo.png";
 // import LOGO from "./../../../../src/Images/CarLogo.png";
@@ -310,7 +311,7 @@ const AppDrawerSidebar = ({
         {
           path: "/ViewRestoreWarranty",
           name: "Recycle Bin",
-          icon:<RestoreFromTrashIcon />,
+          icon: <RestoreFromTrashIcon />,
         },
       ],
     },
@@ -399,6 +400,30 @@ const AppDrawerSidebar = ({
     // },
   ];
 
+  const handleNotificationClick = async (event) => {
+    // setNotificationAnchorEl(event.currentTarget);
+
+    try {
+
+      const response = await axios.post("/notifications/markAllRead");
+
+      console.log("test");
+
+      if (response.data.status === 401) {
+        // setDataList(""); // Keep dummy data in case of unauthorized response
+      } else {
+        console.log(response.data.data)
+        // setUnreadCount(0); // clear badge immediately
+        // setNotifications((prev) =>
+        //   prev.map((n) => ({ ...n, status: 1 }))
+        // );
+
+      }
+    } catch (err) {
+      console.error("Failed to mark as read", err);
+    }
+  };
+
   const drawerContent = (
     <div>
       <Stack spacing={2} sx={{ p: 3, margin: "20px 0" }}>
@@ -451,7 +476,7 @@ const AppDrawerSidebar = ({
                       <StyledLink
                         key={subItem.path}
                         to={subItem.path}
-                        // className={({ isActive }) => (isActive ? 'active' : '')}
+                      // className={({ isActive }) => (isActive ? 'active' : '')}
                       >
                         <Tooltip title={subItem.name} arrow>
                           <ListItemButton
@@ -476,11 +501,13 @@ const AppDrawerSidebar = ({
                               },
                             }}
                             onClick={() => {
+
                               setSidebarItemIndex(item.name);
                               ApplicationStore().setStorage(
                                 "sideBarIndex",
                                 subItem.name
                               );
+
                               setSidebarSettingsIndex(-1);
                             }}
                           >
@@ -511,7 +538,9 @@ const AppDrawerSidebar = ({
               <ListItem
                 disablePadding
                 onClick={() => {
+                  console.log("subname" + item.name);
                   setSidebarItemIndex(item.name);
+                  handleNotificationClick();
                   ApplicationStore().setStorage("sideBarIndex", item.name);
                   setSidebarSettingsIndex(-1);
                 }}
@@ -620,6 +649,7 @@ const AppDrawerSidebar = ({
             <ListItem
               disablePadding
               onClick={() => {
+
                 setSidebarSettingsIndex(index);
                 setSidebarItemIndex(-1);
               }}

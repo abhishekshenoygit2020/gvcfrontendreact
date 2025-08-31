@@ -75,9 +75,7 @@ function ResponsiveAppBar({
   }, []);
   console.log("notifications", notifications);
 
-  const handleNotificationClick = (event) => {
-    setNotificationAnchorEl(event.currentTarget);
-  };
+
 
   const handleNotificationClose = () => {
     setNotificationAnchorEl(null);
@@ -118,6 +116,30 @@ function ResponsiveAppBar({
       );
     }
   }, [userType]);
+
+  const handleNotificationClick = async (event) => {
+    setNotificationAnchorEl(event.currentTarget);
+
+    try {      
+
+      const response = await axios.post("/notifications/markAllRead");
+
+      console.log("test");
+
+      if (response.data.status === 401) {
+        // setDataList(""); // Keep dummy data in case of unauthorized response
+      } else {
+        console.log(response.data.data)
+        setUnreadCount(0); // clear badge immediately
+        setNotifications((prev) =>
+          prev.map((n) => ({ ...n, status: 1 }))
+        );
+
+      }
+    } catch (err) {
+      console.error("Failed to mark as read", err);
+    }
+  };
 
   return (
     <AppBar
@@ -228,7 +250,7 @@ function ResponsiveAppBar({
             <IconButton
               size="large"
               onClick={handleNotificationClick}
-              sx={{ color: "navy", mr: 1, display:  isRelationshipManager == 0 ? "none": "flex" }}
+              sx={{ color: "navy", mr: 1, display: isRelationshipManager == 0 ? "none" : "flex" }}
             >
               <Badge badgeContent={unreadCount} color="error">
                 <NotificationsIcon />
@@ -248,7 +270,7 @@ function ResponsiveAppBar({
                 horizontal: "right",
               }}
             >
-              { notifications.length > 0 ? (
+              {notifications.length > 0 ? (
                 <>
                   {notifications.slice(0, 6).map((note, index) => (
                     <MenuItem key={index} onClick={handleNotificationClose}>
@@ -261,6 +283,7 @@ function ResponsiveAppBar({
                       onClick={() => {
                         handleNotificationClose();
                         // Redirect to full notifications page
+                        setNotifications([]);
                         navigate("/notifications");
                       }}
                       sx={{ justifyContent: "center", fontWeight: "bold" }}

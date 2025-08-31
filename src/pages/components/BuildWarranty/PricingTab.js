@@ -13,7 +13,9 @@ import PricingPremiumGCC from './PricingPremiumGCC';
 import PricingSubCategoryTab from './PricingSubCategoryTab';
 import PricingTrimCares from './PricingTrimCares';
 import PricingEssantialGCC from './PricingEssentialGCC';
+import ApplicationStore from '../../../utils/localStorageUtil';
 import BronzeTab from './BronzeTab';
+import { json } from 'react-router-dom';
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -47,10 +49,10 @@ function a11yProps(index) {
   };
 }
 
-export default function PricingTab({ packages, setPackages, packagesTypes, setPackagesType, productIndex, setProductIndex, setProductName, setProductCost, handleNext, setPackagesText, setGiftCardCredit, setOriginalCost, productRef}) {
+export default function PricingTab({ packages, setPackages, packagesTypes, setPackagesType, productIndex, setProductIndex, setProductName, setProductCost, handleNext, setPackagesText, setGiftCardCredit, setOriginalCost, productRef }) {
   const theme = useTheme();
   const [value, setValue] = React.useState(packages);
-
+  const dealership = ApplicationStore().getStorage('dealership');
   const [packagesTypesLabel, setPackagesTypesLabel] = useState([]);
 
   const handleChange = (event, newValue) => {
@@ -113,38 +115,77 @@ export default function PricingTab({ packages, setPackages, packagesTypes, setPa
           aria-label="full width tabs example"
         >
           {/* Customized Tab styling for dark blue background when selected */}
-          {packagesTypesLabel.map((label, index) => (
-            <Tab label={label.categoryName} {...a11yProps(index)} key={index} sx={{
-              bgcolor: value === index ? '#b21b1f' : '#313031',  // Dark blue when active
-              color: value === index ? 'white' : 'white'        // White text when active
-            }} />
-          ))}
+          {packagesTypesLabel.map((label, index) => {
+            let parsedVis = [];
+            try {
+              if (label.dealershipVisiblity && label.dealershipVisiblity.trim() !== "") {
+                parsedVis = JSON.parse(label.dealershipVisiblity);
+              }
+            } catch (e) {
+              console.warn("Invalid dealershipVisiblity:", label.dealershipVisiblity);
+              parsedVis = [];
+            }
+
+            const dealer42 = parsedVis.find((d) => parseInt(d.id) === parseInt(dealership));
+
+            const shouldShow = parsedVis.length === 0 || !dealer42 || dealer42.visibility == "Yes";
+
+            return (
+              <Tab
+                label={label.categoryName}
+                {...a11yProps(index)}
+                key={index}
+                sx={{
+                  bgcolor: value === index ? "#b21b1f" : "#313031",
+                  color: "white",
+                  display: shouldShow ? "block" : "none", // show if null/empty or Yes
+                }}
+              />
+            );
+          })}
         </Tabs>
       </AppBar>
-      {packagesTypesLabel.map((label, index) => (
-        <TabPanel value={value} index={index} dir={theme.direction}>
-          <PricingSubCategoryTab categoryId={label.id} packagesTypes={packagesTypes} setPackagesType={setPackagesType} productIndex={productIndex} setProductIndex={setProductIndex} setProductName={setProductName} setProductCost={setProductCost} setGiftCardCredit={setGiftCardCredit} handleNext={handleNext} setOriginalCost={setOriginalCost} productRef={productRef} />
-        </TabPanel>
-      ))}
+      {
+        packagesTypesLabel.map((label, index) => {
+          let parsedVisN = [];
+          try {
+            if (label.dealershipVisiblity && label.dealershipVisiblity.trim() !== "") {
+              parsedVisN = JSON.parse(label.dealershipVisiblity);
+            }
+          } catch (e) {
+            console.warn("Invalid dealershipVisiblity:", label.dealershipVisiblity);
+            parsedVisN = [];
+          }
 
-      {/* <TabPanel value={value} index={0} dir={theme.direction}>
-        <PricingPremiumGCC packagesTypes={packagesTypes} setPackagesType={setPackagesType} productIndex={productIndex} setProductIndex={setProductIndex} setProductName={setProductName} setProductCost={setProductCost} handleNext={handleNext} />
-      </TabPanel>
-      <TabPanel value={value} index={1} dir={theme.direction}>
-        <PricingSubTabAppearnce packagesTypes={packagesTypes} setPackagesType={setPackagesType} productIndex={productIndex} setProductIndex={setProductIndex} setProductName={setProductName} setProductCost={setProductCost} handleNext={handleNext} />
-      </TabPanel>
-      <TabPanel value={value} index={2} dir={theme.direction}>
-        <PricingEssantialGCC packagesTypes={packagesTypes} setPackagesType={setPackagesType} productIndex={productIndex} setProductIndex={setProductIndex} setProductName={setProductName} setProductCost={setProductCost} handleNext={handleNext} />
-      </TabPanel>
-      <TabPanel value={value} index={3} dir={theme.direction}>
-        <PricingTrimCares packagesTypes={packagesTypes} setPackagesType={setPackagesType} productIndex={productIndex} setProductIndex={setProductIndex} setProductName={setProductName} setProductCost={setProductCost} handleNext={handleNext} />
-      </TabPanel>
-      <TabPanel value={value} index={4} dir={theme.direction}>
-        <BronzeTab packagesTypes={packagesTypes} setPackagesType={setPackagesType} productIndex={productIndex} setProductIndex={setProductIndex} setProductName={setProductName} setProductCost={setProductCost} handleNext={handleNext} />
-      </TabPanel>
-      <TabPanel value={value} index={5} dir={theme.direction}>
-        <PricingSubTabGapFinancial packagesTypes={packagesTypes} setPackagesType={setPackagesType} productIndex={productIndex} setProductIndex={setProductIndex} setProductName={setProductName} setProductCost={setProductCost} handleNext={handleNext} />
-      </TabPanel> */}
+          const dealer42 = parsedVisN.find((d) => parseInt(d.id) === parseInt(dealership));
+
+          const shouldShow = parsedVisN.length === 0 || !dealer42 || dealer42.visibility == "Yes";
+
+          return (
+            <TabPanel
+              key={index}
+              value={value}
+              index={index}
+              dir={theme.direction}
+            >
+              <PricingSubCategoryTab
+                categoryId={label.id}
+                packagesTypes={packagesTypes}
+                setPackagesType={setPackagesType}
+                productIndex={productIndex}
+                setProductIndex={setProductIndex}
+                setProductName={setProductName}
+                setProductCost={setProductCost}
+                setGiftCardCredit={setGiftCardCredit}
+                handleNext={handleNext}
+                setOriginalCost={setOriginalCost}
+                productRef={productRef}
+                shouldShow={shouldShow}
+              />
+            </TabPanel>
+          );
+        })
+      }
     </Box>
   );
 }

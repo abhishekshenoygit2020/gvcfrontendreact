@@ -9,6 +9,7 @@ import Box from '@mui/material/Box';
 import axios from '../../../api/axios';
 import GoldCoreA from './PricingPremiumGCC/GoldCoreA';
 import ProductCategoryList from './PricingPremiumGCC/ProductCategoryList';
+import ApplicationStore from '../../../utils/localStorageUtil';
 import GoldCoreB from './PricingPremiumGCC/GoldCoreB';
 import PremiumGCCA from './PricingPremiumGCC/PremiumGCCA';
 import PremiumGCCB from './PricingPremiumGCC/PremiumGCCB';
@@ -21,6 +22,7 @@ import PremiumC from './PricingPremiumGCC/PremiumC';
 
 function TabPanel(props) {
     const { children, value, index, ...other } = props;
+
 
     return (
         <div
@@ -61,24 +63,24 @@ const packagesLabelOLD = [
     "Gold Elite Hi-Tech No Per Claim Max",
 
 ];
-export default function PricingSubCategoryTab({ categoryId, packagesTypes, setPackagesType, productIndex, setProductIndex, setProductName, setProductCost, setGiftCardCredit, handleNext, setOriginalCost, productRef}) {
+export default function PricingSubCategoryTab({ categoryId, packagesTypes, setPackagesType, productIndex, setProductIndex, setProductName, setProductCost, setGiftCardCredit, handleNext, setOriginalCost, productRef,shouldShow }) {
     const theme = useTheme();
     const [packagesLabel, setPackagesLabel] = useState([]);
     const [value, setValue] = useState(2);
-    
+    const dealership = ApplicationStore().getStorage('dealership');
 
-    const [products,setProducts] = useState([]);
-    const [features,setFeatures] = useState('');
+    const [products, setProducts] = useState([]);
+    const [features, setFeatures] = useState('');
 
     const handleChange = (event, newValue) => {
-        setValue(newValue);       
+        setValue(newValue);
         setPackagesType(newValue);
         // console.log("packagesType value text"+ packagesLabel[newValue].subcategory);
     };
 
     useEffect(() => {
         // loadCategory();
-        console.log("packagesTypes abhi"+packagesTypes)
+        console.log("packagesTypes abhi" + packagesTypes)
         console.log("categoryId" + categoryId);
         if (categoryId) {
             // setValue(1);
@@ -101,10 +103,10 @@ export default function PricingSubCategoryTab({ categoryId, packagesTypes, setPa
                 //     slNo: index + 1, // Assign sequential SL No starting from 1
                 // })) || "";
 
-                setPackagesLabel(responseData);      
+                setPackagesLabel(responseData);
 
-                setValue(packagesTypes);        
-                
+                setValue(packagesTypes);
+
                 // console.log("category data" + JSON.stringify(responseData.subcategories));
             }
         } catch (err) {
@@ -117,7 +119,7 @@ export default function PricingSubCategoryTab({ categoryId, packagesTypes, setPa
 
 
     return (
-        <Box sx={{ bgcolor: 'background.paper', width: '100%' }}> {/* Full-width */}
+        <Box sx={{ bgcolor: 'background.paper', width: '100%' , display: shouldShow ? "block" : "none" }}> {/* Full-width */}
             <AppBar position="static" sx={{ width: '100%', bgcolor: 'rgb(139 92 246 /1)', color: 'white' }}> {/* Full-width AppBar */}
                 <Tabs
                     value={value}
@@ -128,21 +130,79 @@ export default function PricingSubCategoryTab({ categoryId, packagesTypes, setPa
                     aria-label="full width tabs example"
                 >
                     {/* Customized Tab styling for dark blue background when selected */}
-                    {packagesLabel.map((label, index) => (
-                        <Tab label={label.subcategory} {...a11yProps(index)} key={index} sx={{
-                            bgcolor: value === index ? '#b21b1f' : '#313031',  // Dark blue when active
-                            color: value === index ? 'white' : 'white'        // White text when active
-                        }} />
-                    ))}
+                    {packagesLabel.map((label, index) => {
+                        let parsedVis = [];
+                        try {
+                            if (label.dealershipVisiblity && label.dealershipVisiblity.trim() !== "") {
+                                parsedVis = JSON.parse(label.dealershipVisiblity);
+                            }
+                        } catch (e) {
+                            console.warn("Invalid dealershipVisiblity:", label.dealershipVisiblity);
+                            parsedVis = [];
+                        }
+
+                        const dealer42 = parsedVis.find((d) => parseInt(d.id) === parseInt(dealership));
+
+                        const shouldShow = parsedVis.length === 0 || !dealer42 || dealer42.visibility == "Yes";
+
+                        return (
+                            <Tab
+                                label={label.subcategory}
+                                {...a11yProps(index)}
+                                key={index}
+                                sx={{
+                                    bgcolor: value === index ? "#b21b1f" : "#313031",
+                                    color: "white",
+                                    display: shouldShow ? "block" : "none", // show if null/empty or Yes
+                                }}
+                            />
+                        );
+                    })}
                 </Tabs>
             </AppBar>
 
             {
-                packagesLabel.map((label, index) => (
-                    <TabPanel value={value} index={index} dir={theme.direction}>
-                        <ProductCategoryList categoryId={categoryId} subcategory={label.subcategory} productIndex={productIndex} setProductIndex={setProductIndex} setProductName={setProductName} setProductCost={setProductCost} setGiftCardCredit={setGiftCardCredit} handleNext={handleNext} setOriginalCost={setOriginalCost}  productRef={productRef}/>
-                    </TabPanel>
-                ))
+                packagesLabel.map((label, index) => {
+                    let parsedVisN = [];
+                    try {
+                        if (label.dealershipVisiblity && label.dealershipVisiblity.trim() !== "") {
+                            parsedVisN = JSON.parse(label.dealershipVisiblity);
+                        }
+                    } catch (e) {
+                        console.warn("Invalid dealershipVisiblity:", label.dealershipVisiblity);
+                        parsedVisN = [];
+                    }
+
+                    const dealer42 = parsedVisN.find((d) => parseInt(d.id) === parseInt(dealership));
+
+                    const shouldShow = parsedVisN.length === 0 || !dealer42 || dealer42.visibility == "Yes";
+
+                    return (
+                        <TabPanel
+                            key={index}
+                            value={value}
+                            index={index}
+                            dir={theme.direction}
+                        >
+                            <ProductCategoryList
+                                categoryId={categoryId}
+                                subcategory={label.subcategory}
+                                productIndex={productIndex}
+                                setProductIndex={setProductIndex}
+                                setProductName={setProductName}
+                                setProductCost={setProductCost}
+                                setGiftCardCredit={setGiftCardCredit}
+                                handleNext={handleNext}
+                                setOriginalCost={setOriginalCost}
+                                productRef={productRef}
+                                shouldShow={shouldShow}
+                            />
+
+
+
+                        </TabPanel>
+                    );
+                })
             }
 
             {/* <TabPanel value={value} index={0} dir={theme.direction}>                
@@ -164,6 +224,6 @@ export default function PricingSubCategoryTab({ categoryId, packagesTypes, setPa
             <TabPanel value={value} index={5} dir={theme.direction}>
                 <PremiumGCCE productIndex={productIndex} setProductIndex={setProductIndex} setProductName={setProductName} setProductCost={setProductCost} handleNext={handleNext} />
             </TabPanel> */}
-        </Box>
+        </Box >
     );
 }

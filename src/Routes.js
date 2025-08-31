@@ -47,6 +47,8 @@ import NotificationsPage from "./pages/components/Admin/Notifications/Notificati
 import ViewRestoreWarranty from "./pages/components/BuildWarranty/ViewRestoreWarranty";
 import ViewInvoicingDetailData from "./pages/components/BuildWarranty/ViewInvoicingDetailData";
 import RelationshipDealershipUser from "./pages/components/Admin/Dealership/RelationshipDealershipUser";
+import UpdateDealershipVisiblity from "./pages/components/Admin/Category/UpdateDealershipVisiblity";
+import UpdateSubCatDealershipVisiblity from "./pages/components/Admin/ManageWarantyProducts/UpdateSubcatDealershipVisiblity";
 
 const MainRoutes = () => {
   return (
@@ -66,6 +68,8 @@ const MainRoutes = () => {
           <Route path="/Dashboard" element={<Dashboard />} />
           <Route path="/A" element={<Dashboard />} />
           <Route path="/BuildWarranty" element={<BuildWarranty />} />
+          <Route path="/UpdateDealershipVisiblity" element={<UpdateDealershipVisiblity />} />
+          <Route path="/UpdateSubCatDealershipVisiblity" element={<UpdateSubCatDealershipVisiblity />} />
           <Route
             path="/RelationshipUserList"
             element={<RelationshipUserList />}

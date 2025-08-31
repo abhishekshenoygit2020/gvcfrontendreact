@@ -10,6 +10,7 @@ import TaskIcon from '@mui/icons-material/Task';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/DeleteOutlined';
 import Snackbar from '@mui/material/Snackbar';
+import PreviewIcon from '@mui/icons-material/Preview';
 import Alert from '@mui/material/Alert';
 import AddIcon from '@mui/icons-material/Add';
 import { useState, useEffect } from 'react';
@@ -64,9 +65,9 @@ function ViewCategory() {
             getActions: (params) => {
                 return [
                     // <EditData selectedRow={params.row}/>,
-                    // <DeleteData selectedRow={params.row} />,                        
-                    // <Block selectedRow={params.row} />
+                    // <DeleteData selectedRow={params.row} />,     
                     <EditData selectedRow={params.row} />,
+                    <Visiblity selectedRow={params.row} />,
                     <DeleteData selectedRow={params.row} />
                 ];
             }
@@ -121,18 +122,30 @@ function ViewCategory() {
         );
     }
 
+    const Visiblity = (props) => {
+        return (
+            <Tooltip title="Update Visiblity">
+                <PreviewIcon style={{ cursor: "pointer" }} onClick={(e) => {
+                    e.stopPropagation();
+                    navigate('/UpdateDealershipVisiblity', { state: { type: "updateVisiblity", value: props.selectedRow } });
+                }} />
+            </Tooltip>
+
+        );
+    }
+
     const DeleteData = (props) => {
         return (
             <Tooltip title="Delete">
-                <DeleteIcon style={{ cursor: "pointer" }}                
+                <DeleteIcon style={{ cursor: "pointer" }}
                     onClick={() => {
                         const isConfirmed = window.confirm("Are you sure you want to delete?");
-                        if(isConfirmed){
+                        if (isConfirmed) {
                             console.log(props.selectedRow.id);
                             const data = { id: props.selectedRow.id };
                             const mainURL = 'dealership/' + data.id + '/deletesByIdcategory';
                             serviceMethod(mainURL, data, handleSuccess, handleException);
-                        }                        
+                        }
                     }}
                 />
             </Tooltip>
@@ -141,42 +154,42 @@ function ViewCategory() {
     };
 
     const serviceMethod = async (mainURL, method, data, handleSuccess, handleException) => {
-    
-            try {
-                const response = await axios.post(mainURL, data);
-                return handleSuccess(response.data);
-    
-            } catch (err) {
-                if (!err?.response) {
-                    console.log("No server response");
-                } else {
-                    return handleException(err?.response.data);
-                }
+
+        try {
+            const response = await axios.post(mainURL, data);
+            return handleSuccess(response.data);
+
+        } catch (err) {
+            if (!err?.response) {
+                console.log("No server response");
+            } else {
+                return handleException(err?.response.data);
             }
-        };
-    
-        const handleSuccess = (data) => {
-            console.log("data response", data);
-            setSeverity("success");
-            setMessage(data.data);
-            setAlertopen(true);
-            setTimeout(() => {
-                setTrigger(true);  // This will trigger useEffect
-                setAlertopen(false);
-            }, 3000); // Matches autoHideDuration
-    
         }
-    
-        const handleException = (data) => {
-            console.log("data error", data);
-            setSeverity("error");
-            setMessage(data.data);
-            setAlertopen(true);
-            setTimeout(() => {
-                setTrigger(true);  // This will trigger useEffect
-                setAlertopen(false);
-            }, 3000); // Matches autoHideDuration
-        }
+    };
+
+    const handleSuccess = (data) => {
+        console.log("data response", data);
+        setSeverity("success");
+        setMessage(data.data);
+        setAlertopen(true);
+        setTimeout(() => {
+            setTrigger(true);  // This will trigger useEffect
+            setAlertopen(false);
+        }, 3000); // Matches autoHideDuration
+
+    }
+
+    const handleException = (data) => {
+        console.log("data error", data);
+        setSeverity("error");
+        setMessage(data.data);
+        setAlertopen(true);
+        setTimeout(() => {
+            setTrigger(true);  // This will trigger useEffect
+            setAlertopen(false);
+        }, 3000); // Matches autoHideDuration
+    }
 
 
     const handleSubmit = (e) => {
@@ -229,7 +242,7 @@ function ViewCategory() {
                 <DataGrid
                     rows={dataList}
                     columns={columns}
-                   pageSizeOptions={[5, 10, 25, 50, 100]}
+                    pageSizeOptions={[5, 10, 25, 50, 100]}
                     pagination
                     initialState={{
                         pagination: {
@@ -269,16 +282,16 @@ function ViewCategory() {
                     }}
                 />
             </Box>
-             <Snackbar open={alertOpen} autoHideDuration={6000} onClose={handleCloseSnack}>
-                                            <Alert
-                                                onClose={handleCloseSnack}
-                                                severity={severity}
-                                                variant="filled"
-                                                sx={{ width: '100%' }}
-                                            >
-                                                {message}
-                                            </Alert>
-                                        </Snackbar>
+            <Snackbar open={alertOpen} autoHideDuration={6000} onClose={handleCloseSnack}>
+                <Alert
+                    onClose={handleCloseSnack}
+                    severity={severity}
+                    variant="filled"
+                    sx={{ width: '100%' }}
+                >
+                    {message}
+                </Alert>
+            </Snackbar>
 
         </div>
     );

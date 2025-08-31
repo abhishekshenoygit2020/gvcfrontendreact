@@ -16,6 +16,9 @@ import { FormControl } from '@mui/material';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import Snackbar from '@mui/material/Snackbar';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import IconButton from '@mui/material/IconButton';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import JoditEditor from "jodit-react"
 import Alert from '@mui/material/Alert';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
@@ -63,7 +66,7 @@ function WarrantyProducts() {
     const [salesrepArray, setSalesrepArray] = useState([]);
     const [categoryList, setCategoryList] = useState([]);
     const [subcategoryList, setsubcategoryList] = useState([]);
-    const [productData, setProductData] = useState([{ productName: "", productPrice: "" }])
+    const [productData, setProductData] = useState([{ productName: "", productPrice: "", visiblity: 1 }])
     const classes = useStyles();
     const editor = useRef(null);
     const [content, setContent] = useState("");
@@ -115,7 +118,7 @@ function WarrantyProducts() {
 
         const data = { userDealership, userSalesrep, warrantyprotection, subCat, warrantyprotection, category, subCategory, features: JSON.stringify(content), products: JSON.stringify(productData), pdf }
 
-        // console.log("Content:"+JSON.stringify(content));
+        console.log("Content:" + JSON.stringify(productData));
         // console.log("Product Data:"+JSON.stringify(productData));
         if (type === "add") {
             const mainURL = URL + '/add';
@@ -283,7 +286,7 @@ function WarrantyProducts() {
         } else {
             setId("");
             setCategory("");
-            setProductData([{ productName: "", productPrice: "" }]);
+            setProductData([{ productName: "", productPrice: "", visiblity: 1 }]);
             setSubCategory("");
             setContent("");
 
@@ -293,7 +296,7 @@ function WarrantyProducts() {
     }, [type, value]);
 
     const handleSaveProduct = () => {
-        setProductData([...productData, { productName: "", productPrice: "" }])
+        setProductData([...productData, { productName: "", productPrice: "", visiblity: 1 }])
     }
 
     const loadSubCategory = async (id) => {
@@ -416,17 +419,36 @@ function WarrantyProducts() {
         setProductData(onchangeVal)
     }
 
+    const handleProductPriceChange = (i, e) => {
+        const onchangeVal = [...productData]
+        onchangeVal[i]["productPrice"] = e.target.value
+        setProductData(onchangeVal)
+    }
+
+    const toggleVisibility = (i) => {
+        // setProductData((prev) => {
+        //     const updated = [...prev];
+        //     updated[i] = {
+        //         ...updated[i],
+        //         visibility: updated[i].visibility === 1 ? 0 : 1
+        //     };
+        //     return updated;
+        // });
+
+        const onchangeVal = [...productData]
+        onchangeVal[i]["visiblity"] = onchangeVal[i]["visiblity"] == 0 ? 1 : 0;
+        setProductData(onchangeVal)
+
+
+    };
+
     const handleProductDescriptionChange = (i, e) => {
         const onchangeVal = [...productData]
         onchangeVal[i]["productDescription"] = e.target.value
         setProductData(onchangeVal)
     }
 
-    const handleProductPriceChange = (i, e) => {
-        const onchangeVal = [...productData]
-        onchangeVal[i]["productPrice"] = e.target.value
-        setProductData(onchangeVal)
-    }
+
 
     const handleDelete = (i) => {
         const deleteVal = [...productData]
@@ -629,6 +651,7 @@ function WarrantyProducts() {
                                 id="demo-simple-select"
                                 labelId="demo-simple-select-label"
                                 value={category}
+                                disabled={type == 'updateDealershipProduct' || type == "updateSalerepProduct" || type == "salesrepCustom" || type == "dealershipCustom"}
                                 onChange={(e) => { setCategory(e.target.value); fetchsubcategory(e) }}
                                 label="Category"
                             >
@@ -649,7 +672,7 @@ function WarrantyProducts() {
                             <Select
                                 id="demo-simple-select"
                                 labelId="demo-simple-select-label"
-
+                                disabled={type == 'updateDealershipProduct' || type == "updateSalerepProduct" || type == "salesrepCustom" || type == "dealershipCustom"}
                                 value={subCat}
                                 onChange={(e) => {
                                     setSubCat(e.target.value);
@@ -680,6 +703,7 @@ function WarrantyProducts() {
                             <Select
                                 id="demo-simple-select"
                                 labelId="demo-simple-select-label"
+                                disabled={type == 'updateDealershipProduct' || type == "updateSalerepProduct" || type == "salesrepCustom" || type == "dealershipCustom"}
                                 value={warrantyprotection}
                                 onChange={(e) => {
                                     setWarrantyprotection(e.target.value);
@@ -834,22 +858,38 @@ function WarrantyProducts() {
                                         sx={textfieldStyles}
                                     />
                                 </FormControl>
-                                <Button
-                                    // startIcon={<AddIcon fontSize="var(--icon-fontSize-md)" />}
-                                    size="medium"
-                                    variant="contained"
-                                    sx={{
-                                        backgroundColor: '#0d2365',
-                                        '&:hover': {
-                                            backgroundColor: '#0d2365',
-                                        },
-                                        borderRadius: '5px',
-                                        padding: ''
-                                    }}
-                                    onClick={() => handleDelete(index)}
-                                >
-                                    <DeleteOutlineIcon />
-                                </Button>
+                                {
+
+                                    type == "salesrepCustom" || type == "dealershipCustom" || type == "updateSalerepProduct" || type == "updateDealershipProduct" ?
+
+                                        <IconButton
+                                            onClick={() => toggleVisibility(index)}
+                                            color="primary"
+                                        >
+                                            {product.visiblity === 1 ? (
+                                                <VisibilityIcon />
+                                            ) : (
+                                                <VisibilityOffIcon />
+                                            )}
+                                        </IconButton> :
+                                        <Button
+                                            // startIcon={<AddIcon fontSize="var(--icon-fontSize-md)" />}
+                                            size="medium"
+                                            variant="contained"
+                                            sx={{
+                                                backgroundColor: '#0d2365',
+                                                '&:hover': {
+                                                    backgroundColor: '#0d2365',
+                                                },
+                                                borderRadius: '5px',
+                                                padding: ''
+                                            }}
+                                            onClick={() => handleDelete(index)}
+                                        >
+                                            <DeleteOutlineIcon />
+                                        </Button>
+                                }
+
 
                             </Stack>
 

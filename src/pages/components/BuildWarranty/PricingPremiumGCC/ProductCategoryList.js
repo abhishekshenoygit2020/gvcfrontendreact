@@ -120,7 +120,7 @@ const tabContents = [
     <h1>36 Months Content</h1>, // Content for 36 Months tab
 ];
 
-export default function ProductCategoryList({ categoryId, subcategory, productIndex, setProductIndex, setProductName, setProductCost, setGiftCardCredit, handleNext, setOriginalCost, productRef }) {
+export default function ProductCategoryList({ categoryId, subcategory, productIndex, setProductIndex, setProductName, setProductCost, setGiftCardCredit, handleNext, setOriginalCost, productRef, shouldShow }) {
 
     const [tabLabels, setTabLabels] = useState([]);
     const [prices, setPrices] = useState([]);
@@ -169,27 +169,27 @@ export default function ProductCategoryList({ categoryId, subcategory, productIn
         // if (parseInt(odometer) > 20000 && containsUnlimited) {
         //     alert("Current product cannot be selected!");
         // } else {
-            setProductCost(prices[value]);
-            setProductIndex(value);
-            setProductName(`${subcategory}(${tabLabels[value]})`);
-            productRef.current = tabLabels[value];
-            const productNameToFind = tabLabels[value];
-            setOriginalCost(prices[value]);
+        setProductCost(prices[value]);
+        setProductIndex(value);
+        setProductName(`${subcategory}(${tabLabels[value]})`);
+        productRef.current = tabLabels[value];
+        const productNameToFind = tabLabels[value];
+        setOriginalCost(prices[value]);
 
-            const filteredProducts = originalProducts.filter(p => p.productName === productNameToFind);
+        const filteredProducts = originalProducts.filter(p => p.productName === productNameToFind);
 
-            if (filteredProducts.length > 0) {
-                const productPrice = filteredProducts[0].productPrice;
-                console.log("Product Price:", productPrice);
-                setOriginalCost(productPrice);
-                setGiftCardCredit(prices[value] - productPrice);
+        if (filteredProducts.length > 0) {
+            const productPrice = filteredProducts[0].productPrice;
+            console.log("Product Price:", productPrice);
+            setOriginalCost(productPrice);
+            setGiftCardCredit(prices[value] - productPrice);
 
-            } else {
-                // console.log("Product not found");
-                setGiftCardCredit(0);
-            }
+        } else {
+            // console.log("Product not found");
+            setGiftCardCredit(0);
+        }
 
-            handleNext();
+        handleNext();
         // }
 
 
@@ -217,7 +217,10 @@ export default function ProductCategoryList({ categoryId, subcategory, productIn
                 setTabLabels([]); // Keep dummy data in case of unauthorized response
             } else {
                 const responseData = response.data.data;
-                const extractedProductNames = responseData.products.map(product => product.productName);
+                const extractedProductNames = responseData.products.map(product => ({
+                    productName: product.productName,
+                    visiblity: Object.hasOwn(product, "visiblity") ? product.visiblity : 1
+                }));
                 const extractedProductPrices = responseData.products.map(product => product.productPrice);
                 setOriginalProducts(responseData.originalProducts);
                 setTabLabels(extractedProductNames);
@@ -248,14 +251,15 @@ export default function ProductCategoryList({ categoryId, subcategory, productIn
                 value={value}
                 onChange={handleChange}
                 aria-label="Vertical tabs example"
-                sx={{ borderRight: 1, borderColor: 'divider', width: '700px' }} // Set a fixed width for tabs
+                sx={{ borderRight: 1, borderColor: 'divider', width: '700px', display: shouldShow ? "block" : "none" }} // Set a fixed width for tabs
+
             >
                 {tabLabels.map((label, index) => (
-                    <Tab label={label} {...a11yProps(index)} key={index} sx={{ fontSize: '12px' }} />
+                    <Tab label={label.productName} {...a11yProps(index)} key={index} sx={{ fontSize: '12px', display: label.visiblity === 1 ? "block" : "none" }} />
                 ))}
             </Tabs>
             {tabLabels.map((content, index) => (
-                <TabPanel value={value} index={index} key={index}>
+                <TabPanel value={value} index={index} key={index} style={{ display: shouldShow ? "block" : "none" }}>
                     <Grid container spacing={2}>
                         <Grid item xs={12} lg={12}>
                             <Box sx={{ padding: 2, border: '2px solid red', borderRadius: '8px' }}>

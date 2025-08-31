@@ -91,12 +91,40 @@ function ViewInvoicingDetailData() {
         return Math.min(Math.max(100, maxDataLength * 10), 300);
     };
 
-    const dynamicColumns = detailHeaders.map((h) => ({
-        field: h.key,
-        headerName: h.label,
-        minWidth: getMaxContentWidth(h.key, h.label),
-        flex: 1,
-    }));
+    // const dynamicColumns = detailHeaders.map((h) => ({
+    //     field: h.key,
+    //     headerName: h.label,
+    //     minWidth: getMaxContentWidth(h.key, h.label),
+    //     flex: 1,
+    // }));
+
+    const dynamicColumns = detailHeaders.map((h) => {
+        // Special handling for currency columns
+        if (h.key === "productCost" || h.key === "warrantySoldForText") {
+            return {
+                field: h.key,
+                headerName: h.label,
+                minWidth: getMaxContentWidth(h.key, h.label),
+                flex: 1,
+                type: "number",
+                valueFormatter: (params) => {
+                    const value = Number(params.value) || 0;
+                    return new Intl.NumberFormat("en-US", {
+                        style: "currency",
+                        currency: "USD"
+                    }).format(value);
+                }
+            };
+        }
+
+        // Default column
+        return {
+            field: h.key,
+            headerName: h.label,
+            minWidth: getMaxContentWidth(h.key, h.label),
+            flex: 1,
+        };
+    });
 
     const loadData = async () => {
         try {

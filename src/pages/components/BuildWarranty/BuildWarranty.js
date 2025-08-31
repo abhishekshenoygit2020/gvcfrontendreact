@@ -1581,7 +1581,7 @@ export default function BuildWarranty() {
                         body: [
                             [
                                 { text: `Warranty Plan:`, border: [false, false, false, false], fontSize: 8, bold: true },
-                                { text: `${data.productName}`, border: [false, false, false, false], fontSize: 8, bold: false },
+                                { text: `${data.productName.replace('(', '  (')}`, border: [false, false, false, false], fontSize: 8, bold: false },
                                 { text: `Deductible:`, border: [false, false, false, false], fontSize: 8, bold: true },
                                 { text: `${data.deductible}`, border: [false, false, false, false], fontSize: 8, bold: false }
                             ],
@@ -1893,7 +1893,7 @@ export default function BuildWarranty() {
         pdfMake.createPdf(docDefinition).open();
     };
 
-    const generatePdf = async (data, applicationId) => {
+    const generatePdfs = async (data, applicationId) => {
         console.log("data" + JSON.stringify(data));
         const LOGO = await convertImageToBase64();
 
@@ -3616,6 +3616,2045 @@ export default function BuildWarranty() {
         // Generate the PDF and open it in a new tab
         pdfMake.createPdf(docDefinition).open();
     };
+    const generatePdf = async (data, applicationId) => {
+        console.log("data" + JSON.stringify(data));
+        const LOGO = await convertImageToBase64();
+
+        // Render the PDFPrint component as static HTML
+        // const componentHtml = ReactDOMServer.renderToStaticMarkup(<PDFPrintNew />);
+
+        // Convert the HTML content to pdfMake format
+        // const pdfContent = htmlToPdfmake(componentHtml, { window });
+
+        // Create the PDF document definition using the converted content
+
+        const text = data.productName;
+
+        let dealershipaddress = ""
+
+        // Extract the values using regex
+
+        console.log("222222220" + data.dealership);
+        var tradeName = "";
+        var billingStreet = "";
+        var billingCity = "";
+        var billingCountry = "";
+        var billingZippostalCode = "";
+        var ovmic_no = "";
+        var accountPhone = "";
+        var acc_ovmic_no = "";
+
+        try {
+            const response = await axios.get("dealership/" + data.dealership + "/fetch");
+
+            if (response.data.success === 500) {
+                console.error("Server error: Failed to fetch dealership data.");
+                // Handle the error appropriately, e.g., show an alert or return early
+                return;
+            }
+
+            const responseData = response.data.data;
+            if (responseData) {
+                const dealershipaddress = JSON.stringify(responseData[0]); // Converts object to string
+                const dealershipData = JSON.parse(dealershipaddress); // Parse it back to an object
+
+                // tradeName = dealershipData.tradeName;
+                // tradeName = dealershipData.tradeName;
+                // tradeName = dealershipData.tradeName;
+                // billingZippostalCode = dealershipData.billingZippostalCode;
+                if (dealershipData?.tradeName) tradeName = dealershipData.tradeName;
+                if (dealershipData?.billingStreet) billingStreet = dealershipData.billingStreet;
+                if (dealershipData?.billingCity) billingCity = dealershipData.billingCity;
+                if (dealershipData?.billingCountry) billingCountry = dealershipData.billingCountry;
+                if (dealershipData?.billingZippostalCode) billingZippostalCode = dealershipData.billingZippostalCode;
+                if (dealershipData?.ovmic_no) ovmic_no = dealershipData.ovmic_no;
+                if (dealershipData?.accountPhone) accountPhone = dealershipData.accountPhone;
+                if (dealershipData?.acc_ovmic_no) acc_ovmic_no = dealershipData.acc_ovmic_no;
+
+                console.log(tradeName, billingStreet, billingCity, billingCountry, billingZippostalCode, ovmic_no, accountPhone);
+            }
+        } catch (error) {
+            console.error("An error occurred while fetching dealership data:", error);
+        }
+
+        let warrantySold = parseFloat(data.salePriceofVehicle.replace(/,/g, '')).toFixed(2);
+        // let warrantySold = data.salePriceofVehicle;
+
+        let kilometers = "";
+        let customerNM = data.customerFirstNameText + " " + data.customerLastNameText;
+        let user = data.user.split("@");
+        const monthsMatch = text.match(/\((\d+)\s*months/i);
+        let Months = monthsMatch ? parseInt(monthsMatch[1], 10) + " Months" : "-";
+
+        const inserviceDate = new Date(data.serviceDateText);
+        const formattedDatefmt = inserviceDate.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: '2-digit' });
+
+        const vehicleDeliveryDate = new Date(data.vehicleDeliveryDate);
+        const vehicleDeliveryDatefmt = vehicleDeliveryDate.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: '2-digit' });
+
+        // Extract Kilometers
+        if (text.includes("/")) {
+            let kmMatch = text.split("/");
+            if (kmMatch.length > 1) {
+                kilometers = kmMatch[1].split(")")[0].trim();
+            }
+        }
+
+        let applicationtitle = "";
+
+        if (data.warrantyClass == 26) {
+            applicationtitle = "Application for GAP Insurance";
+        } else {
+            applicationtitle = "Application for Warranty Coverage";
+        }
+
+
+        const docDefinition = {
+            pageSize: 'A4',
+            pageMargins: [20, 20, 20, 20],
+            content: [
+                // First Table
+                {
+                    table: {
+                        widths: ['50%', '50%'], // Set the width for each column
+                        body: [
+                            [
+                                {
+                                    image: LOGO, // Use the 'image' key for the logo
+                                    rowSpan: 6,
+                                    fit: [150, 150], // Adjust size as needed
+                                    border: [false, false, false, false]
+                                },
+                                { text: `Application ID: ${data.id}`, border: [false, false, false, false], fontSize: 10, alignment: 'right', bold: true }
+                            ],
+                            ['', { text: `Warranty Status: ${data.Status}`, border: [false, false, false, false], fontSize: 10, alignment: 'right', bold: true }],
+                            ['', { text: `Warranty Price: $${parseFloat(data.warrantySoldFor).toFixed(2)}`, border: [false, false, false, false], fontSize: 10, alignment: 'right', bold: true }],
+                            ['', { text: ``, border: [false, false, false, false] }],
+                            ['', { text: ``, border: [false, false, false, false] }],
+                            [
+                                { text: 'Application for GAP Bundle Warranty Coverage', rowSpan: 3, border: [false, false, false, false], fontSize: 10, alignment: 'right', bold: true },
+                                { text: `1200 Bay Street, Suite #1201 Toronta, Ontario, M5R 2A5 Phone: 905.291.2940`, border: [false, false, false, false], fontSize: 10, alignment: 'right', bold: true }
+                            ],
+
+                            [{ text: 'Get Covered Canada', border: [false, false, false, false], fontSize: 10, bold: true }, { text: 'claims@getcoveredcanada.com', border: [false, false, false, false], fontSize: 10, alignment: 'right', bold: true }],
+                            [{ text: `${applicationtitle}`, border: [false, false, false, false], fontSize: 10, bold: true }, { text: 'www.getcoveredcanada.com', border: [false, false, false, false], fontSize: 10, alignment: 'right', bold: true }]
+                        ]
+                    }
+                },
+                { text: '\n' }, // Add spacing between the tables
+                {
+                    table: {
+                        widths: ['100%'], // Adjust the column widths for this table
+                        body: [
+                            [
+                                {
+                                    text: 'Customer Details', border: [false, false, false, false], bold: true,
+                                    alignment: 'left', fontSize: 10
+                                },
+                            ],
+
+                        ]
+                    }
+                },
+                // { text: '\n' }, // Add spacing between the tables
+                {
+                    table: {
+                        widths: ['100%'], // Adjust the column widths for this table
+                        body: [
+                            [
+                                {
+                                    text: '', border: [false, false, false, true], bold: true,
+                                    alignment: 'left', fontSize: 10
+                                },
+                            ],
+
+                        ]
+                    }
+                },
+                {
+                    table: {
+                        widths: ['20%', '30%', '20%', '30%'], // Adjust the column widths for this table
+                        body: [
+                            // [
+                            //     { text: 'Customer details', border: [false, false, false, false],fontSize: 10, bold: true },
+                            //     { text: '', border: [false, false, false, false] },
+                            //     { text: '', border: [false, false, false, false] },
+                            //     { text: '', border: [false, false, false, false] },
+                            // ],
+                            [
+                                { text: `Customer First Name:`, border: [false, false, false, false], fontSize: 8, bold: true },
+                                { text: `${data.customerFirstNameText}`, border: [false, false, false, false], fontSize: 8, bold: false },
+                                { text: `Address: `, border: [false, false, false, false], fontSize: 8, bold: true },
+                                { text: `${data.streetAddressText}\n ${data.townText},  ${data.provinceText},  ${data.postalCodeText}`, border: [false, false, false, false], fontSize: 8, bold: false, alignment: "left" }
+                            ],
+                            [
+                                { text: `Customer Last Name:`, border: [false, false, false, false], fontSize: 8, bold: true },
+                                { text: `${data.customerLastNameText}`, border: [false, false, false, false], fontSize: 8, bold: false },
+                                { text: ``, border: [false, false, false, false], fontSize: 8, bold: true },
+                                { text: ``, border: [false, false, false, false], fontSize: 8, bold: true }
+                            ],
+                            [
+                                { text: `Drivers Licence:`, border: [false, false, false, false], fontSize: 8, bold: true },
+                                { text: `${data.driverLicenceText}`, border: [false, false, false, false], fontSize: 8, bold: false },
+                                { text: `Email:`, border: [false, false, false, false], fontSize: 8, bold: true },
+                                { text: `${data.customerEmailText}`, border: [false, false, false, false], fontSize: 8, bold: false }
+                            ],
+                            [
+                                { text: `Phone:`, border: [false, false, false, false], fontSize: 8, bold: true },
+                                { text: `${data.customerPhoneText}`, border: [false, false, false, false], fontSize: 8, bold: false },
+                                { text: ``, border: [false, false, false, false], fontSize: 8, bold: true },
+                                { text: ``, border: [false, false, false, false], fontSize: 8, bold: true }
+                            ],
+
+
+                        ]
+                    }
+                },
+                { text: '\n' }, // Add spacing between the tables  townText. provinceText. postalCodeText
+                {
+                    table: {
+                        widths: ['100%'], // Adjust the column widths for this table
+                        body: [
+                            [
+                                {
+                                    text: 'Vehicle Details', border: [false, false, false, false], bold: true,
+                                    alignment: 'left', fontSize: 10
+                                },
+                            ],
+
+                        ]
+                    }
+                },
+                // { text: '\n' }, // Add spacing between the tables
+                {
+                    table: {
+                        widths: ['100%'], // Adjust the column widths for this table
+                        body: [
+                            [
+                                {
+                                    text: '', border: [false, false, false, true], bold: true,
+                                    alignment: 'left', fontSize: 10
+                                },
+                            ],
+
+                        ]
+                    }
+                },
+
+                // Second Table
+                {
+                    table: {
+                        widths: ['20%', '30%', '20%', '30%'], // Adjust the column widths for this table
+                        body: [
+                            [
+                                { text: `Year:`, border: [false, false, false, false], fontSize: 8, bold: true },
+                                { text: `${data.year}`, border: [false, false, false, false], fontSize: 8, bold: false },
+                                { text: `Sale Price:`, border: [false, false, false, false], fontSize: 8, bold: true },
+                                // { text: `$ ${warrantySold}`, border: [false, false, false, false], fontSize: 8, bold: false }
+                                {
+                                    text: `$${Number(warrantySold).toLocaleString(undefined, {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                    })} `,
+                                    border: [false, false, false, false],
+                                    fontSize: 8,
+                                    bold: false
+                                }
+                            ],
+                            [
+                                { text: `Make:`, border: [false, false, false, false], fontSize: 8, bold: true },
+                                { text: `${data.make}`, border: [false, false, false, false], fontSize: 8, bold: false },
+                                { text: ``, border: [false, false, false, false], fontSize: 8, bold: true },
+                                { text: ``, border: [false, false, false, false], fontSize: 8, bold: true }
+                            ],
+
+                            [
+                                { text: `Model:`, border: [false, false, false, false], fontSize: 8, bold: true },
+                                { text: `${data.model}`, border: [false, false, false, false], fontSize: 8, bold: false },
+                                { text: `Vehicle Delivery Date:`, border: [false, false, false, false], fontSize: 8, bold: true },
+                                { text: `${vehicleDeliveryDatefmt == "Invalid Date" ? "" : vehicleDeliveryDatefmt}`, border: [false, false, false, false], fontSize: 8, bold: false }
+                            ],
+
+                            [
+                                { text: `VIN:`, border: [false, false, false, false], fontSize: 8, bold: true },
+                                { text: `${data.vinNoText}`, border: [false, false, false, false], fontSize: 8, bold: false },
+                                { text: `In Service Date:`, border: [false, false, false, false], fontSize: 8, bold: true },
+                                { text: `${formattedDatefmt == "Invalid Date" ? "" : formattedDatefmt}`, border: [false, false, false, false], fontSize: 8, bold: false }
+                            ],
+
+                            [
+                                { text: `Odometer:`, border: [false, false, false, false], fontSize: 8, bold: true },
+                                { text: `${(Number(data.odometerText)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} KM`, border: [false, false, false, false], fontSize: 8, bold: false },
+                                { text: `Finance Company:`, border: [false, false, false, false], fontSize: 8, bold: true },
+                                { text: `${data.financeCompanyText}`, border: [false, false, false, false], fontSize: 8, bold: false }
+                            ],
+
+                        ]
+                    }
+                },
+
+                { text: '\n' }, // Add spacing between the tables
+                {
+                    table: {
+                        widths: ['100%'], // Adjust the column widths for this table
+                        body: [
+                            [
+                                {
+                                    text: 'Warranty Details', border: [false, false, false, false], bold: true,
+                                    alignment: 'left', fontSize: 10
+                                },
+                            ],
+
+                        ]
+                    }
+                },
+                // { text: '\n' }, // Add spacing between the tables
+                {
+                    table: {
+                        widths: ['100%'], // Adjust the column widths for this table
+                        body: [
+                            [
+                                {
+                                    text: '', border: [false, false, false, true], bold: true,
+                                    alignment: 'left', fontSize: 10
+                                },
+                            ],
+
+                        ]
+                    }
+                },
+
+
+                // Second Table
+                {
+                    table: {
+                        widths: ['20%', '30%', '20%', '30%'], // Adjust the column widths for this table
+                        body: [
+                            [
+                                { text: `Warranty Plan:`, border: [false, false, false, false], fontSize: 8, bold: true },
+                                { text: `${data.productName.replace('(', '  (')}`, border: [false, false, false, false], fontSize: 8, bold: false },
+                                { text: `Deductible:`, border: [false, false, false, false], fontSize: 8, bold: true },
+                                { text: `${data.deductible} `, border: [false, false, false, false], fontSize: 8, bold: false }
+                            ],
+
+                            [
+                                { text: `Max Protection:`, border: [false, false, false, false], fontSize: 8, bold: true },
+                                { text: `${data.warrantyProtectionText}`, border: [false, false, false, false], fontSize: 8, bold: false },
+                                { text: `Roadside:`, border: [false, false, false, false], fontSize: 8, bold: true },
+                                { text: `None`, border: [false, false, false, false], fontSize: 8, bold: false }
+                            ],
+                            // [
+                            //     { text: '\n', colSpan: 4, border: [false, false, false, false] }, {}, {}, {}
+                            // ],
+
+                            [
+                                { text: `Warranty Length:`, border: [false, false, false, false], fontSize: 8, bold: true },
+                                { text: `${Months}`, border: [false, false, false, false], fontSize: 8, bold: false },
+                                { text: ``, border: [false, false, false, false], fontSize: 8, bold: true },
+                                { text: ``, border: [false, false, false, false], fontSize: 8, bold: true }
+                            ],
+
+                            [
+                                { text: `Coverage:`, border: [false, false, false, false], fontSize: 8, bold: true },
+                                { text: `${kilometers}`, border: [false, false, false, false], fontSize: 8, bold: false },
+                                { text: ``, border: [false, false, false, false], fontSize: 8, bold: true },
+                                { text: ``, border: [false, false, false, false], fontSize: 8, bold: true }
+                            ],
+
+
+
+
+
+                        ]
+                    }
+                },
+
+                { text: '\n' }, // Add spacing between the tables
+
+                {
+                    text: 'Terms', // Heading
+                    style: { fontSize: 10, bold: true, margin: [0, 10, 0, 10] }, // Style for the heading
+                },
+
+
+                // {
+                //     text: [
+                //         { fontSize: 8, text: '• I, the Buyer, have read, selected, understand, and accept the terms and conditions of the Warranty Application and the Warranty Policy as outlined in the following pages and have retained a copy of the application and acknowledge that the selling dealer has made no representation outside the Terms and Conditions.\n', margin: [0, 5] },
+                //         { fontSize: 8, text: '• I, understand and agree that is my obligation to maintain the vehicle according to the manufacturers guidelines, including changing engine oil and filters and monitoring and changing other fluids according to the manufacturers guidelines, and section 3 of this agreement.\n', margin: [0, 5] },
+                //         { fontSize: 8, text: '• I understand any abuse misuse or neglect of my vehicle may lead to my claims denied. I, understand that I must keep maintenance records and receipts of the maintenance performed as I may be asked to submit these records if a claim is submitted to Get Covered Canada.\n', margin: [0, 5] },
+                //         { fontSize: 8, text: '• I, understand that maintenance must be performed by licensed mechanic or maintenance shops. Do-it-yourself oil changes are not accepted\n', margin: [0, 5] },
+                //         { fontSize: 8, text: '• I, understand repairs made to covered components without prior authorization by Get Covered Canada will not be reimbursed. \n', margin: [0, 5] },
+                //         { fontSize: 8, text: '• I hereby certify that all of the information set out herein is true and accurate, I am applying for coverage at the time of the vehicle purchase or prior to the expiration of an existing full manufacturers warranty and the vehicle is in proper operating condition at the date of the application. Misleading or False Information will void warranty coverage. \n', margin: [0, 5] }
+                //     ],
+                //     border: [true, true, true, true]
+                // },
+                {
+                    ul: [
+                        'I, the Buyer, have read, selected, understand, and accept the terms and conditions of the Warranty Application and the Warranty Policy as outlined in the following pages and have retained a copy of the application and acknowledge that the selling dealer has made no representation outside the Terms and Conditions.',
+                        'I, understand and agree that it is my obligation to maintain the vehicle according to the manufacturer’s guidelines, including changing engine oil and filters and monitoring and changing other fluids according to the manufacturer’s guidelines, and section 3 of this agreement.',
+                        'I understand any abuse, misuse, or neglect of my vehicle may lead to my claims being denied. I understand that I must keep maintenance records and receipts of the maintenance performed as I may be asked to submit these records if a claim is submitted to Get Covered Canada.',
+                        'I understand that maintenance must be performed by licensed mechanics or maintenance shops. Do-it-yourself oil changes are not accepted.',
+                        'I understand repairs made to covered components without prior authorization by Get Covered Canada will not be reimbursed.',
+                        'I hereby certify that all of the information set out herein is true and accurate. I am applying for coverage at the time of the vehicle purchase or prior to the expiration of an existing full manufacturer’s warranty and the vehicle is in proper operating condition at the date of the application. Misleading or False Information will void warranty coverage.'
+                    ],
+                    fontSize: 8,
+                    margin: [15, 5, 0, 0],
+                    border: [true, true, true, true],
+                    alignment: 'justify'
+                },
+                { text: '\n' }, // Add spacing between the tables
+
+                {
+                    table: {
+                        widths: ['25%', '5%', '70%'], // Adjust the column widths for this table
+                        body: [
+                            [
+                                { text: `Applicant's Signature:`, border: [false, false, false, false], fontSize: 8, bold: true },
+                                { text: ``, border: [false, false, false, false], fontSize: 8, bold: false },
+                                { text: `Salesperson's Signature:`, border: [false, false, false, false], fontSize: 8, bold: false },
+
+                            ],
+                            [
+                                { text: `X`, border: [false, false, false, true], fontSize: 8, bold: true },
+                                { text: ``, border: [false, false, false, false], fontSize: 8, bold: true },
+                                { text: `X`, border: [false, false, false, true], fontSize: 8, bold: false },
+
+                            ],
+
+
+                        ]
+                    }
+                },
+                {
+                    table: {
+                        widths: ['30%', '40%', '30%'], // Adjust the column widths for this table
+                        body: [
+                            [
+                                { text: `Customer Name:`, border: [false, false, false, false], fontSize: 8, bold: true },
+                                { text: `Salesperson:`, border: [false, false, false, false], fontSize: 8, bold: false },
+                                { text: `Salesperson #:${data.useromvicno}`, border: [false, false, false, false], fontSize: 8, bold: false },
+
+                            ],
+                            [
+                                { text: `${customerNM}`, border: [false, false, false, false], fontSize: 8, bold: true },
+                                { text: `${user[0].toUpperCase()}`, border: [false, false, false, false], fontSize: 8, bold: true },
+                                { text: ``, border: [false, false, false, false], fontSize: 8, bold: false },
+                            ],
+
+
+                        ]
+                    }
+                },
+                {
+                    table: {
+                        widths: ['30%', '70%'], // Adjust the column widths for this table
+                        body: [
+                            [
+                                { text: ``, border: [false, false, false, false], fontSize: 8, bold: true },
+                                { text: `I, the representative of the selling Dealer, certify that the named used vehicle is mechanically fit`, border: [false, false, false, false], fontSize: 8, bold: true },
+
+                            ],
+
+
+                        ]
+                    }
+                },
+                {
+                    table: {
+                        widths: ['30%', '40%', '30%'], // Adjust the column widths for this table
+                        body: [
+                            [
+                                { text: ``, border: [false, false, false, false], fontSize: 8, bold: true },
+
+                                // { text: `${tradeName} \n ${billingStreet} \n ${billingCity} \n ${billingCountry} \n  ${billingZippostalCode}`, border: [false, false, false, false], fontSize: 8, bold: false },
+                                { text: `${tradeName}`, border: [false, false, false, false], fontSize: 8, bold: false },
+                                // { text: `Reg #: ${ovmic_no} \n Phone: ${accountPhone}`, border: [false, false, false, false], fontSize: 8, bold: false },
+                                { text: `Reg #: ${acc_ovmic_no} \n `, border: [false, false, false, false], fontSize: 8, bold: false },
+                            ],
+
+
+
+                        ]
+                    }
+                },
+                { text: '\n' }, // Add spacing between the tables
+
+                ...(data.warrantyClass == 26 ? [{
+                    text: '',
+                    // text: 'Policy Terms and Conditions',
+                    style: { fontSize: 8, bold: false, margin: [0, 10, 0, 10] }
+                }] : [{
+                    // text: 'Terms and Conditions',
+                    text: '',
+                    style: { fontSize: 8, bold: false, margin: [0, 10, 0, 10] }
+                }]),
+
+                ...(data.warrantyClass == 26 ? [
+                    {
+
+                        text: [
+                            {
+                                fontSize: 8, alignment: 'left', text: `Guaranteed Asset Protection (GAP) Insurance Program – Terms & Conditions \n`, margin: [0, 5], bold: true, fontSize: 20
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Issued by: GET COVERED CANADA INC. \n`, margin: [0, 5], bold: true, fontSize: 8
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Updated: August 2025 \n\n`, margin: [0, 5], bold: true, fontSize: 8
+                            },
+                            {
+                                fontSize: 13, alignment: 'left', text: `Section 1 - Definitions \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Applicant: \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `The individual listed on the application who is also the registered owner of the vehicle.\n\n`, margin: [0, 5]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Application: \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `The form submitted to Get Covered Canada for GAP Insurance coverage/proection, certified by the applicant as accurate and complete, and attached to this policy.\n\n`, margin: [0, 5]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Claim: \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `A formal request for coverage under this policy, made by the policy holder.\n\n`, margin: [0, 5]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Commercial Purposes: \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Use of the financed or purchased vehicle for business-related activities including, but not limited to: transporting goods or passengers for compensation, security services, taxi or ride-sharing (e.g. UBER, Lyft), school or public buses, police or emergency use, and vehicles insured under a commercial policy. Personal use under a commercial policy by a sole driver is not considered “Commercial Use.”\n\n`, margin: [0, 5]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Covered Vehicle: \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `The motor vehicle, recreational vehicle, trailer, or watercraft listed on the application and licensed for use solely under the applicatant.\n\n`, margin: [0, 5]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Covered Vehicle Purchase Price: \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `The reasonable purchase price of the covered vehicle (excluding taxes and excessive fees), as listed in the original financing or lease agreement/contract.\n\n`, margin: [0, 5]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Date of Loss: \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `The actual date when the vehicle is declared a 'Total Loss' due to damage or theft.\n\n`, margin: [0, 5]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Dealer: \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `The selling dealership as named in the application\n\n`, margin: [0, 5]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Deductible: \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `The amount deducted from a GAP Insurance payout/claim to cover administrative costs.\n\n`, margin: [0, 5]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Down-Payment Amount: \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `The cash or trade-in equity paid by the applicant, as listed in the application. It does not include any financed portion of the trade-in vehicle.\n\n`, margin: [0, 5]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Equity Trade-in Amount: \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `The value of a traded-in vehicle (not including any outstanding balance), as reflected in the bill of sale or lease agreement.\n\n`, margin: [0, 5]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Finance Contract: \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `The original loan or lease agreement between the policy holder and the finance company.\n\n`, margin: [0, 5]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Finance Contract Amount: \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `The full amount financed as specified in the application on page one\n\n`, margin: [0, 5]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Finance Contract Term: \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `The duration of the finance contract, as stated in the application on page one\n\n`, margin: [0, 5]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Finance Company: \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `The lender or leasing company listed in the application on page one\n\n`, margin: [0, 5]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Loss: \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `The difference between the outstanding balance of the finance contract at the date of loss, and the 'Actual Cash Value' (ACV) of the covered vehicle as determined by the primary policy insurer. Certain items are excluded from this balance, including overdue payments, future interest, taxes, unpaid premiums, and other specified fees or deductions\n\n`, margin: [0, 5]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Policy: \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `This GAP Insurance contract, including the the first page of the application and the terms and conditions\n\n`, margin: [0, 5]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Policy Holder: \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `The applicant(s) listed on page one of the application, only if the policy has been issued and the individual(s) are also named on the finance contract\n\n`, margin: [0, 5]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Policy Period: \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `The shorter of either 96 months or the stated finance contract term noted on page one\n\n`, margin: [0, 5]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Primary Policy: \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `The underlying auto or property insurance policy that provides physical damage coverage for said covered vehicle on the application\n\n`, margin: [0, 5]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Primary Policy Insurer: \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `The insurance company that issued the primary policy on the covered vehicle\n\n`, margin: [0, 5]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Proof of Loss: \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Documentation submitted by the policy holder to support a claim, which may include a police report, loan agreement, valuation report, and/or other required records\n\n`, margin: [0, 5]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Total Loss: \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `An incident covered by the primary policy resulting in either:\n`, margin: [0, 5]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\ Irreparable damage exceeding the vehicle’s ACV: \n`, margin: [0, 5]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\ Theft with the vehicle deemed non-recoverable\n\n`, margin: [0, 5]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Total Premium: \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `The full GAP Insurance premium listed on the first page of the application, paid by the applicant via a licensed OMVIC dealership to GET COVERED CANADA INC.\n\n`, margin: [0, 5]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Vehicle Valuation Report: \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `A settlement breakdown from the primary policy insurer showing how the ACV was calculated on/at the 'date of loss'.\n\n`, margin: [0, 5]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `VIN: \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `The unique 17-digit Vehicle Identification Number listed on the application.\n\n\n`, margin: [0, 5]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Section 2 – Coverage \n`, margin: [0, 5], bold: true, fontSize: 13
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Upon full payment of the total premium and subject to a valid claim being paid by the primary insurer, coverage is provided as follows: \n`, margin: [0, 5]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `A. GAP Insurance Coverage \n`, margin: [0, 5], bold: true,
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `GET COVERED CANADA INC. will pay the difference between: \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 The outstanding balance on the finance contract as of the date of loss, and \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 The Actual Cash Value (ACV) as determined by the primary insurer \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: true,
+                                text:[
+                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 Coverage Limit `, bold:true, fontSize:8},
+                                    {text: ` - As stated on the first page of the application/contract \n\n`,fontSize:8}
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `B. Partial Loss Deductible Reimbursement \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
+                                text:[
+                                    { text: `If the covered vehicle is involved in an at-fault accident that results in a `, fontSize:8},
+                                    { text: `partial loss: \n`, bold:true, fontSize:8}
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left',  margin: [0, 5], bold: false,
+                                text:[
+                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 We will reimburse the policy holder for the collision deductible charged by the primary insurer, up to`, fontSize:8},
+                                    {text: ` $1,000 \n`, bold:true, fontSize:8}
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left',  margin: [0, 5], bold: false,
+                                text:[
+                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 Only`, fontSize:8},
+                                    {text: ` one claim`, bold:true, fontSize:8},
+                                    {text: ` may be made under this coverage for the life of the policy \n\n`, fontSize:8},
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `C. Maximum Payout\n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `The total benefits paid under Sections 2A and 2B combined will not exceed the limit stated on the first page of this application/contract. \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left',  margin: [0, 5], bold: false,
+                                text:[
+                                    {text: `Note:`, fontSize:8, bold: true},
+                                    {text: ` All GAP Insurance payouts are made directly to the finance company/lender by GET COVERED CANADA Inc.\n\n`, fontSize:8}
+                                ]
+                            },
+
+                            {
+                                fontSize: 8, alignment: 'left', text: `D. Deductible: \n`, margin: [0, 5], bold: true,
+                            },
+
+                            {
+                                fontSize: 8, alignment: 'left', text: `All policies are subject to a $200.00CDN deductible. \n\n\n `, margin: [0, 5], bold: false
+                            },
+
+                            {
+                                fontSize: 8, alignment: 'left', text: `Section 3 – Exclusions \n`, margin: [0, 5], bold: true, fontSize: 13
+                            },
+                            {
+                                fontSize: 8, alignment: 'left',  margin: [0, 5], bold: false,
+                                text:[
+                                    {text: `This Policy does `, fontSize:8},
+                                    {text: `not `, bold:true, fontSize:8, italics:true},
+                                    {text: `provide coverage for any of the following: \n `, fontSize:8}
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 If no down-payment coverage was selected\n `, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 Any promises or coverage not specifically included in Section 2\n `, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 Consequential or indirect damages, including loss due to negligence or fraud\n `, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 Any losses caused by criminal activity (charges being laid) or where charges were laid under the Highway Traffic Act, to any party in the covered \n `, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0 vehicle at the time of the accident/incident \n `, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 Misrepresentation of any kind, and where alcohol or drug use was involved – determined at the time of the claim, incident, or any time thereafter by\n `, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0 the police and/or by a credible investigation team\n `, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 Use of the vehicle for commercial (where/when not permitted), governmental, or racing purposes/use\n `, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 Vehicles older than eleven (11) model years at the time of application\n `, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left',  margin: [0, 5], bold: false,
+                                text:[
+                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 Loan amounts exceeding the`, fontSize:8},
+                                    {text: ` Loan-to-Value (LTV)`, fontSize:8, bold:true},
+                                    {text: ` limit noted in the policy\n `, fontSize:8}
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 Excessive vehicle pricing, unreasonable fees, or cashback amounts\n `, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 War, rebellion, or civil unrest\n `, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 Mechanical or electrical failure\n `, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 Use in races, contests, or stunt events\n `, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 Loss due to the use of custom parts, after-market parts, and/or specialized equipment\n `, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 Providing false information on the application, later in time, or during a claim process\n `, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 Claims reported more than 5 days after the date of loss (total loss dated to be determined by the applicant’s automotive insurance company)\n `, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 Any loss caused by a primary insurance deductible\n\n\n`, margin: [0, 5], bold: false
+                            },
+
+                            {
+                                fontSize: 8, alignment: 'left', text: `Section 4 – Claims Process \n`, margin: [0, 5], bold: true, fontSize: 13
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `A. Notice of Loss \n `, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 You must notify GET COVERED CANADA INC. in writing within 5 business days from the date of loss – date of vehicle being determined as a “total \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0 loss vehicle” is determined and considered the legal date (for all purposes) by the applicant’s automotive insurance company. \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `B. Proof of Loss  \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` You must submit the required documentation in writing to GET COVERED CANADA Inc. within:\n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
+                                text:[
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 5 business days of the date of the applicant’s vehicle being deemed/determines as a ‘total loss’,`, fontSize:8, bold:true},
+                                    { text: ` or \n`, fontSize:8}
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 30 days after your initial automotive insurance claim date/notice \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Documentation may include your insurance settlement, police report, finance agreement, valuation report, etc... deemed acceptable by Get Covered Canada and/or their representatives  \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `C. Claim Review & Payment  \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left',  margin: [0, 5], bold: false,
+                                text:[
+                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 Claims will be reviewed within`, fontSize:8},
+                                    {text: ` 30 days`, fontSize:8, bold: true},
+                                    {text: ` of receiving satisfactory documentation. If approved, the payment will be made directly to the finance\n`, fontSize:8},
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0 company/lender  \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `D. Duty to Minimize Loss  \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `You are responsible for taking reasonable steps to: \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 Protect the vehicle at all times from damage or theft \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 Maximize your primary insurer’s payout \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left',  margin: [0, 5], bold: false,
+                                text:[
+                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 `, fontSize:8},
+                                    {text: `Note:`, fontSize:8, decoration:'underline'},
+                                    {text: ` Failure to do so may reduce the benefits paid under this policy \n\n\n`, fontSize:8}
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Section 5 – Termination  \n`, margin: [0, 5], bold: true, fontSize: 13
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `A. Cancelling the Policy (Applicant)  \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `You may cancel by sending written notice to GET COVERED CANADA INC., (using the email address: sales@getcoveredcanada.ca) stating your desired cancellation date and reason  \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `B. Refund Within 10 Business Days – by applicant  \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
+                                text:[
+                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 If cancelled by the applicant within`, fontSize:8},
+                                    {text: ` 10 business days`, fontSize:8, bold:true},
+                                    {text: ` of purchase,`, fontSize:8},
+                                    {text: ` the applicant will receive a full refund`, fontSize:8, bold:true, italics:true},
+                                    {text: ` of the total premium \n`, fontSize:8},
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `C. Cancellation After 10 Business Days – by applicant \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
+                                text:[
+                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 If cancelled`, fontSize:8},
+                                    {text: ` after`, fontSize:8, bold:true, italics:true}, 
+                                    {text: ` 10 business days`, fontSize:8, bold:true},
+                                    {text: ` from the date of purchase, the applicant will receive,`, fontSize:8},
+                                    {text: ` no refund (partial or full)  \n`, fontSize:8, bold:true, italics:true},
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `D. Cancellation - by Insurer  \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
+                                text:[
+                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 The insurer or GET COVERED CANADA INC. may cancel this policy with at least`, fontSize:8},
+                                    {text: ` 15 days' written notice.  \n`, fontSize:8, bold:true },
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `E. Refund - Upon Insurer Cancellation  \n`, margin: [0, 5], bold: true,
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
+                                text:[
+                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 If your policy is cancelled by the insurer or Get Covered Canada you will receive a`, fontSize:8},
+                                    {text: ` pro-rated refund`, fontSize:8, bold:true },
+                                    {text: ` for the unused portion, subject to any minimum \n`, fontSize:8 },
+                                ]
+                            },
+                            {
+                                fontSize:8 , text:` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0 retained premium  \n`
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `F. Termination Timing  \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022   `, margin: [0, 5], bold: false,
+                                text:[
+                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 Cancellation is effective at`, fontSize:8},
+                                    {text: ` 12:01 a.m. (Standard Time)`, fontSize:8, bold:true },
+                                    {text: ` on the listed termination date  \n`, fontSize:8 },
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `G. Notice Delivery  \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 Notices are considered delivered once sent via registered mail to the address listed on the policy  \n\n\n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Section 6 – General Provisions & Notices \n`, margin: [0, 5], bold: true, fontSize: 13
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `A. Communications \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 All correspondence must be sent by registered mail. Either party may update their address via written notice \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `B. Subrogation \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 If the Insurer or GET COVERED CANADA INC. pays a claim, they may pursue recovery from third parties. The policy holder must assist in this process \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `C. Recoveries \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 If you receive any other compensation related to a covered claim, that amount must be reimbursed to GET COVERED CANADA INC. or the insurer \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `D. Other Insurance \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 This policy pays only after other valid automotive insurance is exhausted \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `E. Privacy \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
+                                text:[
+                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 GET COVERED CANADA INC. complies with`, fontSize:8},
+                                    {text: ` PIPEDA`, fontSize:8, bold:true},
+                                    {text: ` and only collects or shares personal information as necessary to: \n`, fontSize:8}
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 Process applications and claims \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 Detect fraud \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 Meet legal requirements \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 Data may be stored outside Canada and accessible to foreign authorities. Security safeguards are in place, but absolute protection cannot be \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0 guaranteed \n \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
+                                text:[
+                                    {text: `For `, fontSize:8},
+                                    {text: `all `, fontSize:8, bold:true, italics:true},
+                                    {text: `inquiries, please contact Get Covered Canada by email: `,fontSize:8},
+                                    {text: `sales@getcoveredcanada.ca `, fontSize:8, decoration:'underline' },
+                                    {text: `or by phone to: 905-291-2940 \n`, fontSize:8}
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `F. Currency \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
+                                text:[
+                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 All reported quotes, fees, transactions, etc... and dollar amounts are written in`, fontSize:8},
+                                    {text: ` Canadian Dollars. \n`, fontSize:8, bold:true }
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `G. Third-Party Rights \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 Only the policy holder is entitled to policy benefits \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `H. Governing Law \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 This policy is governed by the provincial laws of the province of Ontario (Get Covered Canada's province of business) and the federal laws of Canada. \n`, margin: [0, 5], bold: false
+                            },
+
+                        ]
+
+
+                        //                 text: [
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `Section 1 - Definitions \n`, margin: [0, 5], bold: true
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `Applicant: \n`, margin: [0, 5], bold: true
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `The individual listed on the application who is also the registered owner of the vehicle.\n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `"Application" means the Application for Guaranteed Asset protection (GAP) lnsurance attached to the Policy' which Application has been certified by the Applicant as being accurate and correct' \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `"Claim" means a claim made under the Policy, by the Policy Holder for coverage under the Policy' \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `"Coinsurance Factor" means the factor calculated by divrdrng $100,000 by the Finance contract Amount stated in the Application' \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `"Commercial purposes", means a vehicle that is used for carrying goods or passengers for livery or delivery purposes or for compensation of any kind. commercial purposes shall also includle vehicles used for any of the following purposes at the ttme of the accident or theft that lead to the Total Loss: security services, taxi cabs or similar passenger travel such as Uber or Lyft' buses' school buses, facilrtation of transportation of commercial goods, police vehicles, emergency vehicles, or the primary insurance policy for the Vehicle is under a commercial classification or commercial insurance policy. However, share-the expense private passenger, carpool vehicle, or personal use vehicle driven by orre driver insured under a commercial vehicle policy are not considered to Comnrerclal Purposes \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `"Covered Vehicle"  or "Vehicle"  means the licensed motor vehicle, watercraft, recreational vehicle or personal trailer' as described on the Application\n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `"Covered Vehicle purchase price" means a reasonable purchase price, exclusive of taxes, unreasonable fees and charges' of the Covered Vehicle as stated in the original loan or lease Policy' \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: ` "Date of Loss" shall mean the actual date of the Total Loss or theft \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `"Dealer" means the Dealersthip Name as stated on the Application. \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: ` "Down-payment Amount" means the cash down-payment and/or equity trade-in amount. as stated on the Application and within the bill of sale or lease agreement for the covered Vehicle. Equrty Trade-in Anrount shall not include any financed or other amount owing on the Vehicle.\n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: ` "Finance contract" means the original loan or lease policy entered into by the Polrcy Holder and the Finance company' with regard to the Policy Holder's purchase or lease of the covered Vehicle.\n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: ` "Finance Contract Amount" means the Finance Contract Amount as stated in the Application\n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: ` "Finance contract term" means the Finance contract Term as stated on the Application' \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: ` "Finance company" means the creditor as stated on the Application \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: ` "Loss" means those costs actually, reasonably and necessarily incurred by the Policy Holder under the Finance contract tn the event of a Total Loss. Such costs are equal to any positive amount resulting from deducting (a) the actual cash value of the covered Vehrcle as of the date of rotal Loss as determined by the Primary Policy lnsurer, fronr (b) the outstanding balance under the Finance contract as of the date of rotal Loss. lt is furlher understood that the outstanding balance under the Finance contract as of the date of rotal Loss shall not include any delinquent payments, future interest payments, GST/HST any failure of the prirnary policy lnsurer to pay any amounts under the principal automotive policy due to the actions or inactions of the Applicant' or deducted by the primary policy lnsurer due to wear and tear. prior damage, unpaid insurance premiums salvage, towing or slorage costs, security deposits, other refundable rnsurance and all past due charges, fines' costs or other miscellaneous expenses or unreasonable fees under the Finance contract as of the date of rotal Loss. where the Finance contract has a deferred payment start date, the outstanding balance will be recalculated as though the loan started on the Aoolication date, using the interest rate' term, and paymentfrequency as stipulated in the Finance Cont"ract. Get Covered Canada reserves the rightto examine the Vehicle Valuation Report to determine its own reasonable actual cash value of the covered Vehicle at the time of the loss' PolicyHolders are enCoUraged to not aCCept any offer of settlement from their Primary Policy lnsurer until has a chance to provide input on the actual cash value of the Covered Vehicle' \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: ` "Policy" means the coverage under the policy of Guaranteed Asset Protection (GAP) lnsurance, and includes the Application' \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: ` "Policy Holder" means the Applicant as stated on the Applicatron, if and only rf the Applrcatton has been accepted and the policy has been subsequently issued to the Applicant, who must be the primary party on the Finance Contract.\n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: ` "Policy period" means the periocl of time during which the Policy is in force, and will be the lesser of 96 months or the Finance Contract Term.\n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: ` "Primary policy", means (a) the statutory personal automobile insurance policy. or (b) the personal watercraft property insurance policy, issued by the primary policy lnsurer to the Policy Holder, insuring the covered vehicle. and must include but not limited to direct physical loss or damage insurance coverage' \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: ` "Primary policy lnsurer" means the Insurance company that issued the Primary Policy.\n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: ` "Proof of Loss" means the written submission By the policy Holder to  Get Covered Canada  in the event of a Total Loss, of pertinent Claim information as required by Get Covered Canada and will include but may not be limtted to:\n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: ` i) a completed copy of the proof of loss under the Primary Policy including police report, when issued;
+                        //                                                 ii) a copy of the Policy:
+                        //                                                 iii) a copy of the Finance Contract;
+                        //                                                 Iv) a copy of the original loan or lease Policy:
+                        //                                                 v) the Vehicle Valuation RePort;
+                        //                                                 vi) the account from the Finance company setting out the outstanding balance under the Finance Contract as of the date of Total
+                        //                                                 Loss;
+                        //                                                 vii) for Down-payment Amounts, a copy of a bank statement showing cash payment or trade in statement from the dealership  showing total equity amount in trade in; and
+                        //                                                 viii) other documentation, report or informatron as requested by in respect of the clarm, including but not limited to documents to substantiate lien payouts for any traded in vehicles at the time Vehicle purchase'
+                        //                                                 "Total Loss" means an incident, covered underthe Primary Policy and occurring during the Policy Period, of:
+                        //                                                 i) direct physical loss or damage to the covered Vehicle, caused by an event other than theft, where the cost of repair exceeds the
+                        //                                                 Covered Vehicle's actual cash value at the tirne of Total Loss as determined by the Primary Poltcy lnsurer; or
+                        //                                                 ii) theft of the covered Vehicle, where the covered Vehicle is not recoverable as determined by the Primary Policy lnsurer'
+                        //                                                 "Total premium", means the Gap lnsurance Total Premium as stated in the Application, payable under the Policy, and charged to the
+                        //                                                 Applicant in respect of the Application. Such Total Premium is to be paid by the Applicant through the Dealer to cannot be subject to any discount or credit.
+                        //                                                 "Vehicle Valuation Report" means the total loss settlement statement from the Primary Policy lnsurer setting out the calculation of
+                        //                                                 the actual cash value of the Covered vehicle as of the rJate of rotal Loss as determined and paid by the Primary Policy lnsurer'
+                        //                                                 "VlN" means the unique serial or vehicle identification number of the Covered Vehicle as stated on the Application'\n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `Section 2 Coverage \n`, margin: [0, 5], bold: true
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `ln consideration of the payment of the Total Premium, subject to all of the terms and conditions of the Policy, and subject to a legitimate insurance claim being paid under the Primary Policy in event of a Total Loss in connection with a claim, the lnsurer agrees to indemnify the Policy Holder for Loss, subject to the following limits: \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `(a) The maximum benefit for Loss is limited to $25000 as indicated on the first page of the Application; \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `(b) partial Loss Collision Deductible protection: ln addition to the benefits detailed above, in the event that the Policy Holder and the Covered Vehicle is involved in a partial loss at fault accident, the lnsurer will reimburse the Policy Holder the Auto Collision deductible applied by the policy Holder's primary lnsurance provider up to a maximum of $1,000.00. The Policy Holder may qualify to make a claim under this option only once under the Policy Period. \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `(c)The maximum total benefit payable under this Policy is limited to $25000 combined for all benefits listed in Section 2(a) and Section 2(b). \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `lf the policy Holder has a Total Loss and the Financed Amount stated in the Application is greater than $100,000, the total payment for Loss under the policy will be reduced using the Coinsurance Factor. ln such case, the benefit payable for Loss under the Policy will be the Loss multiplied by the coinsurance factor. All amounts payable under the Policy will be paid to the Ftnance Company only. Neither the tnsurer nor  will have any duty to defend the Policy Holder or others in any lawsuit or other judicial or administrative proceeding involving the Policy Holder, or to pay or reimburse the Policy Holder for the costs of defense of any such lawsuit or other judicial or administrative proceeding. By acceptance of the Policy, the Policy Holder has warranted that itwill maintain in force and in good standing the Primary Policy during the Policy Period, a failure of which to do so by the Applicant, shall result in a denial of coverage to the Policy Holder under this Policy. \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `Section 3 - Exclusions \n`, margin: [0, 5], bold: true
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `The policy does not cover or apply to any of the following. or to any liabilrty or obligation arising in connection with any of the following: \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `(a) Benefits for Down-payment Amount, rf the Policy Holder has selected "No" for Down-Payment Protection, on the Application,
+                        //                                     (b) Any liability, cost, expense, danrage, charge, assessnrent, exposure, or detrinrent of any description other than Total Loss, or up to a maximum of $1000.00 for the life of the policy in the case of an at fault partial loss only to cover a deductible applied to the at fault claim by the Primary lnsurance policy;
+                        //                                     (c) Any warranty, representation, promise, covenant, commitment, guarantee, or other <Juty or obligation not covered under Section 2;
+                        //                                     (d)Any and all special, incidental, direct, indirect, consequential, exemplary, extra contractual, or punitive damages or liabilities of any descriptron whatever including without limitation that which arise from any act or omission by the Policy Holder, or any agent of the Policy Holder;
+                        //                                     (e) Any gross negligence, misrepresentation, willful or intentional misconduct, strict liability, or any fraudulent, dishonest. or criminal act committed during the application process for this policy, during the process of submitting a claim against this policy, or during  the events of the Total Loss or partial Loss, will negate coverage under this policy, even if a claim was accepted by the Primary lnsurance company; \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `(f) Any misrepresentation during the purchase of the vehicle, including but not limited to misrepresentation of submitted to obtain financing will negate coverage under this policy, even if a claim was accepted by the Primary lnsurance Company. \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `(g) Any Total Loss or partial Loss direcily or indirectly caused by the Policy Holder, or any individual with express or implied permission to possess the covered Vehicle, while committing or attempting to commit a criminal act or if the operator of the Covered Vehicle was impaired at the time of the Total Loss or Partial Loss, even if a claim was accepted by the Primary lnsurance Company;
+                        //  \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `(h) Any Loss to the Covered Vehicle will not be covered if the Primary lnsurance Pollcy is not in the name of the Applicant(s) listed on the first page of this Policy. \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: ` (i) Any Total Loss on a Covered Vehicle used for Commercial Purposes, or a Covered Vehicle utilized by government, municipal or police services, an exhibition or racing vehicle and a short-term rental vehtcle even if a claim was accepted by the Primary Insurance Company,\n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `j) Any Total Loss on a Covered Vehicle older than 10 model years on the Application date; \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `k) Any portion of the Loss resulting from the Finance Contract Amount exceeding the Maximum Loan-to-Value Percentage specified on the front page of this Policy, calculated based on the Covered Vehicle Purchase Price, will not be covered. ln such cases, the Outstanding Loan Balance will be adjusted using the Maximum Loan-to-Value Percentage. The Financed Amount will be recalculated as if the Finance Contract Amount had been limited to the Loan-to-Value Percentage stated on the front page of the contract, relative to the Covered Vehicle Purchase Price' \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `(l) Any part of the Loss that exceeds N/aximum Loan-to-Value Percentage specified on the front page of this Policy of the actual cash value at the time of the loss \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `(m) Any Loss that includes a cash back payment included in the sale of the vehicle or any Loss where the sale price of the vehicle or any accessories or other products listed on the bill of sale are unreasonable; \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `(m) Any Loss that includes a cash back payment included in the sale of the vehicle or any Loss where the sale price of the vehicle or any accessories or other products listed on the bill of sale are unreasonable; \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `(n)Any Loss due to war, whether or not declared, any type of invasion, civil war, insurrection, rebellion or revolution; \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `(o) Any Loss that results from or is due to a mechanical or electrical breakdown or failure; \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `(p) Any Loss resulting from the vehicle being operated, used or maintained in any race, speed contest or similar type of contest whether on a road or closed circuit, even if a claim was accepted by the Primary lnsurance Company; \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `(q) Any Loss attributed to non-standard equipment, including but not limited to, roll bars, furniture, audio or video equipment, specialized racking or storage, sleeping or cooking equipment, customized paint or wraps, or equipment installed to overcome any physical handicap, even if a claim was accepted by the Primary lnsurance Company; \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `(r) Any Loss due to providing incorrect information during the registration process, including but not limited to, the policy period' financed amount, or interest rate, will not be covered. \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: ` (s) Any Loss arising from products, fees, insurances, vehicle accessories, or other charges on the Vehicle bill of sale that exceed $10,000 will not be covered. ln such cases, the Finance Amount will be adjusted accordingly.\n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: ` (t) Any Loss that is reported more than 60 days after the Date of Loss, even if a claim was accepted by the Primary lnsurance Company\n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `(u)Any Loss due to a deductible subtracted by your Piimary lnsurance Company \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `Section 4 - Claim Procedures \n`, margin: [0, 5], bold: true
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `Notice Claim: ln the event the Policy Holder wishes to make a Claim, the Policy Holder must give written notice of Claim to RENCORE TNSURANCE lNC. with all available information within 60 days after the Date of Loss. \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `Proof of Loss: The Policy Holder must give the Proof of Loss to  within the earIier of 60days of providing the written notice of Claim to the 60days from the Date of Loss \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `Settlement of Claim: RENCORE INSURANCE lNC. will adjudicate the Claim on behalf of the lnsurer, and subject to the lnsurer being liable under the Policy,within 60days of's receipt of satisfactory Proof of Loss,will work with the lnsurer to pay the Finance Company. \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `Mitigation of Loss: The policy Holder must do all that is reasonable and practical to avoid or reduce any Loss under this Policy and to protect the Covered Vehicle from further Loss. The Policy Holder must take all reasonable measures to ensure that the maximum amount is paid by the Primary Policy lnsurer. Any portion of the Loss that is due to the Policy Holder's failure to protect the Covered Vehicle or maximize the settlement noted here in shall be considered to be a part of the Loss.\n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `Section 5 - Termination \n`, margin: [0, 5], bold: true
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `(a)This Policy may be terminated by the Policy Holder by giving Written notice stating when there after the termination shall be effective. \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `(b)if terminated by the policy Holder within 30 days of the Policy Effective Date,  will facilitate the refund as soon as practicable of '100% of the Total Premtum actually paid by the Policy Holder \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `(c) lf terminated by the poticy Holder after 30 days from the Policy Effective Date,  will refund as soon as practicable the excess of the Total premium actually paid by the Policy Holder over the short rate premium for the expired time according to the table in use by the Insurer at the time of the termination, but in no event may the short rate premium for the expired time be less than any minimum retained premium specified on the first page of the Application. \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `(d)This Policy may be terminated by the lnsurer or on its behalf by giving to the Policy Holder written notice stating when, not less than 15 days there after, such termination shall be effective \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `(e)lf terminated by the lnsurer or on its behalf will facilitate the refund 0f the excess of premium actually paid by the Policy Holder over the prorated premium for the expired time, but in no event may the prorated premium for the expired time be less than any minimum retained premium specified on the first page of the Application \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `(f) The effective date of termination stated in the notice of termination shall become the end of the Policy Period. The time of termination shall be effective as of 12:01 a.m. Standard Time at the address of the Policy Holder as stated in the Application \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `(g) Notice of termination as provided above, shall be given upon deposit in the Canadian mails, registered and postage prepaid' and sent to the address of the Policy Holder as the case may be. The 1S-day period mentioned in paragraph (c) above begins to run on the day following the receipt of the registered letter at the post office to which it is addressed. No claim or coverage shall be afforded to the Policy Holder as of the date of termination.
+                        //  \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: ` Section 6 - General Provisions, and Notices \n`, margin: [0, 5], bold: true
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `All notices, Proof of Loss, and surrender of the Policy will be deemed to be given: \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: ` (a)lf to Upon deposit in the Canadian mails,registered and post age prepaid,addressed to address shown in the Policy; or\n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `(b) lf to the Policy Holder, upon deposit in the Canadian mails, registered and postage prepaid, addressed to the Policy Holder's address shown in the Policy \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: ` Either the lnsurer, or the Policy Holder may change any such address by delivery of a  written notice to the other as provided above.\n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: ` Subrogation \n`, margin: [0, 5], bold: true
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `ln the event of any payment by the lnsurer or RENCORE INSURANCE lNC. on its behalf under the Policy, will be subrogated to all of the Policy Holder's rights of recovery therefore against any person or entity, and the Policy Holder will execute and deliver jointly to the lnsurer and such instruments, assignments, and papers as requested by and do whatever is necessary to secure such right sand effectuate the lnsurer and exercise of such rights.The Policy Holder will do nothing to prejudice or waive such rights. \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: ` Recoveries\n`, margin: [0, 5], bold: true
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `All amounts recovered by the Policy Holder for which the Policy Holder has also received benefits under the Policy will belong to RENCORE INSURANCE lNC. and/or the lnsurer as determined by these two parties, and will be paid to RENCORE INSURANCE lNC. by the Policy Holder up to the Total Premium amount paid under this Policy. \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `Other lnsurance \n`, margin: [0, 5], bold: true
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `Coverage provided under the Policy is in excess of any other applicable valid and collectible insurance or indemnity available to the Policy Holder, and the lnsurer will be liable only for the excess of the amount of loss over the amount covered by other insurance or indemnity after all other insurance or indemnity has been exhausted. The coverage provided under the Policy will not apply as contributory insurance and this non-contribution will prevail despite any non-contribution provision in other insurance or indemnity.The lnsurer will indemnify the Policy Holder only to the extent that a covered Loss is not covered by such other insurance or indemnity \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `Privacy and Data Protection \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `the lnsurer are committed to protecting your privacy in accordance with applicable privacy legislation, including the Personat tnformation Protection and Electronic Documenfs Act (PIPEDA). The information you submit to us above will be handled in accordance with our privacy policy]WilIcollect,use and disclose your personal information only to process and administer the application, and administer the program, once in force. This includes \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: ` (i) Processing your Claims and otherwise providing you with our services; \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `(ii) verifying your identity and detecting and investigating fraud; \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `(iii)communicating with you and responding to your requests: \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `(iv) resolving disputes: \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `(v) providing you with information about products and services (with your consent where required by law); and \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `(vi)other purposes as requrred or permitted by law \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `Get Covered Canada may share your personal information with the following types of third parties: \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `(i) service providers who assist us in managing our business operations, such as Salesforce, a cloud-based customer relationship management (CRlVl) provider, which we use to store and manage client information, and Stannp, a third-party mailing service provider, which we use to send contracts. Both of these service providers are based in the United States, and your personal information may be processed and stored in that country; \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `(ii) third parties or affiliates in connection with a corporate transaction, such as a sale, consolidation, or merger; and \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `(iii) governmental authorities and third parties to comply with legal requirements, such as demands, subpoenas, court orders, and other legal processes. \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: ` Some of these entities may be located outside of Canada, meaning your personal information may be transferred outslde Canada
+                        // and may be accessible to courts, law enforcement and national authorities in other countries. and the Insurer will protect your personal information with safeguards commensurate with the sensitivity of the data. These include physical, organizational, and technical safeguards. However, the transmission or storage of personal information via the internet or other electronic means is not completely secure. Although we take steps to protect your personal information, we cannot fully guarantee the security of your data. \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: ` lf you have any questions about our handling of your personal information, please contact Lov Hoffes, VP of Operations, 905-291-2940 \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `Currency \n`, margin: [0, 5], bold: true
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `All amounts and payments under the Policy will be in Canadian dollars \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `No Benefit to Third Parties \n`, margin: [0, 5], bold: true
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `Except as expressly provided by applicable law, the insurance afforded by the Policy is solely for the benefit of the Policy Holder. ln no circumstances will any person or entity other than the Policy Holder (or such assignee) have any rights or be entitled to any benefits under the Policy. \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `Governing Law \n`, margin: [0, 5], bold: true
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `The Policy and all of its terrns and conditions will be governed and construed in accordance with the laws of the province in which the Dealer resides and the federal laws of Canada applicable therein. \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `Territory \n`, margin: [0, 5], bold: true
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `The Policy only applies to a Total Loss which occurs within Canada and the Continental United States of America. \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `Changes in the Policy \n`, margin: [0, 5], bold: true
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `Severability of the Policy Provisions \n`, margin: [0, 5], bold: true
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `ln the event that any provision of this Policy or any amendments hereto will be deemed invalid or void, in whole or in part, because it is now or may hereafter be against public policy or for any reason, the offending provision will be severable from the Policy and the remaining terms and provisions of the Policy will remain in full force and effect, subject always to the terms and conditions of applicable law.
+                        //  \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `The Ontario lnsurance Act states that no term of the contract or condition, stipulation, warranty or proviso modifying or impairing its effect is valid or admissible in evidence to the preludrce of the insured unless agreed upon in writing by the insurer and the insured after the issuance of the policy. The federal Fair Treatment Guidance states that where there are changes in terms and conditions, the insurer notifies the policyholder of their rights and obligations regarding such changes and obtains the policyholder's consent as appropriate. \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `This is required pursuant to sectlcn 578(5) 0f the federal insurance Companies Act Since TIC is a foreiqn Insurance company' Seems duplicative of "Total Premium" defined below \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: `please indicate if any of these purposes will be exclusively carried out by Get Covered Canada, in which case this section should be modified accordingly. For instance, is one party solely responsible for providing customer service? \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: ` This can be removed if the company can verify that information is kept in Canada at all times. See comment on the application page.\n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: ` \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: ` \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: ` \n`, margin: [0, 5]
+                        //                     },
+                        //                     {
+                        //                         fontSize: 8, alignment: 'left', text: ` \n`, margin: [0, 5]
+                        //                     },
+                        //                 ]
+                    }
+
+
+                ] :
+                    [{
+                        text: [
+                            // {
+                            //     fontSize: 8, alignment: 'left', text: `Extended Warranty Program – Terms & Conditions \n`, margin: [0, 5], bold: true
+                            // },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Extended Warranty Program – Terms & Conditions \n`, margin: [0, 5], bold: true, fontSize: 20
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Issued by: GET COVERED CANADA INC. \n`, margin: [0, 5], bold: true, fontSize: 8
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Updated: August 2025 \n\n`, margin: [0, 5], bold: true, fontSize: 8
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Extended Warranty Agreement Overview \n`, margin: [0, 5], bold: true, fontSize: 13
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\ The full Agreement includes both the Extended Warranty Application/Registration Page & Terms and Conditions of the policy \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\ Only documents provided to the policy holder directly by Get Covered Canada are valid \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\ Please keep a copy as proof of coverage for the full term of the policy \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\ Only listed parts, labour, and specified benefits are covered \n`, margin: [0, 5], bold: false
+                            },
+                            // {
+                            //     fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\ This is an Inclusionary Mechanical Breakdown Warranty, not a service agreement or contract \n\n\n`, margin: [0, 5], bold: false
+                            // },
+                            {
+                                fontSize: 8,alignment: 'left',margin: [0, 5],bold: false,
+                                text: [
+                                    { text: ' \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0 This is an ' , fontSize:8},
+                                    { text: 'Inclusionary Mechanical Breakdown Warranty, ', bold: true, italics: true, fontSize:8 },
+                                    { text: 'not a service agreement or contract \n\n\n' , fontSize:8 }
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `1. Essential Warranty Plans \n`, margin: [0, 5], bold: true, fontSize: 13
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
+                                text:[
+                                    {text:` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0 Get Covered Canada Inc. will cover reasonable repair costs for `, fontSize:8},
+                                    {text: `Covered Parts `, bold:true, italics:true, fontSize:8},
+                                    {text: `due to`, fontSize:8},
+                                    {text: ` Mechanical Failure \n  `, bold:true, italics:true, fontSize:8},
+
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
+                                text:[
+                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\ Mechanical Failure: Failure of a `, fontSize:8},
+                                    {text: `covered part`, bold:true, italics:true, fontSize:8},
+                                    {text: ` under normal use, not caused by non-covered parts \n`, fontSize:8},
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\ Coverage applies only if: \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\ i) Purchased at time of sale/lease of the vehicle on the policy, or \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\ ii) Before expiry of original manufacturer’s warranty (with equal/lesser coverage)\n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
+                                text:[
+                                    {text:` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\ Coverage starts on the `, fontSize:8},
+                                    {text: `'Start Date'`, bold:true, italics:true, fontSize:8},
+                                    {text: ` noted on page one of this application and with a noted:\n`, fontSize:8}
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022  Warranty Authorization Number \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022  Signed agreement\n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022  Proof of full payment recived on or before the date of the application \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022  The 'term' ends when the 'end term date' has arrived on the calendar or the odometer limit (whichever comes first) is reached \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\ This policy may be cancelled for non-payment at any time and at the discretion of Get Covered Canada Inc. and/or their authoized agent(s) \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\ The vehicle under this policy must be in proper operating condition at program commencement date\n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\ False information shall VOID this agreement - and a $299.00 administrative fee will apply and be due by the policy holder in cases of this nature \n\n\n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `2. Vehicle Eligibility (Exclusions) \n`, margin: [0, 5], bold: true, fontSize: 13
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\ Not eligible: \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\ High-end or exotic vehicles (e.g., Ferrari, Lamborghini, Rolls-Royce, Bentley, Mclaren, Bugatti, etc.) \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\ Vehicles over 1-ton payload capacity \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\ Vehicles used for:\n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\ Taxi, courier, chauffeuring, UBER/Ride-sharing, delivery, snowplowing, tow-truck, racing, police, ambulance, other emergency use purposed vehicles,  \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\  food trucks, heavy use hauling \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\ Ineligible warranties will be cancelled and refunded through the purchasing  dealership.\n\n\n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `3. Maintenance Requirements \n`, margin: [0, 5], bold: true, fontSize: 13
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\ Must follow manufacturer’s fluid and maintenance schedule. \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\ Oil & filter change every 10,000 km or or six (6) months, whichever comes sooner \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
+                                text:[
+                                    {text:` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\ DIY ('do it yourself') maintenance is `, fontSize:8},
+                                    {text: `NOT`, bold:true, italics:true, fontSize:8},
+                                    {text: ` allowed \n`, fontSize:8}
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\ Maintenance documentation must include:\n`, margin: [0, 5], bold: false
+                            },
+
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022  Repair facility information\n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022  Date, invoice/work order physical paperwork & number\n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022  Vehicle details (VIN, make, model, year, km)\n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022  Maintenance performed and cost in US or Canadian currency\n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022  Proof of payment to an authorized oil change/mechanic shop facility (made by credit card or debit only)\n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\ Claims may be denied for neglecting any prescribed/scheduled vehicle maintenance\n\n\n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `4. Warranty Plans and Coverage \n`, margin: [0, 5], bold: true, fontSize: 13
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022	Based on selected plan:\n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: true,
+                                text:[
+                                    {text:` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 `, fontSize:8,bold:true},
+                                    {text:` Essential/Bronze`, fontSize:8, color:'#800000',bold:true},
+                                    {text:` Powertrain Programs \n`, fontSize:8, bold:true}
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: true,
+                                text:[
+                                    {text:` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 `, fontSize:8,bold:true},
+                                    {text:` Essential/Silver`, fontSize:8, color:'#808080',bold:true},
+                                    {text:` Powertrain Plus Programs \n`, fontSize:8, bold:true}
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: true,
+                                text:[
+                                    {text:` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 `, fontSize:8,bold:true},
+                                    {text:` Premium/Gold`, fontSize:8, color:'#996515',bold:true},
+                                    {text:` Powertrain Plus Programs \n\n\n`, fontSize:8, bold:true}
+                                ]
+                            },           
+                            {
+                                fontSize: 8, alignment: 'left', text: `5. Maximum Liabilities \n`, margin: [0, 5], bold: true, fontSize: 13
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022	Based on numerous offered plans: \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022	$1000 / $1500 / $2000/ $2500 / $3000 / $4000 / $5000 /$10,000 per claim \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ``, margin: [0, 5], bold: false,
+                                text:[
+                                    {text:` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022	OR`, fontSize:8, bold:true, italics:true },
+                                    {text:` half the vehicle purchase price (whichever is less)\n`, fontSize:8}
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022	Total term limit = purchase price of vehicle \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
+                                text:[
+                                    {text:` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022	Any claim`, fontSize:8},
+                                    {text:` MUST`, fontSize:8, bold:true, italics:true },
+                                    {text:` be made with five business days of the issue being reported to a licensed mechanic!\n`, fontSize:8}
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022	Duly stated and noted on the first page of this policy/application\n\n\n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `6. Deductible \n`, margin: [0, 5], bold: true, fontSize: 13
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
+                                text:[
+                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022	$199.00`, bold:true, fontSize:8, italics:true},
+                                    {text: ` deductible as stated on the agreement front page! \n\n\n`, fontSize:8}
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `7. Warranty Coverage Details \n`, margin: [0, 5], bold: true, fontSize: 13
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `(A) Includes: \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Engine \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Turbo/Supercharger \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
+                                text:[
+                                    {text:` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Transmissions`, bold:true, fontSize:8},
+                                    {text:` (auto/manual) \n`, fontSize:8}
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Differentials / Transaxles / Transfer Case \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
+                                text:[
+                                    {text:` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Trip-Interruption:`, bold:true, fontSize:8},
+                                    {text:` Up to $100/day, 5 days, 250km+ from home \n`, fontSize:8}
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
+                                text:[
+                                    {text:` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Rental Allowance:`, bold:true, fontSize:8},
+                                    {text:` $40/day, 5 days; certain conditions apply! \n`, fontSize:8}
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `(B) Includes: \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Air Conditioner \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
+                                text:[
+                                    {text:` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Seals & Gaskets`, bold:true, fontSize:8},
+                                    {text:` (if applicable to your plan)\n`, fontSize:8}
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
+                                text:[
+                                    {text:` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Electrical System:`, bold:true, fontSize:8},
+                                    {text:` Switches, wipers, lights, mirrors, seat controls, etc.\n`, fontSize:8}
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `C) Includes: \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Brakes\n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 ABS / Traction Control \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Fuel Injection System\n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
+                                text:[
+                                    {text:` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Front Suspension`, bold:true, fontSize:8},
+                                    {text:` (excludes shocks/air suspension) \n`, fontSize:8}
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Power Steering \n\n\n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `8. How to Make a Claim \n`, margin: [0, 5], bold: true, fontSize: 13
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `     or by phone at: 905-291-2940 within 24 hours of vehicle \n`, margin: [0, 5], bold: true,
+                                text:[
+                                    {text:` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0 1.	Call Get Covered Canada:`, fontSize:8},
+                                    {text:` Immediately report a claim to: `, fontSize:8, bold:true},
+                                    {text:`claims@getcoveredcanada.ca`, fontSize:8, bold:true, decoration: 'underline'},
+                                    {text:` or by phone at: 905-291-2940 within 24 hours of vehicle \n`, fontSize:8, bold:true},
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0 breakdown \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0 2.	Provide maintenance documentation when instructed to do so \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0 3.	A Get Covered Canada on-site claims adjuster may be required \n\n\n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Repair Coverage & Authorization \n`, margin: [0, 5], bold: true, fontSize: 13
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Repair costs are based on average similar repairs or the MITCHELL GUIDE or similar manuals \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Only repairs authorized by Get Covered Canada are covered, and as such MUST be submitted PRIOR to any work being commenced/completed and \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0 made within Section 5 limitations  \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Pre-Authorization granted only if: \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Terms & Conditions are met \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Agreement /term policy is active \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Cost estimate is acceptable and provided to Get Covered Canada by a licensed automotive facility \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Claim Authorization Number: \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Genreated  by Get Covered Canada and valid for 30 days \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Valid only for specified and authorized repair shops\n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Get Covered Canada may use OEM, aftermarket, used, or rebuilt parts at its sole discretion \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 No coverage (policy is VOID) if  this policy agreement expires, is cancelled, or terminated before any work is completed! \n\n\n`, margin: [0, 5], bold: true, italics:true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` Payment process \n`, margin: [0, 5], bold: true, fontSize: 13
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Claims shall be paid directly to licensed repair shop after: \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Claim Authorization Number has been issued \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Repairs are completed by authorized repair facility \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Final invoice signed and submitted by all parties involved\n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Warranty Holder pays deductible, taxes, and non-covered items \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Reimbursement (in special cases only authorized in advance by Get Covered Canada): \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Must be pre-authorized \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Documents and receipts required within 5 business days \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Repairs outside Ontario evaluated per Ontario standards \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Reimbursements made in Canadian dollars \n\n\n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Warranty Coverage Exclusions \n`, margin: [0, 5], bold: true, fontSize: 13
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Parts and labour not listed in Part 6 \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Pre-existing mechanical defects \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Unauthorized repairs or unauthorized locations \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Regular maintenance items (e.g., alignment, spark plugs, software updates) \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Electrical wiring, certain hardware, and accessories (e.g., heated seats, cameras) \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Failures from poor maintenance, abuse, or neglect \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Dirty oil, carbon buildup, or non-wear-based issues\n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Failures from improper and/or contaminated fluids or lubricant issues \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Failures due to modified vehicles or non-OEM parts \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Wear-only issues (e.g., high oil consumption)\n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Failures from accidents, weather, natural disasters, rodents, fire, vandalism, etc. \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Failures caused by non-covered parts\n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Tampered odometers \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Failures already covered under other warranties or legal actions \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Time loss, inconvenience, or profit loss due to delays or failures \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Noises that don’t affect part or vehicle operation \n\n\n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `"No Claims Double Term Option" Extended Coverage Offer \n`, margin: [0, 5], bold: true, fontSize: 13
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Applies to original owners of 1 - 4 year policies. \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Not applicable to transferred or renewed policies \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Eligibility conditions: \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\  1. Original GCC extended warranty holder/owner of vehicle only \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\  2. All Agreement obligations must be met and substaniated with documentation as required/requested by Get Covered Canada \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\  3. Submit all maintenance records upon registration \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\  4. No previous claims (paid, authorized, or pending)\n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\  5. Policy holder has contacted Get Covered Canada before original term ends \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\  6. Pay $199.00 + HST and get oil change (if required). \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\  7. NOTE: The second term has not cancellable and/or is not transferable or cash convertible \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\  8. Coverage may differ from original policy \n\n\n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 13, alignment: 'left', text: `Cancellations \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Non-cancellable except within 10 days of purchase. \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Must go through selling dealer with no claims made \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 25% cancellation fee (minimum $100) + HST applies \n\n\n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Total Loss Clause (For Finance Companies) \n`, margin: [0, 5], bold: true, fontSize: 13
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Cancellation allowed if vehicle is: \n`, margin: [0, 5], bold: true, italics:true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Declared a total loss by the insurer\n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Repossessed \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left',  margin: [0, 5], bold: true,
+                                text:[
+                                    {text:` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Refund based on amount paid by`,fontSize:8, bold:true, italics:true},
+                                    {text:` dealer,`, fontSize:10, bold:true, italics:true},
+                                    {text:` minus: \n`, fontSize:8, bold:true, italics:true},
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 $100 admin fee \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Any claim payouts\n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Refund schedule: \n`, margin: [0, 5], bold: true, italics:true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Month 1: 75% \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Month 2: 70%\n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Month 3: 50%\n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Month 4: 40% \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Month 5: 30% \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Month 6: 20% \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Month 7: 10% \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Month 8–12: 0% \n\n\n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: `Other Terms\n`, margin: [0, 5], bold: true, fontSize: 13
+                            },
+                            {
+                                fontSize: 8, alignment: 'left',  margin: [0, 5], bold: true,
+                                text:[
+                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022    OMVIC Compliance:`, fontSize:8, bold:true},
+                                    {text: ` Get Covered Canada Inc. O/A Get Covered Canada complies with all MVDA and UCDA guidelines, policies, and procedures; \n`,fontSize:8}
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0     backed by letter of credit to OMVIC. \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022    Transferability: \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022    One-time transfer to new owner (same vehicle only) \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022    Notify Get Covered Canada by email within 10 days \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022    Provide registration & bill of sale \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022	$199 + HST transfer fee required. \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022	Failure to pay will result in policy cancellation \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022	Financial Agreements: \n`, margin: [0, 5], bold: true
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022	Financing companies entitled to cancellation refunds \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022	Missed payments may lead to cancellation with no refund or claim \n`, margin: [0, 5], bold: false
+                            },
+                            {
+                                fontSize: 8, alignment: 'left',  margin: [0, 5], bold: true,
+                                text:[
+                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022    Right to Recover:`, fontSize:8, bold:true},
+                                    {text: ` Get Covered Canada can pursue third parties for reimbursed claims \n`,fontSize:8}
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left',  margin: [0, 5], bold: true,
+                                text:[
+                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022    Territory:`, fontSize:8, bold:true},
+                                    {text: ` Valid for repairs in Canada & United States of America \n`,fontSize:8}
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left',  margin: [0, 5], bold: true,
+                                text:[
+                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022    Dispute Resolution:`, fontSize:8, bold:true},
+                                    {text: ` Must follow binding arbitration via Canadian Arbitration Association (after written notice of dispute) \n`,fontSize:8}
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left',  margin: [0, 5], bold: true,
+                                text:[
+                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022    Privacy:`, fontSize:8, bold:true},
+                                    {text: ` Consent required for data collection, possibly outside Canada\n`,fontSize:8}
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left',  margin: [0, 5], bold: true,
+                                text:[
+                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022    Entire Agreement:`, fontSize:8, bold:true},
+                                    {text: ` Supersedes all previous terms, conditions, and policies, written or oral \n`,fontSize:8}
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left',  margin: [0, 5], bold: true,
+                                text:[
+                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022    Governing Laws:`, fontSize:8, bold:true},
+                                    {text: ` Get Covered Canada is legally entiltled to operate business in Ontario, and as such is bound by the laws within the province of \n`,fontSize:8}
+                                ]
+                            },
+                            {
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0 Ontario (provincially), and within the country of Canada, abiding by all federal laws \n`, margin: [0, 5], bold: false
+                            }
+
+                        ],
+                        border: [true, true, true, true]
+                    }]
+                ),
+
+
+
+
+
+
+
+
+
+
+            ]
+        };
+
+        // Generate the PDF and open it in a new tab
+        pdfMake.createPdf(docDefinition).open();
+    };
+
+
 
     const generateInvoicePdf = async (data, invCount, merchantno, applicationId) => {
         console.log("data" + JSON.stringify(data));
@@ -3825,7 +5864,7 @@ export default function BuildWarranty() {
                             ],
                             [
                                 { text: `Warranty Plan:  `, fontSize: 9, bold: true, border: [false, false, false, false] },
-                                { text: ` ${data.productName}`, fontSize: 8, border: [false, false, false, false] },
+                                { text: ` ${data.productName.replace('(', '  (')}`, fontSize: 8, border: [false, false, false, false] },
                                 { text: ``, border: [false, false, false, false] }
                             ],
                             [
@@ -3897,12 +5936,12 @@ export default function BuildWarranty() {
                             ],
                             [
                                 { text: `Vehicle Information: `, fontSize: 9, bold: true, border: [false, false, false, false] },
-                                { text: `${data.yearText + ' ' + data.modelText}`, fontSize: 8, bold: false, border: [false, false, false, false] },
+                                { text: `${data.year + ' ' + data.model}`, fontSize: 8, bold: false, border: [false, false, false, false] },
                                 { text: ``, border: [false, false, false, false] }
                             ],
                             [
                                 { text: `Warranty Plan:  `, fontSize: 9, bold: true, border: [false, false, false, false] },
-                                { text: ` ${data.productName}`, fontSize: 8, border: [false, false, false, false] },
+                                { text: ` ${data.productName.replace('(', '  (')}`, fontSize: 8, border: [false, false, false, false] },
                                 { text: ``, border: [false, false, false, false] }
                             ],
                             [
@@ -4282,7 +6321,7 @@ export default function BuildWarranty() {
                                                                 {make}
                                                             </MenuItem>
                                                         ))}
-                                                       
+
                                                     </Select>
                                                 </FormControl>
 

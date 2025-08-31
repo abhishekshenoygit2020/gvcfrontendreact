@@ -125,7 +125,7 @@ function ViewDealershipWarrantyProduct() {
     const DealershipProduct = (props) => {
         return (
             <Tooltip title="Dealership Custom Product">
-                <ManageAccountsIcon  style={{ cursor: "pointer" }} onClick={(e) => {
+                <ManageAccountsIcon style={{ cursor: "pointer" }} onClick={(e) => {
                     e.stopPropagation();
                     console.log(props.selectedRow);
                     navigate('/WarrantyProducts', { state: { type: "dealershipCustom", value: props.selectedRow } });
@@ -141,13 +141,13 @@ function ViewDealershipWarrantyProduct() {
                 <DeleteIcon style={{ cursor: "pointer" }}
                     onClick={() => {
                         const isConfirmed = window.confirm("Are you sure you want to delete?");
-                        if(isConfirmed){
+                        if (isConfirmed) {
                             console.log(props.selectedRow.id);
                             const data = { id: props.selectedRow.id };
                             const mainURL = 'product/' + data.id + '/deletesByIdDealershipProduct';
                             serviceMethod(mainURL, data, handleSuccess, handleException);
                         }
-                        
+
                     }}
                 />
             </Tooltip>
@@ -282,16 +282,16 @@ function ViewDealershipWarrantyProduct() {
                     }}
                 />
             </Box>
-             <Snackbar open={alertOpen} autoHideDuration={6000} onClose={handleCloseSnack}>
-                                <Alert
-                                    onClose={handleCloseSnack}
-                                    severity={severity}
-                                    variant="filled"
-                                    sx={{ width: '100%' }}
-                                >
-                                    {message}
-                                </Alert>
-                            </Snackbar>
+            <Snackbar open={alertOpen} autoHideDuration={6000} onClose={handleCloseSnack}>
+                <Alert
+                    onClose={handleCloseSnack}
+                    severity={severity}
+                    variant="filled"
+                    sx={{ width: '100%' }}
+                >
+                    {message}
+                </Alert>
+            </Snackbar>
 
         </div>
     );

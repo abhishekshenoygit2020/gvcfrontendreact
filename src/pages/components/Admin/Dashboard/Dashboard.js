@@ -4,8 +4,7 @@ import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 // import Chart from 'chart.js/auto';
 import axios from '../../../../api/axios';
 import Stack from '@mui/material/Stack';
-import { Line } from 'react-chartjs-2';
-import { PieChart } from '@mui/x-charts/PieChart';
+import { PieChart } from '@mui/x-charts';
 import { useMediaQuery } from '@mui/material';
 import { useDrawingArea } from '@mui/x-charts/hooks';
 import { styled } from '@mui/material/styles';
@@ -23,6 +22,8 @@ import IconButton from '@mui/material/IconButton';
 import { CSVLink } from 'react-csv';
 import DataList from './DataList';
 import SmallCard from './Card';
+import { Line } from 'react-chartjs-2';   // Chart.js line chart
+import { LineChart } from '@mui/x-charts'; // MUI X chart
 const URL = "./dealership/getDataCount";
 
 
@@ -34,17 +35,24 @@ const Dashboard = () => {
     const [productAPrice, setProductAPrice] = useState(0);
     const [productBPrice, setProductBPrice] = useState(0);
     const [productCPrice, setProductCPrice] = useState(0);
-    const [productAName, setProductAName] = useState('Gold');
-    const [productBName, setProductBName] = useState('Silver');
-    const [productCName, setProductCName] = useState('Bronze');
+    const [productAName, setProductAName] = useState('Essential Warranty');
+    const [productBName, setProductBName] = useState('Premium Warranty');
+    const [productCName, setProductCName] = useState('GAP Protection');
     const [salesLabel,setSalesLabel] = useState([]);
     const [soldData, setSoldData] = useState([]);
 
-    const [seriesData, setSeriesData] = useState([{ label: "Bronze", value: 0 },
-    { label: "Gold", value: 0 },
-    { label: "Silver", value: 0 }]);
+    const [seriesData, setSeriesData] = useState([
+        { label: "Essential", value: 0 },
+        { label: "Premium", value: 0 },
+        { label: "GAP", value: 0 }
+    ]);
 
+    const total = seriesData.reduce((sum, item) => sum + item.value, 0);
 
+    const valueFormatter = (item) => {
+        const percent = ((item.value / total) * 100).toFixed(1);
+        return `${percent}%`;
+    };  
 
     const user = ApplicationStore().getStorage('user_email');
     const dealership = ApplicationStore().getStorage('dealership');
@@ -262,15 +270,100 @@ const Dashboard = () => {
         fontSize: 20,
     }));
 
+    // const monthlyData = [
+    //     { month: "2025-01", cost: 120000, profit: 80000 },
+    //     { month: "2025-02", cost: 150000, profit: 110000 },
+    //     { month: "2025-03", cost: 170000, profit: 130000 },
+    //     { month: "2025-04", cost: 160000, profit: 125000 },
+    //     { month: "2025-05", cost: 200000, profit: 155000 },
+    //     { month: "2025-06", cost: 140000, profit: 95000 },
+    //     { month: "2025-07", cost: 180000, profit: 145000 },
+    //     { month: "2025-08", cost: 130000, profit: 85000 },
+    // ];
+
+    const COLORS = ["#0088FE", "#00C49F"];
+    const [monthlyData, setMonthlyData] = useState([]);
+    const [monthIndex, setMonthIndex] = useState(monthlyData.length - 1);
+
+    const handlePrev = () => {
+    if (monthIndex > 0) setMonthIndex(monthIndex - 1);
+    };
+
+
+    const handleNext = () => {
+    if (monthIndex < monthlyData.length - 1) setMonthIndex(monthIndex + 1);
+    };
+
+const currentMonth = monthlyData[monthIndex] || {};
 
 
 
     useEffect(() => {
+        fetchTotalCost();
+        fetchLastMonthSales();
         loadData();
         loadSoldData();
         loadProductData();
         
     }, []);
+
+    //  Function to fetch last month sales
+    const dealership_id = ApplicationStore().getStorage('dealership');
+    const user_type = ApplicationStore().getStorage('user_type');
+    const fetchLastMonthSales = async () => {
+        try {
+            // console.log("dealership id: ",dealership);
+            
+        const response = await axios.get(`http://localhost:3006/api/dashboard/lastMonthSales/${dealership_id}/${user_type}`); 
+        // const data = response.data;
+        const data = response.data?.data || []; // safe access
+         // Build map for easy lookup
+        const salesMap = {};
+        data.forEach(item => {
+          salesMap[item.categoryName] = {
+            sales: item.last_month_sales || 0,
+            count: item.category_count || 0
+          };
+        });
+        
+        // Update states
+        setProductAPrice(salesMap["Essential Warranty"]?.sales || 0);
+        setProductBPrice(salesMap["Premium Warranty"]?.sales || 0);
+        setProductCPrice(salesMap["GAP Protection"]?.sales || 0);
+
+        setSeriesData([
+            { label: "Essential", value: salesMap["Essential Warranty"].sales || 0 },
+            { label: "Premium", value: salesMap["Premium Warranty"].sales || 0 },
+            { label: "GAP", value: salesMap["GAP Protection"].sales || 0 }
+        ]);
+       
+
+        } catch (error) {
+            console.error("Error fetching last month sales:", error);
+        }
+    };
+
+    
+ const fetchTotalCost = async () => {
+    try {
+      const response = await axios.get(`http://localhost:3006/api/dashboard/totalCost/${dealership}`);
+      const data = response.data.data || [];
+
+      const formatted = data.map(item => ({
+        month: item.YearMonth,
+        cost: item.TotalProductCost,
+        profit: item.TotalProfit,
+      }));
+
+      setMonthlyData(formatted);
+      setMonthIndex(formatted.length - 1); // default to last month
+    } catch (error) {
+      console.error("Error fetching total cost:", error);
+    }
+  };
+
+
+
 
     const loadData = async () => {
         try {
@@ -423,7 +516,7 @@ const Dashboard = () => {
 
             {/* Debugging: check the content of dataList */}
             {/* {JSON.stringify(dataList)} */}
-
+{/* //!  Pending, Closed Won , Dealership.... */}
             <Grid container spacing={2}>
                 {dataList.length > 0 ? (
                     dataList.map((item, index) => (
@@ -533,7 +626,7 @@ const Dashboard = () => {
                             </Typography>
 
                             {/* Right - Button */}
-                            <Button
+                            {/* <Button
                                 variant="outlined"
                                 size="small"
                                 sx={{
@@ -547,9 +640,9 @@ const Dashboard = () => {
                                         color: 'darkgrey', // Optional: Change text color on hover
                                     },
                                 }}
-                            >
+                            > */}
                                 {/* CSVLink wrapped inside the button with removed hyperlink styles */}
-                                <CSVLink
+                                {/* <CSVLink
                                     data={soldData}
                                     filename="1.csv"
                                     style={{
@@ -559,7 +652,7 @@ const Dashboard = () => {
                                 >
                                     Export
                                 </CSVLink>
-                            </Button>
+                            </Button> */}
                         </Stack>
 
                         {/* Pie Chart Section */}
@@ -639,7 +732,7 @@ const Dashboard = () => {
                                         fontSize: '1vw', // Responsive font size
                                     }}
                                 >
-                                    ${productAPrice}
+                                    ${productAPrice.toLocaleString()}
                                 </Typography>
                             </Grid>
 
@@ -668,7 +761,7 @@ const Dashboard = () => {
                                         fontSize: '1vw', // Responsive font size
                                     }}
                                 >
-                                    ${productBPrice}
+                                    ${productBPrice.toLocaleString()}
                                 </Typography>
                             </Grid>
 
@@ -697,10 +790,199 @@ const Dashboard = () => {
                                         fontSize: '1vw', // Responsive font size
                                     }}
                                 >
-                                    ${productCPrice}
+                                    ${productCPrice.toLocaleString()}
                                 </Typography>
                             </Grid>
                         </Grid>
+                    </Paper>
+                </Grid>
+            
+                {/* Total Cost Card */}
+                <Grid item xs={12} sm={6} md={6}>
+                    <Paper
+                    elevation={3}
+                    style={{
+                        padding: "0px",
+                        height: "350px",
+                        display: "flex",
+                        flexDirection: "column",
+                    }}
+                    >
+                    {/* Title */}
+                    <Stack
+                        direction="row"
+                        spacing={1}
+                        sx={{
+                        padding: "20px",
+                        borderBottom: "0.5px solid rgba(0, 0, 0, 0.5)",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        }}
+                    >
+                        <Typography
+                        variant="h6"
+                        sx={{ flexGrow: 1, fontWeight: "bold", color: "grey" }}
+                        >
+                        Total Cost
+                        </Typography>
+                        {/* <Box>
+                        <Button onClick={handlePrev} size="small" sx={{ mr: 1 }}>
+                            Prev
+                        </Button>
+                        <Button onClick={handleNext} size="small">
+                            Next
+                        </Button>
+                        </Box> */}
+                    </Stack>
+
+                    {/* Line Chart (MUI) */}
+                    <Box sx={{ flexGrow: 1, p: 2 , width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center",}}>
+                        <LineChart
+                            xAxis={[{ data: monthlyData.map((d) => d.month), scaleType: "band" }]}
+                            series={[{ data: monthlyData.map((d) => d.cost), label: "Cost", color: "#1976d2" }]}
+                            width={500}
+                            height={250}
+                            margin={{ left: 60, right: 40, top: 20, bottom: 30 }} 
+                        />
+                    </Box>
+                    </Paper>
+                </Grid>
+
+                {/* Total Profit Card */}
+                <Grid item xs={12} sm={6} md={6}>
+                    <Paper
+                    elevation={3}
+                    style={{
+                        padding: "0px",
+                        height: "350px",
+                        display: "flex",
+                        flexDirection: "column",
+                    }}
+                    >
+                    {/* Title */}
+                    <Stack
+                        direction="row"
+                        spacing={1}
+                        sx={{
+                        padding: "20px",
+                        borderBottom: "0.5px solid rgba(0, 0, 0, 0.5)",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        }}
+                    >
+                        <Typography
+                        variant="h6"
+                        sx={{ flexGrow: 1, fontWeight: "bold", color: "grey" }}
+                        >
+                        Total Profit
+                        </Typography>
+                        <Box>
+                        <Button onClick={handlePrev} size="small" sx={{ mr: 1 }}>
+                            Prev
+                        </Button>
+                        <Button onClick={handleNext} size="small">
+                            Next
+                        </Button>
+                        </Box>
+                    </Stack>
+
+                    {/* Pie Chart (MUI) */}
+                    <Box
+                        sx={{
+                        width: "100%",
+                        height: "100%",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        }}
+                    >
+                        <PieChart
+                        series={[
+                            {
+                            data: [
+                                { id: 0, value: currentMonth?.cost || 0, label: "Cost", color: "blue" },
+                                { id: 1, value: currentMonth?.profit || 0, label: "Profit", color: "green" },
+                            ],
+                            innerRadius: 40,
+                            outerRadius: 80,
+                            },
+                        ]}
+                        width={250}
+                        height={200}
+                        slotProps={{ legend: { hidden: true } }}
+                        />
+                        {/* <LineChart
+                            xAxis={[
+                                { 
+                                data: monthlyData.map((d) => d.month), 
+                                scaleType: "band" 
+                                }
+                            ]}
+                            series={[
+                                { 
+                                data: monthlyData.map((d) => d.cost), 
+                                label: "Cost", 
+                                color: "blue" 
+                                },
+                                { 
+                                data: monthlyData.map((d) => d.profit), 
+                                label: "Profit", 
+                                color: "green" 
+                                }
+                            ]}
+                            width={500}
+                            height={250}
+                            margin={{ left: 60, right: 20, top: 20, bottom: 30 }} 
+                        /> */}
+
+                    </Box>
+
+                    {/* Labels Below */}
+
+                        { 1?<Grid 
+                        container 
+                        sx={{ padding: "20px", alignItems: "center" }}
+                        >
+                        {/* Cost */}
+                        <Grid item xs={4} sx={{ textAlign: "left" }}>
+                            <Typography
+                            sx={{ display: "flex", alignItems: "center", fontSize: "1vw", color: "gray" }}
+                            >
+                            <FiberManualRecordIcon sx={{ fontSize: "1vw", color: "blue", mr: 1 }} />
+                            Cost
+                            </Typography>
+                            <Typography sx={{ fontWeight: "bold", fontSize: "1.1vw", color: "gray" }}>
+                            ${currentMonth?.cost?.toLocaleString() || 0}
+                            </Typography>
+                        </Grid>
+
+                        {/* Profit */}
+                        <Grid item xs={4} sx={{ textAlign: "center" }}>
+                            <Typography
+                            sx={{ display: "flex", justifyContent: "center", alignItems: "center", fontSize: "1vw", color: "gray" }}
+                            >
+                            <FiberManualRecordIcon sx={{ fontSize: "1vw", color: "green", mr: 1 }} />
+                            Profit
+                            </Typography>
+                            <Typography sx={{ fontWeight: "bold", fontSize: "1.1vw", color: "gray" }}>
+                            ${currentMonth?.profit?.toLocaleString() || 0}
+                            </Typography>
+                        </Grid>
+
+                        {/* Month & Year */}
+                        <Grid item xs={4} sx={{ textAlign: "right" }}>
+                            <Typography
+                            sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", fontSize: "1vw", color: "gray" }}
+                            >
+                            <FiberManualRecordIcon sx={{ fontSize: "1vw", color: "orange", mr: 1 }} />
+                            Month & Year
+                            </Typography>
+                            <Typography sx={{ fontWeight: "bold", fontSize: "1.1vw", color: "gray" }}>
+                            {currentMonth?.month || "N/A"}
+                            </Typography>
+                        </Grid>
+                        </Grid>: ''}
+
                     </Paper>
                 </Grid>
             </Grid>
@@ -714,5 +996,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-
-
