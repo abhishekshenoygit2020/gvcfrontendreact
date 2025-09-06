@@ -3093,12 +3093,12 @@ function ViewClosedWarranty() {
                             [
                                 { text: `Warranty Admin Cost:  `, fontSize: 10, bold: true, border: [false, false, false, true] },
                                 { text: ``, border: [false, false, false, true] },
-                                { text: `$${Number(warrantyAdminCost).toFixed(2)}`, fontSize: 8, border: [false, false, false, true], alignment: 'right' }
+                                { text: `$${Number(warrantyAdminCost).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, fontSize: 8, border: [false, false, false, true], alignment: 'right' }
                             ],
                             [
                                 { text: `Total Cost:  `, fontSize: 10, bold: true, border: [false, false, false, false] },
                                 { text: ``, border: [false, false, false, false] },
-                                { text: `$${Number(warrantyAdminCost).toFixed(2)}`, fontSize: 8, border: [false, false, false, false], alignment: 'right' }
+                                { text: `$${Number(warrantyAdminCost).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, fontSize: 8, border: [false, false, false, false], alignment: 'right' }
                             ],
                             [
                                 { text: ``, fontSize: 10, bold: true, border: [false, false, false, false] },
@@ -3108,12 +3108,13 @@ function ViewClosedWarranty() {
                             [
                                 { text: `Tax 13%:  `, fontSize: 10, bold: true, border: [false, false, false, true] },
                                 { text: ``, border: [false, false, false, true] },
-                                { text: `$${Number(taxCost).toFixed(2)}`, fontSize: 8, border: [false, false, false, true], alignment: 'right' }
+                                { text: `$${Number(taxCost).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, fontSize: 8, border: [false, false, false, true], alignment: 'right' }
                             ],
                             [
                                 { text: `Total Cost:  `, fontSize: 10, bold: true, border: [false, false, false, false] },
                                 { text: ``, border: [false, false, false, false] },
-                                { text: `$${Number(totalCost).toFixed(2)}`, fontSize: 8, bold: true, border: [false, false, false, false], alignment: 'right' }
+                                { text: `$${Number(totalCost).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, fontSize: 8, bold: true, border: [false, false, false, false], alignment: 'right' }
+                                
                             ],
                             [
                                 { text: `HST #: 737149310  RP0001  `, fontSize: 10, bold: true, border: [false, false, false, false] },

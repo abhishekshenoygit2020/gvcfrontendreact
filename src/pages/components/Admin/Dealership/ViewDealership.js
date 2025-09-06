@@ -162,7 +162,7 @@ function ViewDealership() {
     }
     const Relationshipusers = (props) => {
         return (
-            <Tooltip title="Update Dealership User">
+            <Tooltip title="Update Relationship manager">
                 <MonetizationOnIcon style={{ cursor: "pointer" }} onClick={(e) => {
                     e.stopPropagation();
                     navigate('/RelationshipDealershipUser', { state: { type: "fetchUsers", value: props.selectedRow } });

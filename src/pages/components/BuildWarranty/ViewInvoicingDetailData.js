@@ -37,6 +37,8 @@ function ViewInvoicingDetailData() {
     const [message, setMessage] = useState('');
     const [accountName, setAccountName] = useState('');
     const [selectedUsers, setSelectedUsers] = useState([]);
+    const [brokerageDpt, setBrokerageDpt] = useState([]);
+    const [isCarDealsDirectDealership, setIsCarDealsDirectDealership] = useState(false);
 
     const [fromDate, setFromDate] = useState('');
     const [toDate, setToDate] = useState('');
@@ -44,7 +46,7 @@ function ViewInvoicingDetailData() {
     const [dealershipValue, setDealershipValue] = useState('');
     const [dealershipText, setDealershipText] = useState('');
     const [detailData, setDetailData] = useState([]);
-    const [selectedDetail, setSelectedDetail] = useState(null);
+    const [selectedDetail, setSelectedDetail] = useState();
 
     const { value, type } = state;
 
@@ -64,6 +66,8 @@ function ViewInvoicingDetailData() {
             });
             setSelectedDetail({ dealership: row.tradeName, month: row.Month });
             setDetailData(response.data.data || []);
+            // Check if the dealership is "Car Deals Direct"
+            setIsCarDealsDirectDealership(row.tradeName === "Car Deals Direct");
         } catch (error) {
             console.log("Error loading detail data:", error);
             setDetailData([]);
@@ -163,6 +167,28 @@ function ViewInvoicingDetailData() {
         }
     };
 
+    const loadBrokerageDpt = async () => {
+        const URL = "./dealership/getBrokerageDpt";
+        try {
+            const response = await axios.post(URL);
+
+            if (response.data?.status === 401) {
+                setDealershipArray([]);
+                setBrokerageDpt([]); // clear selection too
+            } else {
+                const responseData = response.data?.data || [];
+                // setDealershipArray(responseData);   // options for Autocomplete
+                setSelectedUsers(responseData);    // prefill Autocomplete with same users
+            }
+        } catch (err) {
+            console.error("Error fetching data:", err);
+            setDealershipArray([]);
+            setBrokerageDpt([]);
+        }
+    };
+
+
+
     const handleCloseSnack = (event, reason) => {
         if (reason === 'clickaway') return;
         setAlertopen(false);
@@ -175,13 +201,41 @@ function ViewInvoicingDetailData() {
         return new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(date);
     };
 
+
+
+    // const filteredDetailData = detailData.filter((d) => {
+    //     if (!selectedUsers.length || dealershipNew != 0) return true;
+    //     return selectedUsers.some(
+    //         (rep) =>
+    //             `${rep.firstname} ${rep.lastname}`.toLowerCase() === d.user?.toLowerCase()
+    //     );
+    // });
+
+
     const filteredDetailData = detailData.filter((d) => {
-        if (!selectedUsers.length || dealershipNew != 0) return true;
-        return selectedUsers.some(
-            (rep) =>
-                `${rep.firstname} ${rep.lastname}`.toLowerCase() === d.user?.toLowerCase()
-        );
+        // If dealershipNew != 0 (not admin/super-admin), show all rows
+        if (dealershipNew != 0) return true;
+
+        // For "Car Deals Direct" dealership, use brokerageDpt filter
+        if (isCarDealsDirectDealership && brokerageDpt.length > 0) {
+            return brokerageDpt.some(
+                (rep) =>
+                    `${rep.firstname} ${rep.lastname}`.toLowerCase() === d.user?.toLowerCase()
+            );
+        }
+
+        // For other dealerships or when no brokerageDpt selection, use selectedUsers filter
+        if (selectedUsers.length > 0) {
+            return selectedUsers.some(
+                (rep) =>
+                    `${rep.firstname} ${rep.lastname}`.toLowerCase() === d.user?.toLowerCase()
+            );
+        }
+
+        // If no filters are applied, return all rows
+        return true;
     });
+    //!
 
     const totalCostAmount = filteredDetailData.reduce((sum, item) => {
         const cost = parseFloat(item.productCost?.toString().replace(/[^0-9.-]+/g, '')) || 0;
@@ -1129,7 +1183,24 @@ function ViewInvoicingDetailData() {
                                 />
                             </FormControl>
                         </Grid>
-                        <Grid item xs={5}></Grid>
+                        {/* <Grid item xs={5}></Grid> */}
+                        {/* <Grid item xs={4} style={{  display: (dealershipNew == 0 && isCarDealsDirectDealership) ? "block" : "none" }}>
+                            <FormControl fullWidth required>
+                                <Typography variant="subtitle2" >Brokerage Department </Typography>
+                                <Autocomplete
+                                    multiple
+                                    options={dealershipArray}
+                                    value={brokerageDpt}
+                                    onChange={(event, newValue) => setBrokerageDpt(newValue)}
+                                    getOptionLabel={(option) =>
+                                        `${option.firstname || ''}${option.lastname ? ' ' + option.lastname : ''}`
+                                    }
+                                    isOptionEqualToValue={(option, value) => option.id === value.id}
+                                    sx={{ width: '100%' }}
+                                    renderInput={(params) => <TextField {...params} />}
+                                />
+                            </FormControl>
+                        </Grid> */}
                     </Grid>
                 </Box>
 
@@ -1216,6 +1287,30 @@ function ViewInvoicingDetailData() {
                         >
                             Send Invoice
                         </Button>
+                        {isCarDealsDirectDealership && (
+                            <Button
+                                variant="contained"
+                                onClick={() => {
+                                    loadBrokerageDpt();
+                                    // setSelectedDetail(null); 
+                                    // setDetailData([]); 
+                                    // navigate('/ViewInvoicingData');
+                                    // sendPdf(filteredDetailData);
+
+                                }}
+                                style={{
+                                    display: 'inline-block',
+                                    marginLeft: 2,
+                                    backgroundColor: '#0d2365',
+                                    padding: '8px 16px',
+                                    color: 'white',
+                                    borderRadius: 8,
+                                    textDecoration: 'none'
+                                }}
+                            >
+                                Brokerage Department
+                            </Button>
+                        )}
 
                         <Typography variant="body2" sx={{ mt: 1, mb: 1 }}>
                             Showing {filteredDetailData.length} records

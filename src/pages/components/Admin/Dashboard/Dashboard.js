@@ -314,7 +314,7 @@ const currentMonth = monthlyData[monthIndex] || {};
         try {
             // console.log("dealership id: ",dealership);
             
-        const response = await axios.get(`http://localhost:3006/api/dashboard/lastMonthSales/${dealership_id}/${user_type}`); 
+        const response = await axios.get(`/dashboard/lastMonthSales/${dealership_id}/${user_type}`); 
         // const data = response.data;
         const data = response.data?.data || []; // safe access
          // Build map for easy lookup
@@ -346,7 +346,7 @@ const currentMonth = monthlyData[monthIndex] || {};
     
  const fetchTotalCost = async () => {
     try {
-      const response = await axios.get(`http://localhost:3006/api/dashboard/totalCost/${dealership}`);
+      const response = await axios.get(`/dashboard/totalCost/${dealership}`);
       const data = response.data.data || [];
 
       const formatted = data.map(item => ({

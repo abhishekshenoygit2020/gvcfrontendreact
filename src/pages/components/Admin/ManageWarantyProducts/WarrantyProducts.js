@@ -214,7 +214,18 @@ function WarrantyProducts() {
             setId(value.id || "");
             setCategory(value.category || "");
             setUserdealership(value.dealership || "");
-            setProductData(JSON.parse(value.products) || [{ productName: "", productPrice: "" }]);
+            // setProductData(JSON.parse(value.products) || [{ productName: "", productPrice: "" }]);
+            const parsedProducts = JSON.parse(value.products) || [{ productName: "", productPrice: "" }];
+
+            const updatedProducts = parsedProducts.map(product => {
+                // Only add visibility if it's not already present
+                if (!('visiblity' in product)) {
+                    return { ...product, visiblity: 1 };
+                }
+                return product;
+            });
+
+            setProductData(updatedProducts);
             setSubCategory(value.subcategory || "");
             if (value.category) {
                 loadSubCategory(value.category);
@@ -237,7 +248,18 @@ function WarrantyProducts() {
             setId(value.id || "");
             setCategory(value.category || "");
             setUsersalesrep(value.salesrep || "");
-            setProductData(JSON.parse(value.products) || [{ productName: "", productPrice: "" }]);
+            // setProductData(JSON.parse(value.products) || [{ productName: "", productPrice: "" }]);
+            const parsedProducts = JSON.parse(value.products) || [{ productName: "", productPrice: "" }];
+
+            const updatedProducts = parsedProducts.map(product => {
+                // Only add visibility if it's not already present
+                if (!('visiblity' in product)) {
+                    return { ...product, visiblity: 1 };
+                }
+                return product;
+            });
+
+            setProductData(updatedProducts);
             setSubCategory(value.subcategory || "");
             if (value.category) {
                 loadSubCategory(value.category);
@@ -255,7 +277,15 @@ function WarrantyProducts() {
             // loadSalesrep();
             setId(value.id || "");
             setCategory(value.category_id || "");
-            setProductData(JSON.parse(value.products) || [{ productName: "", productPrice: "" }]);
+            const parsedProducts = JSON.parse(value.products) || [{ productName: "", productPrice: "" }];
+
+            // Add visibility: 1 to each item
+            const updatedProducts = parsedProducts.map(product => ({
+                ...product,
+                visiblity: 1
+            }));
+
+            setProductData(updatedProducts);
             setSubCategory(value.product_subcategory || "");
             if (value.category_id) {
                 loadSubCategory(value.category_id);
@@ -271,7 +301,15 @@ function WarrantyProducts() {
             loadDealership();
             setId(value.id || "");
             setCategory(value.category_id || "");
-            setProductData(JSON.parse(value.products) || [{ productName: "", productPrice: "" }]);
+            const parsedProducts = JSON.parse(value.products) || [{ productName: "", productPrice: "" }];
+
+            // Add visibility: 1 to each item
+            const updatedProducts = parsedProducts.map(product => ({
+                ...product,
+                visiblity: 1
+            }));
+
+            setProductData(updatedProducts);
             setSubCategory(value.product_subcategory || "");
             if (value.category_id) {
                 loadSubCategory(value.category_id);
@@ -805,6 +843,8 @@ function WarrantyProducts() {
                     {
                         productData.map((product, index) => (
 
+
+
                             <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
                                 <FormControl fullWidth key={index}>
                                     <Typography variant="subtitle2">Product Name</Typography>
@@ -866,7 +906,7 @@ function WarrantyProducts() {
                                             onClick={() => toggleVisibility(index)}
                                             color="primary"
                                         >
-                                            {product.visiblity === 1 ? (
+                                            {product.visiblity == "1" ? (
                                                 <VisibilityIcon />
                                             ) : (
                                                 <VisibilityOffIcon />

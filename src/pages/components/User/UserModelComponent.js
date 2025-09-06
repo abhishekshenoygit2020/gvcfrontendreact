@@ -33,6 +33,7 @@ const UserModelComponent = ({ open, setOpen, isAddButton, rowData, setRefreshDat
     const user = ApplicationStore().getStorage('user_email');
     const dealership = ApplicationStore().getStorage('dealership');
     const [isRelationshipManager, setIsRelationshipManager] = useState(0);
+    const [isBrokerageDpt, setIsBrokerageDpt] = useState(0);
 
     const userRoles = userType === 'admin'
         ? [
@@ -80,7 +81,7 @@ const UserModelComponent = ({ open, setOpen, isAddButton, rowData, setRefreshDat
                 return;
             }
 
-            const data = { user_email, firstname, lastname, user_password, dealership: user_dealership, ovmic_no, userRole, commissionPerc, isRelationshipManager };
+            const data = { user_email, firstname, lastname, user_password, dealership: user_dealership, ovmic_no, userRole, commissionPerc, isRelationshipManager, isBrokerageDpt };
             const mainURL = URL;
             serviceMethod(mainURL, method, data, handleSuccess, handleException);
         } else {
@@ -90,11 +91,11 @@ const UserModelComponent = ({ open, setOpen, isAddButton, rowData, setRefreshDat
             //     return;
             // }
 
-            if (!ovmic_no || !userRole || !user_dealership) {
+            if (!userRole || !user_dealership) {
                 alert("Please fill out all the fields."); // Replace with your preferred error handling
                 return;
             }
-            const data = { ovmic_no, id, dealership: user_dealership, commissionPerc, userRole, isRelationshipManager };
+            const data = { ovmic_no, id, dealership: user_dealership, commissionPerc, userRole, isRelationshipManager, isBrokerageDpt };
             const mainURL = "./user" + '/updateOVMICNO';
             serviceMethod(mainURL, method, data, handleSuccess, handleException);
         }
@@ -127,6 +128,7 @@ const UserModelComponent = ({ open, setOpen, isAddButton, rowData, setRefreshDat
             setUserRole(rowData.userRole);
             setId(rowData.id);
             setIsRelationshipManager(rowData.isRelationshipManager);
+            setIsBrokerageDpt(rowData.isBrokerageDpt);
 
         }
 
@@ -214,6 +216,9 @@ const UserModelComponent = ({ open, setOpen, isAddButton, rowData, setRefreshDat
         // console.log("Generated Password:", password);
         setUser_password(password);
     }
+
+    // console.log(isBrokerageDpt);
+    
 
     return (
         <Dialog
@@ -504,6 +509,25 @@ const UserModelComponent = ({ open, setOpen, isAddButton, rowData, setRefreshDat
                                     />
                                 </FormControl>
                             </Grid>
+                            {dealershipArray.find(d => d.id == user_dealership)?.accountName === "Car Deals Direct" ? (
+                            <Grid item xs={2} style={{ display: isAddButton ? "none" : isCommissionUpdate ? "none" : "block" }}>
+                                <FormControl fullWidth>
+                                <Typography variant="subtitle2" gutterBottom>
+                                    Is Brokerage Department Team-Member??
+                                </Typography>
+                                <Checkbox
+                                    checked={isBrokerageDpt == 1}
+                                    onChange={(e) => setIsBrokerageDpt(e.target.checked ? 1 : 0)}
+                                    sx={{
+                                    alignSelf: 'flex-start',
+                                    '& .MuiSvgIcon-root': {
+                                        color: 'lightgray',
+                                    }
+                                    }}
+                                />
+                                </FormControl>
+                            </Grid>
+                            ) : null}
                         </Grid>
                     </Grid>
                 </DialogContent>

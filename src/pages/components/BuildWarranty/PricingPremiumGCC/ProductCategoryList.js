@@ -171,12 +171,14 @@ export default function ProductCategoryList({ categoryId, subcategory, productIn
         // } else {
         setProductCost(prices[value]);
         setProductIndex(value);
-        setProductName(`${subcategory}(${tabLabels[value]})`);
+        setProductName(`${subcategory}(${tabLabels[value].productName})`);
         productRef.current = tabLabels[value];
-        const productNameToFind = tabLabels[value];
+        const productNameToFind = tabLabels[value].productName;
         setOriginalCost(prices[value]);
 
         const filteredProducts = originalProducts.filter(p => p.productName === productNameToFind);
+
+        console.log("original products"+originalProducts);
 
         if (filteredProducts.length > 0) {
             const productPrice = filteredProducts[0].productPrice;
@@ -222,6 +224,7 @@ export default function ProductCategoryList({ categoryId, subcategory, productIn
                     visiblity: Object.hasOwn(product, "visiblity") ? product.visiblity : 1
                 }));
                 const extractedProductPrices = responseData.products.map(product => product.productPrice);
+                console.log("ogproducts"+responseData.originalProducts);
                 setOriginalProducts(responseData.originalProducts);
                 setTabLabels(extractedProductNames);
                 setPrices(extractedProductPrices);

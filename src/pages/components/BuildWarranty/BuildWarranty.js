@@ -850,6 +850,8 @@ export default function BuildWarranty() {
 
     const handleNext = () => {
 
+        console.log("product "+ JSON.stringify(productRef.current));
+
         const productName = productRef.current;
 
         if (activeStep == 0) {
@@ -913,7 +915,7 @@ export default function BuildWarranty() {
             if (productName === "") {
                 validateField("Please Select Product");
                 return false;
-            } else if (productName.toLowerCase().includes("unlimited") && (parseInt(odometer) > 200000 || commercialVehicle == "Yes")) {
+            } else if (productName.productName.toLowerCase().includes("unlimited") && (parseInt(odometer) > 200000 || commercialVehicle == "Yes")) {
                 alert("Unlimted Product cannot be selectled!")
                 return false;
             }
@@ -5859,7 +5861,7 @@ export default function BuildWarranty() {
                             ],
                             [
                                 { text: `Vehicle Information: `, fontSize: 9, bold: true, border: [false, false, false, false] },
-                                { text: `${data.yearText + ' ' + data.modelText}`, fontSize: 7, bold: false, border: [false, false, false, false] },
+                                { text: `${data.year + ' ' + data.model}`, fontSize: 7, bold: false, border: [false, false, false, false] },
                                 { text: ``, border: [false, false, false, false] }
                             ],
                             [
@@ -5880,12 +5882,12 @@ export default function BuildWarranty() {
                             [
                                 { text: `Warranty Admin Cost:  `, fontSize: 10, bold: true, border: [false, false, false, true] },
                                 { text: ``, border: [false, false, false, true] },
-                                { text: `$${warrantyAdminCost}`, fontSize: 8, border: [false, false, false, true], alignment: 'right' }
+                                { text: `$${Number(warrantyAdminCost).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, fontSize: 8, border: [false, false, false, true], alignment: 'right' }
                             ],
                             [
                                 { text: `Total Cost:  `, fontSize: 10, bold: true, border: [false, false, false, false] },
                                 { text: ``, border: [false, false, false, false] },
-                                { text: `$${warrantyAdminCost}`, fontSize: 8, border: [false, false, false, false], alignment: 'right' }
+                                { text: `$${Number(warrantyAdminCost).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, fontSize: 8, border: [false, false, false, false], alignment: 'right' }
                             ],
                             [
                                 { text: ``, fontSize: 10, bold: true, border: [false, false, false, false] },
@@ -5895,18 +5897,20 @@ export default function BuildWarranty() {
                             [
                                 { text: `Tax 13%:  `, fontSize: 10, bold: true, border: [false, false, false, true] },
                                 { text: ``, border: [false, false, false, true] },
-                                { text: `$${taxCost}`, fontSize: 8, border: [false, false, false, true], alignment: 'right' }
+                                { text: `$${Number(taxCost).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, fontSize: 8, border: [false, false, false, true], alignment: 'right' }
                             ],
                             [
                                 { text: `Total Cost:  `, fontSize: 10, bold: true, border: [false, false, false, false] },
                                 { text: ``, border: [false, false, false, false] },
-                                { text: `$${totalCost}`, fontSize: 8, bold: true, border: [false, false, false, false], alignment: 'right' }
+                                { text: `$${Number(totalCost).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, fontSize: 8, bold: true, border: [false, false, false, false], alignment: 'right' }
+                                
                             ],
                             [
-                                { text: `HST #: 105511554RP002  `, fontSize: 10, bold: true, border: [false, false, false, false] },
+                                { text: `HST #: 737149310  RP0001  `, fontSize: 10, bold: true, border: [false, false, false, false] },
                                 { text: ``, border: [false, false, false, false] },
                                 { text: ``, border: [false, false, false, false], alignment: 'right' }
                             ],
+
 
                         ]
                     }
