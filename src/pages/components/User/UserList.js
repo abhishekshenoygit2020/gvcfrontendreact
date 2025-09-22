@@ -20,6 +20,7 @@ import Alert from '@mui/material/Alert';
 import UserModelComponent from "./UserModelComponent";
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 
+
 import Snackbar from '@mui/material/Snackbar';
 import { useNavigate } from "react-router-dom";
 import axios from "../../../api/axios";
@@ -87,10 +88,11 @@ const UserList = () => {
                         <BlockUser selectedRow={params.row} />,
                         <EditData selectedRow={params.row} />,
                         <Commission selectedRow={params.row} />,
+                        <DeleteData selectedRow={params.row} />
 
                     ] :
                     [
-                        // <DeleteData selectedRow={params.row} />,
+                        <DeleteData selectedRow={params.row} />,
                         <BlockUser selectedRow={params.row} />,
                         <EditData selectedRow={params.row} />
                     ] : user_type == "admin" ?
@@ -98,7 +100,8 @@ const UserList = () => {
                         <PasswordResetLink selectedRow={params.row} />,
                         <UnBlockUser selectedRow={params.row} />,
                         <EditData selectedRow={params.row} />,
-                        <Commission selectedRow={params.row} />
+                        <Commission selectedRow={params.row} />,
+                        <DeleteData selectedRow={params.row} />
                     ] :
                     [
                         <UnBlockUser selectedRow={params.row} />,
@@ -158,6 +161,27 @@ const UserList = () => {
         setAlertopen(false);
     };
 
+    const DeleteData = (props) => {
+        return (
+            <Tooltip title="Delete">
+                <DeleteIcon style={{ cursor: "pointer" }}
+                    onClick={() => {
+                        const isConfirmed = window.confirm("Are you sure you want to delete?");
+                        if (isConfirmed) {
+                            console.log(props.selectedRow.id);
+                            const data = { id: props.selectedRow.id };
+                            const mainURL = './user/deletesByIdRelationshipUser';
+                            serviceUpdateMethod(mainURL, data, handleSuccess, handleException);
+                        }
+                    }}
+                />
+            </Tooltip>
+
+        );
+    };
+
+
+
     const Commission = (props) => {
         return (
             <Tooltip title="Update Commission">
@@ -172,7 +196,7 @@ const UserList = () => {
                 }} />
             </Tooltip>
         );
-    }  
+    }
 
 
 
@@ -208,21 +232,21 @@ const UserList = () => {
         );
     };
 
-    const DeleteData = (props) => {
-        return (
-            <DeleteIcon style={{ cursor: "pointer" }}
-                onClick={() => {
-                    const isConfirmed = window.confirm("Are you sure you want to delete?");
-                    if (isConfirmed) {
-                        const data = { id: props.selectedRow.id, type: "delete" };
-                        const mainURL = './user' + '/' + data.id + '/deleteUser';
-                        serviceMethod(mainURL, data, handleSuccess, handleException);
-                    }
+    // const DeleteData = (props) => {
+    //     return (
+    //         <DeleteIcon style={{ cursor: "pointer" }}
+    //             onClick={() => {
+    //                 const isConfirmed = window.confirm("Are you sure you want to delete?");
+    //                 if (isConfirmed) {
+    //                     const data = { id: props.selectedRow.id, type: "delete" };
+    //                     const mainURL = './user' + '/' + data.id + '/deleteUser';
+    //                     serviceMethod(mainURL, data, handleSuccess, handleException);
+    //                 }
 
-                }}
-            />
-        );
-    };
+    //             }}
+    //         />
+    //     );
+    // };
 
     const PasswordResetLink = (props) => {
         return (

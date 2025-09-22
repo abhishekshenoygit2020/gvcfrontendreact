@@ -33,6 +33,23 @@ function ViewSalesrepGiftCommission() {
     const [fromDate, setFromDate] = useState('');
     const [toDate, setToDate] = useState('');
 
+
+    const formatCurrency = (value) => {
+  if (value == null) return "";
+
+  // Convert to string, remove all commas, then cast to number
+  const num = Number(String(value).replace(/,/g, ""));
+
+  if (isNaN(num)) return "";
+
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+  }).format(num);
+};
+
+
     const columns = [
         { field: 'slNo', headerName: 'ID', width: 100 },
         // {
@@ -44,10 +61,26 @@ function ViewSalesrepGiftCommission() {
         { field: "accountName", headerName: "Dealership", width: 200 },
         { field: "warrantyCount", headerName: "Warranty Sold", width: 150 },
         { field: "Month", headerName: "Year-Month", width: 150 },
-        { field: "ProductCost", headerName: "Product Cost", width: 150 },
-        { field: "originalCost", headerName: "Original Cost", width: 150 },
-        { field: "totalGiftCardCredit", headerName: "GiftCard Credit", width: 150 }
-        
+        {
+            field: "ProductCost",
+            headerName: "Product Cost",
+            width: 150,
+            valueFormatter: (params) => formatCurrency(params.value),
+        },
+        {
+            field: "originalCost",
+            headerName: "Original Cost",
+            width: 150,
+            valueFormatter: (params) => formatCurrency(params.value),
+        },
+
+        {
+            field: "totalGiftCardCredit",
+            headerName: "GiftCard Credit",
+            width: 150,
+            valueFormatter: (params) => (new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(params.value))
+        }
+
 
     ];
 
@@ -112,10 +145,10 @@ function ViewSalesrepGiftCommission() {
             } else {
                 const responseData = response.data.data || [];
                 const dataWithIndex = responseData.map((item, index) => ({
-                      slNo: index + 1,
+                    slNo: index + 1,
                     id: index + 1,
                     ...item,
-                  
+
                 }));
                 setDataList(dataWithIndex);
             }

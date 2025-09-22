@@ -92,7 +92,7 @@ const RelationshipUserList = () => {
                         // <DeleteData selectedRow={params.row} />,
                         <BlockUser selectedRow={params.row} />,
                         <EditData selectedRow={params.row} />,
-                        // <DeleteData selectedRow={params.row} />
+                        <DeleteData selectedRow={params.row} />
                     ] : user_type == "admin" ?
                     [
                         <PasswordResetLink selectedRow={params.row} />,
@@ -104,7 +104,7 @@ const RelationshipUserList = () => {
                     [
                         <UnBlockUser selectedRow={params.row} />,
                         <EditData selectedRow={params.row} />,
-                        // <DeleteData selectedRow={params.row} />
+                        <DeleteData selectedRow={params.row} />
                     ];
             }
         },

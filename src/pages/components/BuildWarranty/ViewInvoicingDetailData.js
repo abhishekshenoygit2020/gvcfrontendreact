@@ -344,7 +344,7 @@ function ViewInvoicingDetailData() {
                                     border: [false, false, false, false]
                                 },
                                 {
-                                    text: '1200 Bay Street, Suite #1201 Toronta, Ontario,',
+                                    text: '455 Bowes Road,Unit 4A Concord, ON L4K 1J5,' ,
                                     fontSize: 12,
                                     alignment: 'right',
                                     bold: true,
@@ -355,7 +355,7 @@ function ViewInvoicingDetailData() {
                                 { text: '', border: [false, false, false, false] },
                                 { text: '', border: [false, false, false, false] },
                                 {
-                                    text: ' M5R 2A5, Phone: 905.291.2940',
+                                    text: 'Phone: 905.291.2940',
                                     fontSize: 12,
                                     alignment: 'right',
                                     bold: true,
@@ -497,7 +497,9 @@ function ViewInvoicingDetailData() {
                                     text: "Cost",
                                     border: [false, false, false, true],
                                     fontSize: 10,
-                                    bold: true
+                                    bold: true,
+                                    alignment: 'right',
+                                    margin: [0, 0, 20, 0]
                                 }
                             ],
                             ...filteredDetailData.map((item, index) =>
@@ -543,7 +545,8 @@ function ViewInvoicingDetailData() {
                                         fontSize: 10
                                     },
                                     {
-                                        text: (Number(item.productCost) || 0).toFixed(2),
+                                        // text: (Number(item.productCost) || 0).toFixed(2),
+                                        text: new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(item.productCost ?? 0),
                                         border: [false, false, false, false],
                                         fontSize: 10
                                     }
@@ -775,7 +778,7 @@ function ViewInvoicingDetailData() {
                                     border: [false, false, false, false]
                                 },
                                 {
-                                    text: '1200 Bay Street, Suite #1201 Toronta, Ontario,',
+                                    text: '455 Bowes Road,Unit 4A Concord, ON L4K 1J5, M5R 2A5,',
                                     fontSize: 12,
                                     alignment: 'right',
                                     bold: true,
@@ -786,7 +789,7 @@ function ViewInvoicingDetailData() {
                                 { text: '', border: [false, false, false, false] },
                                 { text: '', border: [false, false, false, false] },
                                 {
-                                    text: ' M5R 2A5, Phone: 905.291.2940',
+                                    text: 'Phone: 905.291.2940',
                                     fontSize: 12,
                                     alignment: 'right',
                                     bold: true,

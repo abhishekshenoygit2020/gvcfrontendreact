@@ -13,6 +13,8 @@ import ApplicationStore from '../../../utils/localStorageUtil';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import FormControl from '@mui/material/FormControl';
 import Autocomplete from '@mui/material/Autocomplete';
+import Backdrop from '@mui/material/Backdrop';
+import CircularProgress from '@mui/material/CircularProgress';
 import AddIcon from '@mui/icons-material/Add';
 import { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
@@ -40,7 +42,7 @@ function ViewPendingWarranty() {
     const userType = ApplicationStore().getStorage('user_type');
     const [dealershipValue, setDealershipValue] = useState(''); // State for VIN search input
     const [dealershipText, setDealershipText] = useState(''); // State for VIN search input
-
+    const [backdropOpen, setBackdropOpen] = useState(false);
     const [state, setState] = useState({
         top: false,
         left: false,
@@ -377,7 +379,7 @@ function ViewPendingWarranty() {
                             ['', { text: ``, border: [false, false, false, false] }],
                             [
                                 { text: 'Application for GAP Bundle Warranty Coverage', rowSpan: 3, border: [false, false, false, false], fontSize: 10, alignment: 'right', bold: true },
-                                { text: `1200 Bay Street, Suite #1201 Toronta, Ontario, M5R 2A5 Phone: 905.291.2940`, border: [false, false, false, false], fontSize: 10, alignment: 'right', bold: true }
+                                { text: `455 Bowes Road, Unit 4A Concord, ON L4K 1J5, \n Phone: 905.291.2940`, border: [false, false, false, false], fontSize: 10, alignment: 'right', bold: true }
                             ],
 
                             [{ text: 'Get Covered Canada', border: [false, false, false, false], fontSize: 10, bold: true }, { text: 'claims@getcoveredcanada.com', border: [false, false, false, false], fontSize: 10, alignment: 'right', bold: true }],
@@ -1008,7 +1010,7 @@ function ViewPendingWarranty() {
                             ['', { text: ``, border: [false, false, false, false] }],
                             [
                                 { text: 'Application for GAP Bundle Warranty Coverage', rowSpan: 3, border: [false, false, false, false], fontSize: 10, alignment: 'right', bold: true },
-                                { text: `1200 Bay Street, Suite #1201 Toronta, Ontario, M5R 2A5 Phone: 905.291.2940`, border: [false, false, false, false], fontSize: 10, alignment: 'right', bold: true }
+                                { text: `455 Bowes Road, Unit 4A Concord, ON L4K 1J5, \n Phone: 905.291.2940`, border: [false, false, false, false], fontSize: 10, alignment: 'right', bold: true }
                             ],
 
                             [{ text: 'Get Covered Canada', border: [false, false, false, false], fontSize: 10, bold: true }, { text: 'claims@getcoveredcanada.com', border: [false, false, false, false], fontSize: 10, alignment: 'right', bold: true }],
@@ -3007,6 +3009,7 @@ function ViewPendingWarranty() {
     ]
 
     const loadData = async () => {
+        setBackdropOpen(true);
         try {
             const response = await axios.post(URL, { dealership });
 
@@ -3014,6 +3017,7 @@ function ViewPendingWarranty() {
                 setDataList(""); // Keep dummy data in case of unauthorized response
             } else {
                 console.log(response.data.data)
+                setBackdropOpen(false);
                 const responseData = response.data.data;
                 const dataWithIndex = response.data.data.map((item, index) => ({
                     ...item,
@@ -3409,6 +3413,13 @@ function ViewPendingWarranty() {
                         {message}
                     </Alert>
                 </Snackbar>
+                <Backdrop
+                    sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
+                    open={backdropOpen}
+                // onClick={handleClose}
+                >
+                    <CircularProgress color="inherit" />
+                </Backdrop>
             </Box>
 
         </div>

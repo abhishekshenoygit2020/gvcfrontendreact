@@ -18,6 +18,9 @@ import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import axios from '../../../api/axios';
 import InputAdornment from '@mui/material/InputAdornment';
+import Backdrop from '@mui/material/Backdrop';
+import CircularProgress from '@mui/material/CircularProgress';
+
 
 import RoadSideAssitance from './RoadSideAssitance';
 import Autocomplete from '@mui/material/Autocomplete';
@@ -58,6 +61,8 @@ const Item = styled(Paper)(({ theme }) => ({
     }),
 }));
 
+
+
 export default function BuildWarranty() {
     const user = ApplicationStore().getStorage('userName');
     const dealership = ApplicationStore().getStorage('dealership');
@@ -66,6 +71,7 @@ export default function BuildWarranty() {
     const commission = ApplicationStore().getStorage('commission');
     const userId = ApplicationStore().getStorage('salesrep');
     const { sidebarItemIndex, setSidebarItemIndex } = useAuthContext();
+    const [backdropOpen, setBackdropOpen] = useState(false);
     const saveStatusRef = useRef(0);
     const navigate = useNavigate();
     const { state } = useLocation();
@@ -269,6 +275,14 @@ export default function BuildWarranty() {
             setWarrantyOptionPriceText(165);
         }
     };
+
+    function formatCurrency(num) {
+        return new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "USD"
+        }).format(num)
+    }
+
 
     useEffect(() => {
         loadMake("test");
@@ -850,8 +864,6 @@ export default function BuildWarranty() {
 
     const handleNext = () => {
 
-        console.log("product "+ JSON.stringify(productRef.current));
-
         const productName = productRef.current;
 
         if (activeStep == 0) {
@@ -1076,6 +1088,7 @@ export default function BuildWarranty() {
         setCustomerLanguageText(event.target.value);
     };
 
+
     const warrantyOptions = {
         Gold: [
             { value: "Gold Core", label: "Gold Core" },
@@ -1252,6 +1265,7 @@ export default function BuildWarranty() {
         if (!termsConditonChecked) {
             alert("Please tick the terms & conditions")
         } else {
+            setBackdropOpen(true);
             if (id == "") {
                 const mainURL = ADDURL;
                 serviceMethod(mainURL, 'POST', data, handleSuccess, handleException);
@@ -1583,6 +1597,7 @@ export default function BuildWarranty() {
                         body: [
                             [
                                 { text: `Warranty Plan:`, border: [false, false, false, false], fontSize: 8, bold: true },
+                                // { text: `${data.productName.replace('(', '  (')}`, border: [false, false, false, false], fontSize: 8, bold: false },
                                 { text: `${data.productName.replace('(', '  (')}`, border: [false, false, false, false], fontSize: 8, bold: false },
                                 { text: `Deductible:`, border: [false, false, false, false], fontSize: 8, bold: true },
                                 { text: `${data.deductible}`, border: [false, false, false, false], fontSize: 8, bold: false }
@@ -4289,9 +4304,9 @@ export default function BuildWarranty() {
                             },
                             {
                                 fontSize: 8, alignment: 'left', margin: [0, 5], bold: true,
-                                text:[
-                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 Coverage Limit `, bold:true, fontSize:8},
-                                    {text: ` - As stated on the first page of the application/contract \n\n`,fontSize:8}
+                                text: [
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 Coverage Limit `, bold: true, fontSize: 8 },
+                                    { text: ` - As stated on the first page of the application/contract \n\n`, fontSize: 8 }
                                 ]
                             },
                             {
@@ -4299,24 +4314,24 @@ export default function BuildWarranty() {
                             },
                             {
                                 fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
-                                text:[
-                                    { text: `If the covered vehicle is involved in an at-fault accident that results in a `, fontSize:8},
-                                    { text: `partial loss: \n`, bold:true, fontSize:8}
+                                text: [
+                                    { text: `If the covered vehicle is involved in an at-fault accident that results in a `, fontSize: 8 },
+                                    { text: `partial loss: \n`, bold: true, fontSize: 8 }
                                 ]
                             },
                             {
-                                fontSize: 8, alignment: 'left',  margin: [0, 5], bold: false,
-                                text:[
-                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 We will reimburse the policy holder for the collision deductible charged by the primary insurer, up to`, fontSize:8},
-                                    {text: ` $1,000 \n`, bold:true, fontSize:8}
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
+                                text: [
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 We will reimburse the policy holder for the collision deductible charged by the primary insurer, up to`, fontSize: 8 },
+                                    { text: ` $1,000 \n`, bold: true, fontSize: 8 }
                                 ]
                             },
                             {
-                                fontSize: 8, alignment: 'left',  margin: [0, 5], bold: false,
-                                text:[
-                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 Only`, fontSize:8},
-                                    {text: ` one claim`, bold:true, fontSize:8},
-                                    {text: ` may be made under this coverage for the life of the policy \n\n`, fontSize:8},
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
+                                text: [
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 Only`, fontSize: 8 },
+                                    { text: ` one claim`, bold: true, fontSize: 8 },
+                                    { text: ` may be made under this coverage for the life of the policy \n\n`, fontSize: 8 },
                                 ]
                             },
                             {
@@ -4326,10 +4341,10 @@ export default function BuildWarranty() {
                                 fontSize: 8, alignment: 'left', text: `The total benefits paid under Sections 2A and 2B combined will not exceed the limit stated on the first page of this application/contract. \n`, margin: [0, 5], bold: false
                             },
                             {
-                                fontSize: 8, alignment: 'left',  margin: [0, 5], bold: false,
-                                text:[
-                                    {text: `Note:`, fontSize:8, bold: true},
-                                    {text: ` All GAP Insurance payouts are made directly to the finance company/lender by GET COVERED CANADA Inc.\n\n`, fontSize:8}
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
+                                text: [
+                                    { text: `Note:`, fontSize: 8, bold: true },
+                                    { text: ` All GAP Insurance payouts are made directly to the finance company/lender by GET COVERED CANADA Inc.\n\n`, fontSize: 8 }
                                 ]
                             },
 
@@ -4345,11 +4360,11 @@ export default function BuildWarranty() {
                                 fontSize: 8, alignment: 'left', text: `Section 3 – Exclusions \n`, margin: [0, 5], bold: true, fontSize: 13
                             },
                             {
-                                fontSize: 8, alignment: 'left',  margin: [0, 5], bold: false,
-                                text:[
-                                    {text: `This Policy does `, fontSize:8},
-                                    {text: `not `, bold:true, fontSize:8, italics:true},
-                                    {text: `provide coverage for any of the following: \n `, fontSize:8}
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
+                                text: [
+                                    { text: `This Policy does `, fontSize: 8 },
+                                    { text: `not `, bold: true, fontSize: 8, italics: true },
+                                    { text: `provide coverage for any of the following: \n `, fontSize: 8 }
                                 ]
                             },
                             {
@@ -4380,11 +4395,11 @@ export default function BuildWarranty() {
                                 fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 Vehicles older than eleven (11) model years at the time of application\n `, margin: [0, 5], bold: false
                             },
                             {
-                                fontSize: 8, alignment: 'left',  margin: [0, 5], bold: false,
-                                text:[
-                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 Loan amounts exceeding the`, fontSize:8},
-                                    {text: ` Loan-to-Value (LTV)`, fontSize:8, bold:true},
-                                    {text: ` limit noted in the policy\n `, fontSize:8}
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
+                                text: [
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 Loan amounts exceeding the`, fontSize: 8 },
+                                    { text: ` Loan-to-Value (LTV)`, fontSize: 8, bold: true },
+                                    { text: ` limit noted in the policy\n `, fontSize: 8 }
                                 ]
                             },
                             {
@@ -4432,9 +4447,9 @@ export default function BuildWarranty() {
                             },
                             {
                                 fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
-                                text:[
-                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 5 business days of the date of the applicant’s vehicle being deemed/determines as a ‘total loss’,`, fontSize:8, bold:true},
-                                    { text: ` or \n`, fontSize:8}
+                                text: [
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 5 business days of the date of the applicant’s vehicle being deemed/determines as a ‘total loss’,`, fontSize: 8, bold: true },
+                                    { text: ` or \n`, fontSize: 8 }
                                 ]
                             },
                             {
@@ -4447,11 +4462,11 @@ export default function BuildWarranty() {
                                 fontSize: 8, alignment: 'left', text: `C. Claim Review & Payment  \n`, margin: [0, 5], bold: true
                             },
                             {
-                                fontSize: 8, alignment: 'left',  margin: [0, 5], bold: false,
-                                text:[
-                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 Claims will be reviewed within`, fontSize:8},
-                                    {text: ` 30 days`, fontSize:8, bold: true},
-                                    {text: ` of receiving satisfactory documentation. If approved, the payment will be made directly to the finance\n`, fontSize:8},
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
+                                text: [
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 Claims will be reviewed within`, fontSize: 8 },
+                                    { text: ` 30 days`, fontSize: 8, bold: true },
+                                    { text: ` of receiving satisfactory documentation. If approved, the payment will be made directly to the finance\n`, fontSize: 8 },
                                 ]
                             },
                             {
@@ -4470,11 +4485,11 @@ export default function BuildWarranty() {
                                 fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 Maximize your primary insurer’s payout \n`, margin: [0, 5], bold: false
                             },
                             {
-                                fontSize: 8, alignment: 'left',  margin: [0, 5], bold: false,
-                                text:[
-                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 `, fontSize:8},
-                                    {text: `Note:`, fontSize:8, decoration:'underline'},
-                                    {text: ` Failure to do so may reduce the benefits paid under this policy \n\n\n`, fontSize:8}
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
+                                text: [
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 `, fontSize: 8 },
+                                    { text: `Note:`, fontSize: 8, decoration: 'underline' },
+                                    { text: ` Failure to do so may reduce the benefits paid under this policy \n\n\n`, fontSize: 8 }
                                 ]
                             },
                             {
@@ -4491,12 +4506,12 @@ export default function BuildWarranty() {
                             },
                             {
                                 fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
-                                text:[
-                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 If cancelled by the applicant within`, fontSize:8},
-                                    {text: ` 10 business days`, fontSize:8, bold:true},
-                                    {text: ` of purchase,`, fontSize:8},
-                                    {text: ` the applicant will receive a full refund`, fontSize:8, bold:true, italics:true},
-                                    {text: ` of the total premium \n`, fontSize:8},
+                                text: [
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 If cancelled by the applicant within`, fontSize: 8 },
+                                    { text: ` 10 business days`, fontSize: 8, bold: true },
+                                    { text: ` of purchase,`, fontSize: 8 },
+                                    { text: ` the applicant will receive a full refund`, fontSize: 8, bold: true, italics: true },
+                                    { text: ` of the total premium \n`, fontSize: 8 },
                                 ]
                             },
                             {
@@ -4504,12 +4519,12 @@ export default function BuildWarranty() {
                             },
                             {
                                 fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
-                                text:[
-                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 If cancelled`, fontSize:8},
-                                    {text: ` after`, fontSize:8, bold:true, italics:true}, 
-                                    {text: ` 10 business days`, fontSize:8, bold:true},
-                                    {text: ` from the date of purchase, the applicant will receive,`, fontSize:8},
-                                    {text: ` no refund (partial or full)  \n`, fontSize:8, bold:true, italics:true},
+                                text: [
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 If cancelled`, fontSize: 8 },
+                                    { text: ` after`, fontSize: 8, bold: true, italics: true },
+                                    { text: ` 10 business days`, fontSize: 8, bold: true },
+                                    { text: ` from the date of purchase, the applicant will receive,`, fontSize: 8 },
+                                    { text: ` no refund (partial or full)  \n`, fontSize: 8, bold: true, italics: true },
                                 ]
                             },
                             {
@@ -4517,9 +4532,9 @@ export default function BuildWarranty() {
                             },
                             {
                                 fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
-                                text:[
-                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 The insurer or GET COVERED CANADA INC. may cancel this policy with at least`, fontSize:8},
-                                    {text: ` 15 days' written notice.  \n`, fontSize:8, bold:true },
+                                text: [
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 The insurer or GET COVERED CANADA INC. may cancel this policy with at least`, fontSize: 8 },
+                                    { text: ` 15 days' written notice.  \n`, fontSize: 8, bold: true },
                                 ]
                             },
                             {
@@ -4527,24 +4542,24 @@ export default function BuildWarranty() {
                             },
                             {
                                 fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
-                                text:[
-                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 If your policy is cancelled by the insurer or Get Covered Canada you will receive a`, fontSize:8},
-                                    {text: ` pro-rated refund`, fontSize:8, bold:true },
-                                    {text: ` for the unused portion, subject to any minimum \n`, fontSize:8 },
+                                text: [
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 If your policy is cancelled by the insurer or Get Covered Canada you will receive a`, fontSize: 8 },
+                                    { text: ` pro-rated refund`, fontSize: 8, bold: true },
+                                    { text: ` for the unused portion, subject to any minimum \n`, fontSize: 8 },
                                 ]
                             },
                             {
-                                fontSize:8 , text:` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0 retained premium  \n`
+                                fontSize: 8, text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0 retained premium  \n`
                             },
                             {
                                 fontSize: 8, alignment: 'left', text: `F. Termination Timing  \n`, margin: [0, 5], bold: true
                             },
                             {
                                 fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022   `, margin: [0, 5], bold: false,
-                                text:[
-                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 Cancellation is effective at`, fontSize:8},
-                                    {text: ` 12:01 a.m. (Standard Time)`, fontSize:8, bold:true },
-                                    {text: ` on the listed termination date  \n`, fontSize:8 },
+                                text: [
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 Cancellation is effective at`, fontSize: 8 },
+                                    { text: ` 12:01 a.m. (Standard Time)`, fontSize: 8, bold: true },
+                                    { text: ` on the listed termination date  \n`, fontSize: 8 },
                                 ]
                             },
                             {
@@ -4585,10 +4600,10 @@ export default function BuildWarranty() {
                             },
                             {
                                 fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
-                                text:[
-                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 GET COVERED CANADA INC. complies with`, fontSize:8},
-                                    {text: ` PIPEDA`, fontSize:8, bold:true},
-                                    {text: ` and only collects or shares personal information as necessary to: \n`, fontSize:8}
+                                text: [
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 GET COVERED CANADA INC. complies with`, fontSize: 8 },
+                                    { text: ` PIPEDA`, fontSize: 8, bold: true },
+                                    { text: ` and only collects or shares personal information as necessary to: \n`, fontSize: 8 }
                                 ]
                             },
                             {
@@ -4608,12 +4623,12 @@ export default function BuildWarranty() {
                             },
                             {
                                 fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
-                                text:[
-                                    {text: `For `, fontSize:8},
-                                    {text: `all `, fontSize:8, bold:true, italics:true},
-                                    {text: `inquiries, please contact Get Covered Canada by email: `,fontSize:8},
-                                    {text: `sales@getcoveredcanada.ca `, fontSize:8, decoration:'underline' },
-                                    {text: `or by phone to: 905-291-2940 \n`, fontSize:8}
+                                text: [
+                                    { text: `For `, fontSize: 8 },
+                                    { text: `all `, fontSize: 8, bold: true, italics: true },
+                                    { text: `inquiries, please contact Get Covered Canada by email: `, fontSize: 8 },
+                                    { text: `sales@getcoveredcanada.ca `, fontSize: 8, decoration: 'underline' },
+                                    { text: `or by phone to: 905-291-2940 \n`, fontSize: 8 }
                                 ]
                             },
                             {
@@ -4621,9 +4636,9 @@ export default function BuildWarranty() {
                             },
                             {
                                 fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
-                                text:[
-                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 All reported quotes, fees, transactions, etc... and dollar amounts are written in`, fontSize:8},
-                                    {text: ` Canadian Dollars. \n`, fontSize:8, bold:true }
+                                text: [
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 All reported quotes, fees, transactions, etc... and dollar amounts are written in`, fontSize: 8 },
+                                    { text: ` Canadian Dollars. \n`, fontSize: 8, bold: true }
                                 ]
                             },
                             {
@@ -5027,11 +5042,11 @@ export default function BuildWarranty() {
                             //     fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\ This is an Inclusionary Mechanical Breakdown Warranty, not a service agreement or contract \n\n\n`, margin: [0, 5], bold: false
                             // },
                             {
-                                fontSize: 8,alignment: 'left',margin: [0, 5],bold: false,
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
                                 text: [
-                                    { text: ' \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0 This is an ' , fontSize:8},
-                                    { text: 'Inclusionary Mechanical Breakdown Warranty, ', bold: true, italics: true, fontSize:8 },
-                                    { text: 'not a service agreement or contract \n\n\n' , fontSize:8 }
+                                    { text: ' \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0 This is an ', fontSize: 8 },
+                                    { text: 'Inclusionary Mechanical Breakdown Warranty, ', bold: true, italics: true, fontSize: 8 },
+                                    { text: 'not a service agreement or contract \n\n\n', fontSize: 8 }
                                 ]
                             },
                             {
@@ -5039,20 +5054,20 @@ export default function BuildWarranty() {
                             },
                             {
                                 fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
-                                text:[
-                                    {text:` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0 Get Covered Canada Inc. will cover reasonable repair costs for `, fontSize:8},
-                                    {text: `Covered Parts `, bold:true, italics:true, fontSize:8},
-                                    {text: `due to`, fontSize:8},
-                                    {text: ` Mechanical Failure \n  `, bold:true, italics:true, fontSize:8},
+                                text: [
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0 Get Covered Canada Inc. will cover reasonable repair costs for `, fontSize: 8 },
+                                    { text: `Covered Parts `, bold: true, italics: true, fontSize: 8 },
+                                    { text: `due to`, fontSize: 8 },
+                                    { text: ` Mechanical Failure \n  `, bold: true, italics: true, fontSize: 8 },
 
                                 ]
                             },
                             {
                                 fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
-                                text:[
-                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\ Mechanical Failure: Failure of a `, fontSize:8},
-                                    {text: `covered part`, bold:true, italics:true, fontSize:8},
-                                    {text: ` under normal use, not caused by non-covered parts \n`, fontSize:8},
+                                text: [
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\ Mechanical Failure: Failure of a `, fontSize: 8 },
+                                    { text: `covered part`, bold: true, italics: true, fontSize: 8 },
+                                    { text: ` under normal use, not caused by non-covered parts \n`, fontSize: 8 },
                                 ]
                             },
                             {
@@ -5066,10 +5081,10 @@ export default function BuildWarranty() {
                             },
                             {
                                 fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
-                                text:[
-                                    {text:` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\ Coverage starts on the `, fontSize:8},
-                                    {text: `'Start Date'`, bold:true, italics:true, fontSize:8},
-                                    {text: ` noted on page one of this application and with a noted:\n`, fontSize:8}
+                                text: [
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\ Coverage starts on the `, fontSize: 8 },
+                                    { text: `'Start Date'`, bold: true, italics: true, fontSize: 8 },
+                                    { text: ` noted on page one of this application and with a noted:\n`, fontSize: 8 }
                                 ]
                             },
                             {
@@ -5128,10 +5143,10 @@ export default function BuildWarranty() {
                             },
                             {
                                 fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
-                                text:[
-                                    {text:` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\ DIY ('do it yourself') maintenance is `, fontSize:8},
-                                    {text: `NOT`, bold:true, italics:true, fontSize:8},
-                                    {text: ` allowed \n`, fontSize:8}
+                                text: [
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\ DIY ('do it yourself') maintenance is `, fontSize: 8 },
+                                    { text: `NOT`, bold: true, italics: true, fontSize: 8 },
+                                    { text: ` allowed \n`, fontSize: 8 }
                                 ]
                             },
                             {
@@ -5164,28 +5179,28 @@ export default function BuildWarranty() {
                             },
                             {
                                 fontSize: 8, alignment: 'left', margin: [0, 5], bold: true,
-                                text:[
-                                    {text:` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 `, fontSize:8,bold:true},
-                                    {text:` Essential/Bronze`, fontSize:8, color:'#800000',bold:true},
-                                    {text:` Powertrain Programs \n`, fontSize:8, bold:true}
+                                text: [
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 `, fontSize: 8, bold: true },
+                                    { text: ` Essential/Bronze`, fontSize: 8, color: '#800000', bold: true },
+                                    { text: ` Powertrain Programs \n`, fontSize: 8, bold: true }
                                 ]
                             },
                             {
                                 fontSize: 8, alignment: 'left', margin: [0, 5], bold: true,
-                                text:[
-                                    {text:` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 `, fontSize:8,bold:true},
-                                    {text:` Essential/Silver`, fontSize:8, color:'#808080',bold:true},
-                                    {text:` Powertrain Plus Programs \n`, fontSize:8, bold:true}
+                                text: [
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 `, fontSize: 8, bold: true },
+                                    { text: ` Essential/Silver`, fontSize: 8, color: '#808080', bold: true },
+                                    { text: ` Powertrain Plus Programs \n`, fontSize: 8, bold: true }
                                 ]
                             },
                             {
                                 fontSize: 8, alignment: 'left', margin: [0, 5], bold: true,
-                                text:[
-                                    {text:` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 `, fontSize:8,bold:true},
-                                    {text:` Premium/Gold`, fontSize:8, color:'#996515',bold:true},
-                                    {text:` Powertrain Plus Programs \n\n\n`, fontSize:8, bold:true}
+                                text: [
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022 `, fontSize: 8, bold: true },
+                                    { text: ` Premium/Gold`, fontSize: 8, color: '#996515', bold: true },
+                                    { text: ` Powertrain Plus Programs \n\n\n`, fontSize: 8, bold: true }
                                 ]
-                            },           
+                            },
                             {
                                 fontSize: 8, alignment: 'left', text: `5. Maximum Liabilities \n`, margin: [0, 5], bold: true, fontSize: 13
                             },
@@ -5197,9 +5212,9 @@ export default function BuildWarranty() {
                             },
                             {
                                 fontSize: 8, alignment: 'left', text: ``, margin: [0, 5], bold: false,
-                                text:[
-                                    {text:` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022	OR`, fontSize:8, bold:true, italics:true },
-                                    {text:` half the vehicle purchase price (whichever is less)\n`, fontSize:8}
+                                text: [
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022	OR`, fontSize: 8, bold: true, italics: true },
+                                    { text: ` half the vehicle purchase price (whichever is less)\n`, fontSize: 8 }
                                 ]
                             },
                             {
@@ -5207,10 +5222,10 @@ export default function BuildWarranty() {
                             },
                             {
                                 fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
-                                text:[
-                                    {text:` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022	Any claim`, fontSize:8},
-                                    {text:` MUST`, fontSize:8, bold:true, italics:true },
-                                    {text:` be made with five business days of the issue being reported to a licensed mechanic!\n`, fontSize:8}
+                                text: [
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022	Any claim`, fontSize: 8 },
+                                    { text: ` MUST`, fontSize: 8, bold: true, italics: true },
+                                    { text: ` be made with five business days of the issue being reported to a licensed mechanic!\n`, fontSize: 8 }
                                 ]
                             },
                             {
@@ -5221,9 +5236,9 @@ export default function BuildWarranty() {
                             },
                             {
                                 fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
-                                text:[
-                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022	$199.00`, bold:true, fontSize:8, italics:true},
-                                    {text: ` deductible as stated on the agreement front page! \n\n\n`, fontSize:8}
+                                text: [
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022	$199.00`, bold: true, fontSize: 8, italics: true },
+                                    { text: ` deductible as stated on the agreement front page! \n\n\n`, fontSize: 8 }
                                 ]
                             },
                             {
@@ -5240,9 +5255,9 @@ export default function BuildWarranty() {
                             },
                             {
                                 fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
-                                text:[
-                                    {text:` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Transmissions`, bold:true, fontSize:8},
-                                    {text:` (auto/manual) \n`, fontSize:8}
+                                text: [
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Transmissions`, bold: true, fontSize: 8 },
+                                    { text: ` (auto/manual) \n`, fontSize: 8 }
                                 ]
                             },
                             {
@@ -5250,16 +5265,16 @@ export default function BuildWarranty() {
                             },
                             {
                                 fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
-                                text:[
-                                    {text:` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Trip-Interruption:`, bold:true, fontSize:8},
-                                    {text:` Up to $100/day, 5 days, 250km+ from home \n`, fontSize:8}
+                                text: [
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Trip-Interruption:`, bold: true, fontSize: 8 },
+                                    { text: ` Up to $100/day, 5 days, 250km+ from home \n`, fontSize: 8 }
                                 ]
                             },
                             {
                                 fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
-                                text:[
-                                    {text:` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Rental Allowance:`, bold:true, fontSize:8},
-                                    {text:` $40/day, 5 days; certain conditions apply! \n`, fontSize:8}
+                                text: [
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Rental Allowance:`, bold: true, fontSize: 8 },
+                                    { text: ` $40/day, 5 days; certain conditions apply! \n`, fontSize: 8 }
                                 ]
                             },
                             {
@@ -5270,16 +5285,16 @@ export default function BuildWarranty() {
                             },
                             {
                                 fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
-                                text:[
-                                    {text:` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Seals & Gaskets`, bold:true, fontSize:8},
-                                    {text:` (if applicable to your plan)\n`, fontSize:8}
+                                text: [
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Seals & Gaskets`, bold: true, fontSize: 8 },
+                                    { text: ` (if applicable to your plan)\n`, fontSize: 8 }
                                 ]
                             },
                             {
                                 fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
-                                text:[
-                                    {text:` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Electrical System:`, bold:true, fontSize:8},
-                                    {text:` Switches, wipers, lights, mirrors, seat controls, etc.\n`, fontSize:8}
+                                text: [
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Electrical System:`, bold: true, fontSize: 8 },
+                                    { text: ` Switches, wipers, lights, mirrors, seat controls, etc.\n`, fontSize: 8 }
                                 ]
                             },
                             {
@@ -5296,9 +5311,9 @@ export default function BuildWarranty() {
                             },
                             {
                                 fontSize: 8, alignment: 'left', margin: [0, 5], bold: false,
-                                text:[
-                                    {text:` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Front Suspension`, bold:true, fontSize:8},
-                                    {text:` (excludes shocks/air suspension) \n`, fontSize:8}
+                                text: [
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Front Suspension`, bold: true, fontSize: 8 },
+                                    { text: ` (excludes shocks/air suspension) \n`, fontSize: 8 }
                                 ]
                             },
                             {
@@ -5309,11 +5324,11 @@ export default function BuildWarranty() {
                             },
                             {
                                 fontSize: 8, alignment: 'left', text: `     or by phone at: 905-291-2940 within 24 hours of vehicle \n`, margin: [0, 5], bold: true,
-                                text:[
-                                    {text:` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0 1.	Call Get Covered Canada:`, fontSize:8},
-                                    {text:` Immediately report a claim to: `, fontSize:8, bold:true},
-                                    {text:`claims@getcoveredcanada.ca`, fontSize:8, bold:true, decoration: 'underline'},
-                                    {text:` or by phone at: 905-291-2940 within 24 hours of vehicle \n`, fontSize:8, bold:true},
+                                text: [
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0 1.	Call Get Covered Canada:`, fontSize: 8 },
+                                    { text: ` Immediately report a claim to: `, fontSize: 8, bold: true },
+                                    { text: `claims@getcoveredcanada.ca`, fontSize: 8, bold: true, decoration: 'underline' },
+                                    { text: ` or by phone at: 905-291-2940 within 24 hours of vehicle \n`, fontSize: 8, bold: true },
                                 ]
                             },
                             {
@@ -5362,7 +5377,7 @@ export default function BuildWarranty() {
                                 fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Get Covered Canada may use OEM, aftermarket, used, or rebuilt parts at its sole discretion \n`, margin: [0, 5], bold: false
                             },
                             {
-                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 No coverage (policy is VOID) if  this policy agreement expires, is cancelled, or terminated before any work is completed! \n\n\n`, margin: [0, 5], bold: true, italics:true
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 No coverage (policy is VOID) if  this policy agreement expires, is cancelled, or terminated before any work is completed! \n\n\n`, margin: [0, 5], bold: true, italics: true
                             },
                             {
                                 fontSize: 8, alignment: 'left', text: ` Payment process \n`, margin: [0, 5], bold: true, fontSize: 13
@@ -5500,7 +5515,7 @@ export default function BuildWarranty() {
                                 fontSize: 8, alignment: 'left', text: `Total Loss Clause (For Finance Companies) \n`, margin: [0, 5], bold: true, fontSize: 13
                             },
                             {
-                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Cancellation allowed if vehicle is: \n`, margin: [0, 5], bold: true, italics:true
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Cancellation allowed if vehicle is: \n`, margin: [0, 5], bold: true, italics: true
                             },
                             {
                                 fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Declared a total loss by the insurer\n`, margin: [0, 5], bold: false
@@ -5509,11 +5524,11 @@ export default function BuildWarranty() {
                                 fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Repossessed \n`, margin: [0, 5], bold: false
                             },
                             {
-                                fontSize: 8, alignment: 'left',  margin: [0, 5], bold: true,
-                                text:[
-                                    {text:` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Refund based on amount paid by`,fontSize:8, bold:true, italics:true},
-                                    {text:` dealer,`, fontSize:10, bold:true, italics:true},
-                                    {text:` minus: \n`, fontSize:8, bold:true, italics:true},
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: true,
+                                text: [
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Refund based on amount paid by`, fontSize: 8, bold: true, italics: true },
+                                    { text: ` dealer,`, fontSize: 10, bold: true, italics: true },
+                                    { text: ` minus: \n`, fontSize: 8, bold: true, italics: true },
                                 ]
                             },
                             {
@@ -5523,7 +5538,7 @@ export default function BuildWarranty() {
                                 fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Any claim payouts\n`, margin: [0, 5], bold: false
                             },
                             {
-                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Refund schedule: \n`, margin: [0, 5], bold: true, italics:true
+                                fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Refund schedule: \n`, margin: [0, 5], bold: true, italics: true
                             },
                             {
                                 fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022\u00A0\u00A0 Month 1: 75% \n`, margin: [0, 5], bold: false
@@ -5553,10 +5568,10 @@ export default function BuildWarranty() {
                                 fontSize: 8, alignment: 'left', text: `Other Terms\n`, margin: [0, 5], bold: true, fontSize: 13
                             },
                             {
-                                fontSize: 8, alignment: 'left',  margin: [0, 5], bold: true,
-                                text:[
-                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022    OMVIC Compliance:`, fontSize:8, bold:true},
-                                    {text: ` Get Covered Canada Inc. O/A Get Covered Canada complies with all MVDA and UCDA guidelines, policies, and procedures; \n`,fontSize:8}
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: true,
+                                text: [
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022    OMVIC Compliance:`, fontSize: 8, bold: true },
+                                    { text: ` Get Covered Canada Inc. O/A Get Covered Canada complies with all MVDA and UCDA guidelines, policies, and procedures; \n`, fontSize: 8 }
                                 ]
                             },
                             {
@@ -5590,45 +5605,45 @@ export default function BuildWarranty() {
                                 fontSize: 8, alignment: 'left', text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022	Missed payments may lead to cancellation with no refund or claim \n`, margin: [0, 5], bold: false
                             },
                             {
-                                fontSize: 8, alignment: 'left',  margin: [0, 5], bold: true,
-                                text:[
-                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022    Right to Recover:`, fontSize:8, bold:true},
-                                    {text: ` Get Covered Canada can pursue third parties for reimbursed claims \n`,fontSize:8}
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: true,
+                                text: [
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022    Right to Recover:`, fontSize: 8, bold: true },
+                                    { text: ` Get Covered Canada can pursue third parties for reimbursed claims \n`, fontSize: 8 }
                                 ]
                             },
                             {
-                                fontSize: 8, alignment: 'left',  margin: [0, 5], bold: true,
-                                text:[
-                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022    Territory:`, fontSize:8, bold:true},
-                                    {text: ` Valid for repairs in Canada & United States of America \n`,fontSize:8}
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: true,
+                                text: [
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022    Territory:`, fontSize: 8, bold: true },
+                                    { text: ` Valid for repairs in Canada & United States of America \n`, fontSize: 8 }
                                 ]
                             },
                             {
-                                fontSize: 8, alignment: 'left',  margin: [0, 5], bold: true,
-                                text:[
-                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022    Dispute Resolution:`, fontSize:8, bold:true},
-                                    {text: ` Must follow binding arbitration via Canadian Arbitration Association (after written notice of dispute) \n`,fontSize:8}
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: true,
+                                text: [
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022    Dispute Resolution:`, fontSize: 8, bold: true },
+                                    { text: ` Must follow binding arbitration via Canadian Arbitration Association (after written notice of dispute) \n`, fontSize: 8 }
                                 ]
                             },
                             {
-                                fontSize: 8, alignment: 'left',  margin: [0, 5], bold: true,
-                                text:[
-                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022    Privacy:`, fontSize:8, bold:true},
-                                    {text: ` Consent required for data collection, possibly outside Canada\n`,fontSize:8}
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: true,
+                                text: [
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022    Privacy:`, fontSize: 8, bold: true },
+                                    { text: ` Consent required for data collection, possibly outside Canada\n`, fontSize: 8 }
                                 ]
                             },
                             {
-                                fontSize: 8, alignment: 'left',  margin: [0, 5], bold: true,
-                                text:[
-                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022    Entire Agreement:`, fontSize:8, bold:true},
-                                    {text: ` Supersedes all previous terms, conditions, and policies, written or oral \n`,fontSize:8}
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: true,
+                                text: [
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022    Entire Agreement:`, fontSize: 8, bold: true },
+                                    { text: ` Supersedes all previous terms, conditions, and policies, written or oral \n`, fontSize: 8 }
                                 ]
                             },
                             {
-                                fontSize: 8, alignment: 'left',  margin: [0, 5], bold: true,
-                                text:[
-                                    {text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022    Governing Laws:`, fontSize:8, bold:true},
-                                    {text: ` Get Covered Canada is legally entiltled to operate business in Ontario, and as such is bound by the laws within the province of \n`,fontSize:8}
+                                fontSize: 8, alignment: 'left', margin: [0, 5], bold: true,
+                                text: [
+                                    { text: ` \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u2022    Governing Laws:`, fontSize: 8, bold: true },
+                                    { text: ` Get Covered Canada is legally entiltled to operate business in Ontario, and as such is bound by the laws within the province of \n`, fontSize: 8 }
                                 ]
                             },
                             {
@@ -5861,7 +5876,8 @@ export default function BuildWarranty() {
                             ],
                             [
                                 { text: `Vehicle Information: `, fontSize: 9, bold: true, border: [false, false, false, false] },
-                                { text: `${data.year + ' ' + data.model}`, fontSize: 7, bold: false, border: [false, false, false, false] },
+                                // { text: `${data.year + ' ' + data.model}`, fontSize: 7, bold: false, border: [false, false, false, false] },
+                                { text: `${data.year + ' ' + data.make + ' ' + data.model}`, fontSize: 8, bold: false, border: [false, false, false, false] },
                                 { text: ``, border: [false, false, false, false] }
                             ],
                             [
@@ -5882,12 +5898,14 @@ export default function BuildWarranty() {
                             [
                                 { text: `Warranty Admin Cost:  `, fontSize: 10, bold: true, border: [false, false, false, true] },
                                 { text: ``, border: [false, false, false, true] },
-                                { text: `$${Number(warrantyAdminCost).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, fontSize: 8, border: [false, false, false, true], alignment: 'right' }
+                                // { text: `$${(warrantyAdminCost)}`, fontSize: 8, border: [false, false, false, true], alignment: 'right' }
+                                { text: `${formatCurrency(warrantyAdminCost)}`, fontSize: 8, border: [false, false, false, true], alignment: 'right' }
                             ],
                             [
                                 { text: `Total Cost:  `, fontSize: 10, bold: true, border: [false, false, false, false] },
                                 { text: ``, border: [false, false, false, false] },
-                                { text: `$${Number(warrantyAdminCost).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, fontSize: 8, border: [false, false, false, false], alignment: 'right' }
+                                // { text: `$${warrantyAdminCost}`, fontSize: 8, border: [false, false, false, false], alignment: 'right' }
+                                { text: `${formatCurrency(warrantyAdminCost)}`, fontSize: 8, border: [false, false, false, false], alignment: 'right' }
                             ],
                             [
                                 { text: ``, fontSize: 10, bold: true, border: [false, false, false, false] },
@@ -5897,20 +5915,20 @@ export default function BuildWarranty() {
                             [
                                 { text: `Tax 13%:  `, fontSize: 10, bold: true, border: [false, false, false, true] },
                                 { text: ``, border: [false, false, false, true] },
-                                { text: `$${Number(taxCost).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, fontSize: 8, border: [false, false, false, true], alignment: 'right' }
+                                // { text: `$${taxCost}`, fontSize: 8, border: [false, false, false, true], alignment: 'right' }
+                                { text: `${formatCurrency(taxCost)}`, fontSize: 8, border: [false, false, false, true], alignment: 'right' }
                             ],
                             [
                                 { text: `Total Cost:  `, fontSize: 10, bold: true, border: [false, false, false, false] },
                                 { text: ``, border: [false, false, false, false] },
-                                { text: `$${Number(totalCost).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, fontSize: 8, bold: true, border: [false, false, false, false], alignment: 'right' }
-                                
+                                // { text: `$${totalCost}`, fontSize: 8, bold: true, border: [false, false, false, false], alignment: 'right' }
+                                { text: `${formatCurrency(totalCost)}`, fontSize: 8, bold: true, border: [false, false, false, false], alignment: 'right' }
                             ],
                             [
-                                { text: `HST #: 737149310  RP0001  `, fontSize: 10, bold: true, border: [false, false, false, false] },
+                                { text: `HST #: 105511554RP002  `, fontSize: 10, bold: true, border: [false, false, false, false] },
                                 { text: ``, border: [false, false, false, false] },
                                 { text: ``, border: [false, false, false, false], alignment: 'right' }
                             ],
-
 
                         ]
                     }
@@ -5940,11 +5958,13 @@ export default function BuildWarranty() {
                             ],
                             [
                                 { text: `Vehicle Information: `, fontSize: 9, bold: true, border: [false, false, false, false] },
-                                { text: `${data.year + ' ' + data.model}`, fontSize: 8, bold: false, border: [false, false, false, false] },
+                                // { text: `${data.year + ' ' + data.model}`, fontSize: 8, bold: false, border: [false, false, false, false] },
+                                { text: `${data.year + ' ' + data.make + ' ' + data.model}`, fontSize: 8, bold: false, border: [false, false, false, false] },
                                 { text: ``, border: [false, false, false, false] }
                             ],
                             [
                                 { text: `Warranty Plan:  `, fontSize: 9, bold: true, border: [false, false, false, false] },
+                                // { text: ` ${data.productName.replace('(', '  (')}`, fontSize: 8, border: [false, false, false, false] },
                                 { text: ` ${data.productName.replace('(', '  (')}`, fontSize: 8, border: [false, false, false, false] },
                                 { text: ``, border: [false, false, false, false] }
                             ],
@@ -5956,7 +5976,8 @@ export default function BuildWarranty() {
                             [
                                 { text: `Liability Limit:  `, fontSize: 9, bold: true, border: [false, false, false, false] },
                                 { text: `${data.warrantyProtectionText} `, fontSize: 8, border: [false, false, false, false] },
-                                { text: `$${data.productCost}`, fontSize: 8, border: [false, false, false, false], alignment: 'right' }
+                                // { text: `$${data.productCost}`, fontSize: 8, border: [false, false, false, false], alignment: 'right' }
+                                { text: `${formatCurrency(data.productCost)}`, fontSize: 8, border: [false, false, false, false], alignment: 'right' }
                             ],
                             [
                                 { text: `Unlimited Milage:  `, fontSize: 9, bold: true, border: [false, false, false, false] },
@@ -5972,7 +5993,7 @@ export default function BuildWarranty() {
                             [
                                 { text: `Total True Cost:  `, fontSize: 10, bold: true, border: [false, false, false, false] },
                                 { text: ``, border: [false, false, false, false] },
-                                { text: `$${data.productCost}`, bold: true, fontSize: 8, border: [false, false, false, false], alignment: 'right' }
+                                { text: `${formatCurrency(data.productCost)}`, bold: true, fontSize: 8, border: [false, false, false, false], alignment: 'right' }
                             ],
 
 
@@ -6001,18 +6022,16 @@ export default function BuildWarranty() {
     };
 
     const SaveAsPending = async (e) => {
+
         saveStatusRef.current = 1;
         const data = { id, commercialVehicle, originalCost, giftCardCredit, warrantyApplicationDate, user, oldUser, useromvicno: omvic_no, dealership, vinNo, highRatioCoveragePriceText, warrantyOptionPriceText, vinNoText, make, makeText, model, modelText, year, yearText, odometer, odometerText, salePriceofVehicle, salePriceofVehicleText, comprehensiveFactoryWarrantyValid, comprehensiveFactoryWarrantyValidText, serviceDate, serviceDateText, warrantyClass, warrantyClassText, warrantyType, warrantyTypeText, warrantyProtection, warrantyProtectionText, warrantyOption, warrantyOptionText, highRatioCoverage, highRatioCoverageText, deductible, deductibleText, customerFirstName, customerFirstNameText, language, languageText, customerLastName, customerLastNameText, streetAddress, streetAddressText, town, townText, province, provinceText, postalCode, postalCodeText, customerPhone, customerPhoneText, customerEmail, customerEmailText, driverLicence, driverLicenceText, customerLanguage, customerLanguageText, dealNotes, dealNotesText, vinCust, vinCustText, salePriceofVehicleCust, salePriceofVehicleCustText, financeCompany, financeCompanyText, vehicleDeliveryDate, vehicleDeliveryDateText, warrantySoldFor, warrantySoldForText, packages, packagesTypes, productIndex, productCost, packagesText, productName, Status: "Pending", commission, userId };
-        // generateInvoicePdf(data);    
-        // generatePdf(data);
+
 
         // console.log("saving data"+JSON.stringify(data));
-
         if (!termsConditonChecked) {
             alert("Please tick the terms & conditions")
         } else {
-
-
+            setBackdropOpen(true);
             if (id == "") {
                 const mainURL = ADDURL;
                 serviceMethod(mainURL, 'POST', data, handleSuccess, handleException);
@@ -6021,8 +6040,6 @@ export default function BuildWarranty() {
                 console.log("url", mainURL);
                 serviceMethod(mainURL, 'POST', data, handleSuccess, handleException);
             }
-
-
         }
 
 
@@ -6035,6 +6052,8 @@ export default function BuildWarranty() {
         } else {
             setMessage(data.data.message);
         }
+
+        setBackdropOpen(false);
 
         setAlertopen(true);
         setTimeout(() => {
@@ -6053,6 +6072,8 @@ export default function BuildWarranty() {
     }
 
     const handleException = (data) => {
+        setBackdropOpen(false);
+
         setSeverity("error");
         setMessage(data.data);
         setAlertopen(true);
@@ -8670,6 +8691,13 @@ This Agreement complies with the requirements under the new Motor Vehicle Dealer
                                 {message}
                             </Alert>
                         </Snackbar>
+                        <Backdrop
+                            sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
+                            open={backdropOpen}
+                        // onClick={handleClose}
+                        >
+                            <CircularProgress color="inherit" />
+                        </Backdrop>
                     </React.Fragment>
                 )}
             </Box >

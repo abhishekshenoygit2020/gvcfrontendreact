@@ -513,7 +513,7 @@ const UserModelComponent = ({ open, setOpen, isAddButton, rowData, setRefreshDat
                             <Grid item xs={2} style={{ display: isAddButton ? "none" : isCommissionUpdate ? "none" : "block" }}>
                                 <FormControl fullWidth>
                                 <Typography variant="subtitle2" gutterBottom>
-                                    Is Brokerage Department Team-Member??
+                                    Is Brokerage Department Team-Member?
                                 </Typography>
                                 <Checkbox
                                     checked={isBrokerageDpt == 1}
