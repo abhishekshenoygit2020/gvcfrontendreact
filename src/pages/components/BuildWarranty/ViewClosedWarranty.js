@@ -5,7 +5,9 @@ import Stack from '@mui/material/Stack';
 import Toolbar from '@mui/material/Toolbar';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
+import FormControl from '@mui/material/FormControl';
 import TextField from '@mui/material/TextField';
+import Autocomplete from '@mui/material/Autocomplete';
 import Snackbar from '@mui/material/Snackbar';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import TaskIcon from '@mui/icons-material/Task';
@@ -14,12 +16,12 @@ import DeleteIcon from '@material-ui/icons/DeleteOutlined';
 import Alert from '@mui/material/Alert';
 import ApplicationStore from '../../../utils/localStorageUtil';
 import AddIcon from '@mui/icons-material/Add';
-import FormControl from '@mui/material/FormControl';
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import PrintIcon from '@mui/icons-material/Print';
 import ReactDOMServer from "react-dom/server";
-import Autocomplete from '@mui/material/Autocomplete';
+
 import { Grid } from '@mui/material';
 import axios from '../../../api/axios';
 import Backdrop from '@mui/material/Backdrop';
@@ -39,8 +41,10 @@ const ADDURL = "./dealership/addDealershipWarranty";
 
 function ViewClosedWarranty() {
     const user = ApplicationStore().getStorage('user_email');
-    const dealership = ApplicationStore().getStorage('dealership');
     const userType = ApplicationStore().getStorage('user_type');
+    const [dealership, setDealership] = useState(
+        userType === "admin" ? 0 : ApplicationStore().getStorage("dealership")
+    );
     const userName = ApplicationStore().getStorage('userName');
     const { sidebarItemIndex, setSidebarItemIndex } = useAuthContext();
     const [vinSearch, setVinSearch] = useState(''); // State for VIN search input
@@ -571,7 +575,7 @@ function ViewClosedWarranty() {
                                 { text: `Warranty Plan:`, border: [false, false, false, false], fontSize: 8, bold: true },
                                 { text: `${data.productName}`, border: [false, false, false, false], fontSize: 8, bold: false },
                                 { text: `Deductible:`, border: [false, false, false, false], fontSize: 8, bold: true },
-                                { text: `${data.deductible}`, border: [false, false, false, false], fontSize: 8, bold: false }
+                                { text: `$199.00`, border: [false, false, false, false], fontSize: 8, bold: false }
                             ],
                             [
                                 { text: `Max Protection:`, border: [false, false, false, false], fontSize: 8, bold: true },
@@ -1199,7 +1203,7 @@ function ViewClosedWarranty() {
                                 { text: `Warranty Plan:`, border: [false, false, false, false], fontSize: 8, bold: true },
                                 { text: `${data.productName.replace('(', '  (')}`, border: [false, false, false, false], fontSize: 8, bold: false },
                                 { text: `Deductible:`, border: [false, false, false, false], fontSize: 8, bold: true },
-                                { text: `${data.deductible} `, border: [false, false, false, false], fontSize: 8, bold: false }
+                                { text: `$199.00`, border: [false, false, false, false], fontSize: 8, bold: false }
                             ],
 
                             [
@@ -3227,8 +3231,8 @@ function ViewClosedWarranty() {
                             ],
                             [
                                 { text: `Deductible:  `, fontSize: 9, bold: true, border: [false, false, false, true] },
-                                { text: `${data.deductibleText} `, fontSize: 8, border: [false, false, false, true] },
-                                { text: `$${deductible}`, fontSize: 8, border: [false, false, false, true], alignment: 'right' }
+                                { text: ``, fontSize: 8, border: [false, false, false, true] },
+                                { text: `$199.00`, fontSize: 8, border: [false, false, false, true], alignment: 'right' }
                             ],
 
                             [
@@ -3287,6 +3291,7 @@ function ViewClosedWarranty() {
         loadData();
         loadDealership();
         if (trigger) {
+
             console.log("useEffect is triggered by the action!");
             // Perform side effects here (e.g., fetching data, updating the DOM)
 
@@ -3372,7 +3377,7 @@ function ViewClosedWarranty() {
     ]
 
     const loadData = async () => {
-        setBackdropOpen(true);
+        // setBackdropOpen(true);
         try {
             const response = await axios.post(URL, { dealership });
 
@@ -3408,7 +3413,7 @@ function ViewClosedWarranty() {
             return false;
         } else {
             try {
-                setBackdropOpen(true);
+                // setBackdropOpen(true);
                 const response = await axios.post(URL, { dealership, fromDate, toDate });
 
                 if (response.data.status === 401) {

@@ -6,6 +6,9 @@ import CardMedia from '@mui/material/CardMedia';
 import CardContent from '@mui/material/CardContent';
 import CardActions from '@mui/material/CardActions';
 import Collapse from '@mui/material/Collapse';
+import FormControl from '@mui/material/FormControl';
+import TextField from '@mui/material/TextField';
+import Autocomplete from '@mui/material/Autocomplete';
 import Avatar from '@mui/material/Avatar';
 import IconButton from '@mui/material/IconButton';
 import axios from '../../../../api/axios';
@@ -17,6 +20,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Button from '@mui/material/Button';
 // import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Tooltip } from 'chart.js';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import ApplicationStore from '../../../../utils/localStorageUtil';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import AddchartIcon from '@mui/icons-material/Addchart';
 import AltRouteIcon from '@mui/icons-material/AltRoute';
@@ -58,11 +62,19 @@ const ExpandMore = styled((props) => {
 //     Tooltip,
 //   );
 
-const SmallCard = ({ tablename, count, index, dealership }) => {
+const SmallCard = ({ tablename, count, index, dealership, setDealership }) => {
     const [expanded, setExpanded] = React.useState(false);
     const colorHighLight = ["red", "green", "purple", "blue"];
     const [randomNumbers, setRandomNumbers] = useState([]);
     const [gridLabels, setGridLabels] = useState([]);
+    const [dealershipArray, setDealershipArray] = useState([]);
+    const [dealershipValue, setDealershipValue] = useState(''); // State for VIN search input
+    const [dealershipText, setDealershipText] = useState(''); // State for VIN search input
+   
+    const user_type = ApplicationStore().getStorage('user_type');
+    const [localDealership, setLocaldealership] = useState(
+        user_type === "admin" ? 0 : ApplicationStore().getStorage("dealership")
+    );
 
     const lightColors = [
         "rgba(255, 128, 128, 0.4)",   // Light Red
@@ -100,13 +112,10 @@ const SmallCard = ({ tablename, count, index, dealership }) => {
             chart.data.datasets[0].backgroundColor = gradient;
             chart.update();
         }
-
-
-
-
         // setRandomNumbers(Array.from({ length: 13 }, () => Math.floor(Math.random() * 1000)));
         // console.log("num:"+randomNumbers);
         console.log("dealership:" + dealership);
+        loadDealership();
         loadpendingData(tablename);
     }, [dealership]);
 
@@ -236,6 +245,40 @@ const SmallCard = ({ tablename, count, index, dealership }) => {
         maintainAspectRatio: false,
     };
 
+    const handleDealership = (newvalue) => {
+        if (newvalue) {
+            console.log("value", newvalue.id);
+            setDealershipValue(newvalue.id);
+            setDealershipText(newvalue.accountName);
+            setDealership(newvalue.id);
+        } else {
+            setDealershipValue();
+            setDealership(0);
+        }
+    };
+
+    const loadDealership = async () => {
+        try {
+            const URL = "./dealership";
+            const response = await axios.get(URL);
+
+            if (response.data.status === 401) {
+                setDealershipArray(""); // Keep dummy data in case of unauthorized response
+            } else {
+                const responseData = response.data.data;
+                // const dataWithIndex = response.data.data.map((item, index) => ({
+                //     ...item,
+                //     slNo: index + 1, // Assign sequential SL No starting from 1
+                // })) || "";
+                setDealershipArray(responseData);
+            }
+        } catch (err) {
+            console.log("Error fetching data:", err);
+            // Use dummy data if request fails
+            setDealershipArray('');
+        }
+    };
+
     return (
         // <Paper elevation={3}
         //     onMouseEnter={(e) => {
@@ -285,45 +328,28 @@ const SmallCard = ({ tablename, count, index, dealership }) => {
                 sx={{ display: 'flex', justifyContent: 'flex-end' }} // Aligns the avatar to the right
             />
             <CardContent sx={{ flexGrow: 1, padding: '8px' }}> {/* Adjust padding to reduce space */}
-                <ApexChart color={colorHighLight[index]} randomNumbers={randomNumbers} tablename={tablename} gridLabels={gridLabels} />
+                {(tablename == "Dealerships" || tablename == "Users") && localDealership == "0"?
+                    <FormControl fullWidth required style={{ height: '100px', position: 'relative' }}>
+                        <Typography variant="subtitle2">Dealership</Typography>
+                        <Autocomplete
+                            // value={"dealershipText"}
+                            options={dealershipArray}
+                            onChange={(event, newValue) => handleDealership(newValue)} // Handle selection
+                            getOptionLabel={(option) => option.accountName || ''} // Adjust to match the property you want to display
+                            isOptionEqualToValue={(option, value) => option.id === value.id} // Adjust to match unique keys
+                            sx={{ width: '100%' }} // Responsive width for the TextField
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                // label="Select Dealership" // Add a label for clarity
+                                />
+                            )}
+                        />
+                    </FormControl> :
+                    <ApexChart color={colorHighLight[index]} randomNumbers={randomNumbers} tablename={tablename} gridLabels={gridLabels} />                }
             </CardContent>
         </Card>
-        // </Paper>
-        // <Paper
-        //     elevation={3}
-        //     style={{
-        //         padding: '16px',
-        //         display: 'flex',
-        //         flexDirection: 'column',
-        //         height: '250px',
-        //         width: '100%',
-        //         borderRadius: '12px'
-        //     }}
-        // >
-        //     <Box display="flex" alignItems="center" justifyContent="space-between">
-        //         <TrendingUpIcon style={{ fontSize: 40, color: '#3f51b5' }} />
-        //         <Typography variant="h6">{tablename}</Typography>
-        //     </Box>
-        //     <Box
-        //         flexGrow={1}
-        //         display="flex"
-        //         alignItems="center"
-        //         justifyContent="center"
-        //     >
-        //         {/* Display a big number or clock */}
-        //         <Typography
-        //             variant="h2"
-        //             component="div"
-        //             style={{
-        //                 fontSize: '4rem',
-        //                 fontWeight: 'bold',
-        //                 color: '#3f51b5'
-        //             }}
-        //         >
-        //             {count} {/* Replace this with the big number/clock value */}
-        //         </Typography>
-        //     </Box>
-        // </Paper>
+       
     );
 };
 

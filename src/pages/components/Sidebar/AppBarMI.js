@@ -67,13 +67,13 @@ function ResponsiveAppBar({
           setUnreadCount(unread);
         }
       } catch (error) {
-        console.error("Failed to fetch notifications", error);
+        // console.error("Failed to fetch notifications", error);
       }
     };
 
     fetchNotifications();
   }, []);
-  console.log("notifications", notifications);
+  // console.log("notifications", notifications);
 
 
 
@@ -124,12 +124,12 @@ function ResponsiveAppBar({
 
       const response = await axios.post("/notifications/markAllRead");
 
-      console.log("test");
+      // console.log("test");
 
       if (response.data.status === 401) {
         // setDataList(""); // Keep dummy data in case of unauthorized response
       } else {
-        console.log(response.data.data)
+        // console.log(response.data.data)
         setUnreadCount(0); // clear badge immediately
         setNotifications((prev) =>
           prev.map((n) => ({ ...n, status: 1 }))
@@ -137,7 +137,7 @@ function ResponsiveAppBar({
 
       }
     } catch (err) {
-      console.error("Failed to mark as read", err);
+      // console.error("Failed to mark as read", err);
     }
   };
 

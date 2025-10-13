@@ -407,12 +407,12 @@ const AppDrawerSidebar = ({
 
       const response = await axios.post("/notifications/markAllRead");
 
-      console.log("test");
+      // console.log("test");
 
       if (response.data.status === 401) {
         // setDataList(""); // Keep dummy data in case of unauthorized response
       } else {
-        console.log(response.data.data)
+        // console.log(response.data.data)
         // setUnreadCount(0); // clear badge immediately
         // setNotifications((prev) =>
         //   prev.map((n) => ({ ...n, status: 1 }))
@@ -538,7 +538,7 @@ const AppDrawerSidebar = ({
               <ListItem
                 disablePadding
                 onClick={() => {
-                  console.log("subname" + item.name);
+                  // console.log("subname" + item.name);
                   setSidebarItemIndex(item.name);
                   handleNotificationClick();
                   ApplicationStore().setStorage("sideBarIndex", item.name);

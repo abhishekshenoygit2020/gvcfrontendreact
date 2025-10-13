@@ -84,6 +84,7 @@ function ViewInvoicingDetailData() {
         { label: "Year", key: "year" },
         { label: "Cost", key: "productCost" },
         { label: "Sold For", key: "warrantySoldForText" },
+        { label: "Rebate Cost", key: "warrantySoldForPercent" },
         { label: "Sales Rep", key: "user" }
     ];
 
@@ -95,16 +96,11 @@ function ViewInvoicingDetailData() {
         return Math.min(Math.max(100, maxDataLength * 10), 300);
     };
 
-    // const dynamicColumns = detailHeaders.map((h) => ({
-    //     field: h.key,
-    //     headerName: h.label,
-    //     minWidth: getMaxContentWidth(h.key, h.label),
-    //     flex: 1,
-    // }));
+    
 
     const dynamicColumns = detailHeaders.map((h) => {
         // Special handling for currency columns
-        if (h.key === "productCost" || h.key === "warrantySoldForText") {
+        if (h.key === "productCost" || h.key === "warrantySoldForText" ||  h.key === "warrantySoldForPercent") {
             return {
                 field: h.key,
                 headerName: h.label,

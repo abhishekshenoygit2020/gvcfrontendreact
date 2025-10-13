@@ -38,8 +38,10 @@ const ADDURL = "./dealership/addDealershipWarranty";
 
 function ViewRestoreWarranty() {
     const user = ApplicationStore().getStorage('user_email');
-    const dealership = ApplicationStore().getStorage('dealership');
     const userType = ApplicationStore().getStorage('user_type');
+    const [dealership, setDealership] = useState(
+        userType === "admin" ? 0 : ApplicationStore().getStorage("dealership")
+    );
     const userName = ApplicationStore().getStorage('userName');
     const { sidebarItemIndex, setSidebarItemIndex } = useAuthContext();
     const [vinSearch, setVinSearch] = useState(''); // State for VIN search input
@@ -3090,7 +3092,7 @@ function ViewRestoreWarranty() {
                         const isConfirmed = window.confirm("Are you sure you want to Restore?");
                         if (isConfirmed) {
                             console.log(props.selectedRow.id);
-                            const data = { id: props.selectedRow.id, user: userName, VINNO: props.selectedRow.vinNo, dealership: props.selectedRow.dealership,deleteStatus:0 };
+                            const data = { id: props.selectedRow.id, user: userName, VINNO: props.selectedRow.vinNo, dealership: props.selectedRow.dealership, deleteStatus: 0 };
                             const mainURL = './dealership/warrantyRestore';
                             serviceMethod(mainURL, "POST", data, handleSuccess, handleException);
                         }
@@ -3387,7 +3389,7 @@ function ViewRestoreWarranty() {
                 <DataGrid
                     rows={filteredRows}
                     columns={columns}
-                     pageSizeOptions={[5, 10, 25, 50, 100]}
+                    pageSizeOptions={[5, 10, 25, 50, 100]}
                     pagination
                     initialState={{
                         pagination: {

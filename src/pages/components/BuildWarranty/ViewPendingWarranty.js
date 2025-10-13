@@ -38,8 +38,10 @@ function ViewPendingWarranty() {
     const [vinSearch, setVinSearch] = useState(''); // State for VIN search input
     const [lastName, setLastName] = useState(''); // State for VIN search input
     const user = ApplicationStore().getStorage('user_email');
-    const dealership = ApplicationStore().getStorage('dealership');
     const userType = ApplicationStore().getStorage('user_type');
+    const [dealership, setDealership] = useState(
+            userType === "admin" ? 0 : ApplicationStore().getStorage("dealership")
+        );
     const [dealershipValue, setDealershipValue] = useState(''); // State for VIN search input
     const [dealershipText, setDealershipText] = useState(''); // State for VIN search input
     const [backdropOpen, setBackdropOpen] = useState(false);
@@ -3009,7 +3011,7 @@ function ViewPendingWarranty() {
     ]
 
     const loadData = async () => {
-        setBackdropOpen(true);
+        // setBackdropOpen(true);
         try {
             const response = await axios.post(URL, { dealership });
 
@@ -3017,7 +3019,7 @@ function ViewPendingWarranty() {
                 setDataList(""); // Keep dummy data in case of unauthorized response
             } else {
                 console.log(response.data.data)
-                setBackdropOpen(false);
+                // setBackdropOpen(false);
                 const responseData = response.data.data;
                 const dataWithIndex = response.data.data.map((item, index) => ({
                     ...item,

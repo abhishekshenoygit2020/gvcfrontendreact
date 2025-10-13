@@ -108,7 +108,7 @@ function ViewDealership() {
                 setDataList(dataWithIndex);
             }
         } catch (err) {
-            console.log("Error fetching data:", err);
+            // console.log("Error fetching data:", err);
             // Use dummy data if request fails
             setDataList('');
         }
@@ -178,7 +178,7 @@ function ViewDealership() {
                 onClick={() => {
                     const isConfirmed = window.confirm("Are you sure you want to delete?");
                     if (isConfirmed) {
-                        console.log(props.selectedRow.id);
+                        // console.log(props.selectedRow.id);
                         const data = { id: props.selectedRow.id };
                         const mainURL = URL + '/' + data.id + '/delete';
                         // serviceMethod(mainURL,data, handleSuccess, handleException);
@@ -220,7 +220,7 @@ function ViewDealership() {
         return (
 
             <Tooltip title="Block Dealership">
-                <LockOpenIcon style={{ cursor: "pointer" }} title="Block Dealership"
+                <LockOpenIcon style={{ cursor: "pointer" }}
                     onClick={() => {
                         if (window.confirm("Are you sure you want to block this dealership?")) {
                             const data = { id: props.selectedRow.id, action: 1, type: "post" };
@@ -239,10 +239,10 @@ function ViewDealership() {
         return (
 
             <Tooltip title="UnBlock Dealership">
-                <LockIcon style={{ cursor: "pointer" }} title="UnBlock Dealership"
+                <LockIcon style={{ cursor: "pointer" }}
                     onClick={() => {
                         if (window.confirm("Are you sure you want to unblock this dealership?")) {
-                            console.log(props.selectedRow.id);
+                            // console.log(props.selectedRow.id);
                             const data = { id: props.selectedRow.id, action: 0 };
                             const mainURL = './dealership/blockDealership';
                             serviceUpdateMethod(mainURL, data, handleSuccess, handleException);
@@ -255,7 +255,7 @@ function ViewDealership() {
     };
 
     const handleSuccess = (data) => {
-        console.log("data" + data);
+        // console.log("data" + data);
         setSeverity("success");
         setMessage(data.data);
         setAlertopen(true);

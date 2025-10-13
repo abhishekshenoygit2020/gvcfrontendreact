@@ -38,7 +38,7 @@ const Dashboard = () => {
     const [productAName, setProductAName] = useState('Essential Warranty');
     const [productBName, setProductBName] = useState('Premium Warranty');
     const [productCName, setProductCName] = useState('GAP Protection');
-    const [salesLabel,setSalesLabel] = useState([]);
+    const [salesLabel, setSalesLabel] = useState([]);
     const [soldData, setSoldData] = useState([]);
 
     const [seriesData, setSeriesData] = useState([
@@ -52,11 +52,14 @@ const Dashboard = () => {
     const valueFormatter = (item) => {
         const percent = ((item.value / total) * 100).toFixed(1);
         return `${percent}%`;
-    };  
+    };
 
     const user = ApplicationStore().getStorage('user_email');
-    const dealership = ApplicationStore().getStorage('dealership');
+
     const userType = ApplicationStore().getStorage('user_type');
+    const [dealership, setDealership] = useState(
+        userType === "admin" ? 0 : ApplicationStore().getStorage("dealership")
+    );
 
     const isSmallScreen = useMediaQuery('(max-width:600px)');
     const isMediumScreen = useMediaQuery('(max-width:1200px)');
@@ -197,170 +200,90 @@ const Dashboard = () => {
             },
         },
     };
-    const dataN = {
-        labels: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-        datasets: [
-            {
-                label: 'Data',
-                data: [2, 3, 5.5, 8.5, 1.5, 5, 1, 4, 3, 8],
-                borderColor: '#FF5733', // Line color
-                borderWidth: 2,
-                pointBackgroundColor: '#FF5733', // Color of points
-                pointBorderWidth: 2,
-                showLine: true,
-                pointRadius: (ctx) => (ctx.dataIndex % 2 === 0 ? 5 : 0), // Show marks on even indices
-            },
-        ],
-    };
 
-    const optionsN = {
-        plugins: {
-            legend: {
-                display: false,
-            },
-        },
-        elements: {
-            line: {
-                borderWidth: 2,
-                tension: 0.4,
-            },
-            point: {
-                radius: 5,
-            },
-        },
-    };
-
-    const data3 = [
-        { label: 'Group A', value: 400 },
-        { label: 'Group B', value: 300 },
-        { label: 'Group C', value: 300 },
-        { label: 'Group D', value: 200 },
-    ];
-
-    const data4 = [
-        { label: 'A1', value: 100 },
-        { label: 'A2', value: 300 },
-        { label: 'B1', value: 100 },
-        { label: 'B2', value: 80 },
-        { label: 'B3', value: 40 },
-        // { label: 'B4', value: 30 },
-        // { label: 'B5', value: 50 },
-        // { label: 'C1', value: 100 },
-        // { label: 'C2', value: 200 },
-        // { label: 'D1', value: 150 },
-        // { label: 'D2', value: 50 },
-    ];
-
-    const data5 = [
-        { value: 5, label: 'A' },
-        { value: 10, label: 'B' },
-        { value: 15, label: 'C' },
-        { value: 20, label: 'D' },
-    ];
-
-    const size = {
-        width: 400,
-        height: 200,
-    };
-
-    const StyledText = styled('text')(({ theme }) => ({
-        fill: theme.palette.text.primary,
-        textAnchor: 'middle',
-        dominantBaseline: 'central',
-        fontSize: 20,
-    }));
-
-    // const monthlyData = [
-    //     { month: "2025-01", cost: 120000, profit: 80000 },
-    //     { month: "2025-02", cost: 150000, profit: 110000 },
-    //     { month: "2025-03", cost: 170000, profit: 130000 },
-    //     { month: "2025-04", cost: 160000, profit: 125000 },
-    //     { month: "2025-05", cost: 200000, profit: 155000 },
-    //     { month: "2025-06", cost: 140000, profit: 95000 },
-    //     { month: "2025-07", cost: 180000, profit: 145000 },
-    //     { month: "2025-08", cost: 130000, profit: 85000 },
-    // ];
 
     const COLORS = ["#0088FE", "#00C49F"];
     const [monthlyData, setMonthlyData] = useState([]);
     const [monthIndex, setMonthIndex] = useState(monthlyData.length - 1);
 
     const handlePrev = () => {
-    if (monthIndex > 0) setMonthIndex(monthIndex - 1);
+        if (monthIndex > 0) setMonthIndex(monthIndex - 1);
     };
 
 
     const handleNext = () => {
-    if (monthIndex < monthlyData.length - 1) setMonthIndex(monthIndex + 1);
+        if (monthIndex < monthlyData.length - 1) setMonthIndex(monthIndex + 1);
     };
 
-const currentMonth = monthlyData[monthIndex] || {};
+    const currentMonth = monthlyData[monthIndex] || {};
 
 
 
     useEffect(() => {
-        fetchTotalCost();
-        fetchLastMonthSales();
         loadData();
         loadSoldData();
         loadProductData();
-        
-    }, []);
+        fetchLastMonthSales();
+        fetchTotalCost();
+        console.log("dealership dashhboard useEffetch" + dealership)
+    }, [dealership]);
 
     //  Function to fetch last month sales
-    const dealership_id = ApplicationStore().getStorage('dealership');
-    const user_type = ApplicationStore().getStorage('user_type');
+
     const fetchLastMonthSales = async () => {
         try {
             // console.log("dealership id: ",dealership);
-            
-        const response = await axios.get(`/dashboard/lastMonthSales/${dealership_id}/${user_type}`); 
-        // const data = response.data;
-        const data = response.data?.data || []; // safe access
-         // Build map for easy lookup
-        const salesMap = {};
-        data.forEach(item => {
-          salesMap[item.categoryName] = {
-            sales: item.last_month_sales || 0,
-            count: item.category_count || 0
-          };
-        });
-        
-        // Update states
-        setProductAPrice(salesMap["Essential Warranty"]?.sales || 0);
-        setProductBPrice(salesMap["Premium Warranty"]?.sales || 0);
-        setProductCPrice(salesMap["GAP Protection"]?.sales || 0);
 
-        setSeriesData([
-            { label: "Essential", value: salesMap["Essential Warranty"].sales || 0 },
-            { label: "Premium", value: salesMap["Premium Warranty"].sales || 0 },
-            { label: "GAP", value: salesMap["GAP Protection"].sales || 0 }
-        ]);
-       
+            const response = await axios.get(`/dashboard/lastMonthSales/${dealership}/${userType}`);
+            // const data = response.data;
+            const data = response.data?.data || []; // safe access
+            // Build map for easy lookup
+            const salesMap = {};
+            data.forEach(item => {
+                salesMap[item.categoryName] = {
+                    sales: item.last_month_sales || 0,
+                    count: item.category_count || 0
+                };
+            });
+
+            // Update states
+            setProductAPrice(salesMap["Essential Warranty"]?.sales || 0);
+            setProductBPrice(salesMap["Premium Warranty"]?.sales || 0);
+            setProductCPrice(salesMap["GAP Protection"]?.sales || 0);
+
+            setSeriesData([
+                { label: "Essential", value: salesMap["Essential Warranty"].sales || 0 },
+                { label: "Premium", value: salesMap["Premium Warranty"].sales || 0 },
+                { label: "GAP", value: salesMap["GAP Protection"].sales || 0 }
+            ]);
+
 
         } catch (error) {
             console.error("Error fetching last month sales:", error);
         }
     };
 
-    
- const fetchTotalCost = async () => {
-    try {
-      const response = await axios.get(`/dashboard/totalCost/${dealership}`);
-      const data = response.data.data || [];
 
-      const formatted = data.map(item => ({
-        month: item.YearMonth,
-        cost: item.TotalProductCost,
-        profit: item.TotalProfit,
-      }));
+    const fetchTotalCost = async () => {
+        console.log("dealership dashhboard useEffetch fetchtotalcost" + dealership)
+        try {
+            const response = await axios.get(`/dashboard/totalCost/${dealership}/${userType}`);
+            const data = response.data.data || [];
 
-      setMonthlyData(formatted);
-      setMonthIndex(formatted.length - 1); // default to last month
-    } catch (error) {
-      console.error("Error fetching total cost:", error);
-    }
-  };
+            const formatted = data.map(item => ({
+                month: item.YearMonth,
+                cost: item.TotalProductCost,
+                profit: item.TotalProfit,
+            }));
+
+            setMonthlyData(formatted);
+            setMonthIndex(formatted.length - 1); // default to last month
+        } catch (error) {
+            console.error("Error fetching total cost:", error);
+            setMonthlyData([]);
+            setMonthIndex(monthlyData.length - 1);
+        }
+    };
 
 
 
@@ -432,7 +355,7 @@ const currentMonth = monthlyData[monthIndex] || {};
                 }
                 // console.log("data", response.data);
             }
-           
+
 
         } catch (err) {
             // console.log("Error fetching data:", err);
@@ -516,12 +439,12 @@ const currentMonth = monthlyData[monthIndex] || {};
 
             {/* Debugging: check the content of dataList */}
             {/* {JSON.stringify(dataList)} */}
-{/* //!  Pending, Closed Won , Dealership.... */}
+            {/* //!  Pending, Closed Won , Dealership.... */}
             <Grid container spacing={2}>
                 {dataList.length > 0 ? (
                     dataList.map((item, index) => (
                         <Grid item xs={12} sm={6} md={4} key={index}>
-                            <SmallCard tablename={item.table_name} count={item.row_count} index={index} dealership={dealership} />
+                            <SmallCard tablename={item.table_name} count={item.row_count} index={index} dealership={dealership} setDealership={setDealership} />
                         </Grid>
                     ))
                 ) : ""}
@@ -641,8 +564,8 @@ const currentMonth = monthlyData[monthIndex] || {};
                                     },
                                 }}
                             > */}
-                                {/* CSVLink wrapped inside the button with removed hyperlink styles */}
-                                {/* <CSVLink
+                            {/* CSVLink wrapped inside the button with removed hyperlink styles */}
+                            {/* <CSVLink
                                     data={soldData}
                                     filename="1.csv"
                                     style={{
@@ -796,36 +719,36 @@ const currentMonth = monthlyData[monthIndex] || {};
                         </Grid>
                     </Paper>
                 </Grid>
-            
+
                 {/* Total Cost Card */}
                 <Grid item xs={12} sm={6} md={6}>
                     <Paper
-                    elevation={3}
-                    style={{
-                        padding: "0px",
-                        height: "350px",
-                        display: "flex",
-                        flexDirection: "column",
-                    }}
-                    >
-                    {/* Title */}
-                    <Stack
-                        direction="row"
-                        spacing={1}
-                        sx={{
-                        padding: "20px",
-                        borderBottom: "0.5px solid rgba(0, 0, 0, 0.5)",
-                        justifyContent: "space-between",
-                        alignItems: "center",
+                        elevation={3}
+                        style={{
+                            padding: "0px",
+                            height: "350px",
+                            display: "flex",
+                            flexDirection: "column",
                         }}
                     >
-                        <Typography
-                        variant="h6"
-                        sx={{ flexGrow: 1, fontWeight: "bold", color: "grey" }}
+                        {/* Title */}
+                        <Stack
+                            direction="row"
+                            spacing={1}
+                            sx={{
+                                padding: "20px",
+                                borderBottom: "0.5px solid rgba(0, 0, 0, 0.5)",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                            }}
                         >
-                        Total Cost
-                        </Typography>
-                        {/* <Box>
+                            <Typography
+                                variant="h6"
+                                sx={{ flexGrow: 1, fontWeight: "bold", color: "grey" }}
+                            >
+                                Total Cost
+                            </Typography>
+                            {/* <Box>
                         <Button onClick={handlePrev} size="small" sx={{ mr: 1 }}>
                             Prev
                         </Button>
@@ -833,85 +756,85 @@ const currentMonth = monthlyData[monthIndex] || {};
                             Next
                         </Button>
                         </Box> */}
-                    </Stack>
+                        </Stack>
 
-                    {/* Line Chart (MUI) */}
-                    <Box sx={{ flexGrow: 1, p: 2 , width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center",}}>
-                        <LineChart
-                            xAxis={[{ data: monthlyData.map((d) => d.month), scaleType: "band" }]}
-                            series={[{ data: monthlyData.map((d) => d.cost), label: "Cost", color: "#1976d2" }]}
-                            width={500}
-                            height={250}
-                            margin={{ left: 60, right: 40, top: 20, bottom: 30 }} 
-                        />
-                    </Box>
+                        {/* Line Chart (MUI) */}
+                        <Box sx={{ flexGrow: 1, p: 2, width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center", }}>
+                            <LineChart
+                                xAxis={[{ data: monthlyData.map((d) => d.month), scaleType: "band" }]}
+                                series={[{ data: monthlyData.map((d) => d.cost), label: "Cost", color: "#1976d2" }]}
+                                width={500}
+                                height={250}
+                                margin={{ left: 60, right: 40, top: 20, bottom: 30 }}
+                            />
+                        </Box>
                     </Paper>
                 </Grid>
 
                 {/* Total Profit Card */}
                 <Grid item xs={12} sm={6} md={6}>
                     <Paper
-                    elevation={3}
-                    style={{
-                        padding: "0px",
-                        height: "350px",
-                        display: "flex",
-                        flexDirection: "column",
-                    }}
-                    >
-                    {/* Title */}
-                    <Stack
-                        direction="row"
-                        spacing={1}
-                        sx={{
-                        padding: "20px",
-                        borderBottom: "0.5px solid rgba(0, 0, 0, 0.5)",
-                        justifyContent: "space-between",
-                        alignItems: "center",
+                        elevation={3}
+                        style={{
+                            padding: "0px",
+                            height: "350px",
+                            display: "flex",
+                            flexDirection: "column",
                         }}
                     >
-                        <Typography
-                        variant="h6"
-                        sx={{ flexGrow: 1, fontWeight: "bold", color: "grey" }}
+                        {/* Title */}
+                        <Stack
+                            direction="row"
+                            spacing={1}
+                            sx={{
+                                padding: "20px",
+                                borderBottom: "0.5px solid rgba(0, 0, 0, 0.5)",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                            }}
                         >
-                        Total Profit
-                        </Typography>
-                        <Box>
-                        <Button onClick={handlePrev} size="small" sx={{ mr: 1 }}>
-                            Prev
-                        </Button>
-                        <Button onClick={handleNext} size="small">
-                            Next
-                        </Button>
-                        </Box>
-                    </Stack>
+                            <Typography
+                                variant="h6"
+                                sx={{ flexGrow: 1, fontWeight: "bold", color: "grey" }}
+                            >
+                                Total Profit
+                            </Typography>
+                            <Box>
+                                <Button onClick={handlePrev} size="small" sx={{ mr: 1 }}>
+                                    Prev
+                                </Button>
+                                <Button onClick={handleNext} size="small">
+                                    Next
+                                </Button>
+                            </Box>
+                        </Stack>
 
-                    {/* Pie Chart (MUI) */}
-                    <Box
-                        sx={{
-                        width: "100%",
-                        height: "100%",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        }}
-                    >
-                        <PieChart
-                        series={[
-                            {
-                            data: [
-                                { id: 0, value: currentMonth?.cost || 0, label: "Cost", color: "blue" },
-                                { id: 1, value: currentMonth?.profit || 0, label: "Profit", color: "green" },
-                            ],
-                            innerRadius: 40,
-                            outerRadius: 80,
-                            },
-                        ]}
-                        width={250}
-                        height={200}
-                        slotProps={{ legend: { hidden: true } }}
-                        />
-                        {/* <LineChart
+                        {/* Pie Chart (MUI) */}
+                        <Box
+                            sx={{
+                                width: "100%",
+                                height: "100%",
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                            }}
+                        >
+                            <PieChart
+                                series={[
+                                    {
+                                        data: [
+                                            { id: 0, value: currentMonth?.cost || 0, label: "Cost", color: "blue" },
+                                            { id: 1, value: currentMonth?.profit || 0, label: "Profit", color: "green" },
+                                        ],
+                                        innerRadius: 40,
+                                        outerRadius: 80,
+                                    },
+                                ]}
+                                width={250}
+                                height={200}
+                                slotProps={{ legend: { hidden: true } }}
+                            />
+                            {/* <LineChart
                             xAxis={[
                                 { 
                                 data: monthlyData.map((d) => d.month), 
@@ -935,53 +858,53 @@ const currentMonth = monthlyData[monthIndex] || {};
                             margin={{ left: 60, right: 20, top: 20, bottom: 30 }} 
                         /> */}
 
-                    </Box>
+                        </Box>
 
-                    {/* Labels Below */}
+                        {/* Labels Below */}
 
-                        { 1?<Grid 
-                        container 
-                        sx={{ padding: "20px", alignItems: "center" }}
+                        {1 ? <Grid
+                            container
+                            sx={{ padding: "20px", alignItems: "center" }}
                         >
-                        {/* Cost */}
-                        <Grid item xs={4} sx={{ textAlign: "left" }}>
-                            <Typography
-                            sx={{ display: "flex", alignItems: "center", fontSize: "1vw", color: "gray" }}
-                            >
-                            <FiberManualRecordIcon sx={{ fontSize: "1vw", color: "blue", mr: 1 }} />
-                            Cost
-                            </Typography>
-                            <Typography sx={{ fontWeight: "bold", fontSize: "1.1vw", color: "gray" }}>
-                            ${currentMonth?.cost?.toLocaleString() || 0}
-                            </Typography>
-                        </Grid>
+                            {/* Cost */}
+                            <Grid item xs={4} sx={{ textAlign: "left" }}>
+                                <Typography
+                                    sx={{ display: "flex", alignItems: "center", fontSize: "1vw", color: "gray" }}
+                                >
+                                    <FiberManualRecordIcon sx={{ fontSize: "1vw", color: "blue", mr: 1 }} />
+                                    Cost
+                                </Typography>
+                                <Typography sx={{ fontWeight: "bold", fontSize: "1.1vw", color: "gray" }}>
+                                    ${currentMonth?.cost?.toLocaleString() || 0}
+                                </Typography>
+                            </Grid>
 
-                        {/* Profit */}
-                        <Grid item xs={4} sx={{ textAlign: "center" }}>
-                            <Typography
-                            sx={{ display: "flex", justifyContent: "center", alignItems: "center", fontSize: "1vw", color: "gray" }}
-                            >
-                            <FiberManualRecordIcon sx={{ fontSize: "1vw", color: "green", mr: 1 }} />
-                            Profit
-                            </Typography>
-                            <Typography sx={{ fontWeight: "bold", fontSize: "1.1vw", color: "gray" }}>
-                            ${currentMonth?.profit?.toLocaleString() || 0}
-                            </Typography>
-                        </Grid>
+                            {/* Profit */}
+                            <Grid item xs={4} sx={{ textAlign: "center" }}>
+                                <Typography
+                                    sx={{ display: "flex", justifyContent: "center", alignItems: "center", fontSize: "1vw", color: "gray" }}
+                                >
+                                    <FiberManualRecordIcon sx={{ fontSize: "1vw", color: "green", mr: 1 }} />
+                                    Profit
+                                </Typography>
+                                <Typography sx={{ fontWeight: "bold", fontSize: "1.1vw", color: "gray" }}>
+                                    ${currentMonth?.profit?.toLocaleString() || 0}
+                                </Typography>
+                            </Grid>
 
-                        {/* Month & Year */}
-                        <Grid item xs={4} sx={{ textAlign: "right" }}>
-                            <Typography
-                            sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", fontSize: "1vw", color: "gray" }}
-                            >
-                            <FiberManualRecordIcon sx={{ fontSize: "1vw", color: "orange", mr: 1 }} />
-                            Month & Year
-                            </Typography>
-                            <Typography sx={{ fontWeight: "bold", fontSize: "1.1vw", color: "gray" }}>
-                            {currentMonth?.month || "N/A"}
-                            </Typography>
-                        </Grid>
-                        </Grid>: ''}
+                            {/* Month & Year */}
+                            <Grid item xs={4} sx={{ textAlign: "right" }}>
+                                <Typography
+                                    sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", fontSize: "1vw", color: "gray" }}
+                                >
+                                    <FiberManualRecordIcon sx={{ fontSize: "1vw", color: "orange", mr: 1 }} />
+                                    Month & Year
+                                </Typography>
+                                <Typography sx={{ fontWeight: "bold", fontSize: "1.1vw", color: "gray" }}>
+                                    {currentMonth?.month || "N/A"}
+                                </Typography>
+                            </Grid>
+                        </Grid> : ''}
 
                     </Paper>
                 </Grid>

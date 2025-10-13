@@ -109,7 +109,7 @@ export default function BuildWarranty() {
     const [highRatioCoveragePriceText, setHighRatioCoveragePriceText] = useState(0);
     const [totalCost, setTotalCost] = useState(0);
     const [deductibleText, setDeductibleText] = useState("0");
-    const [deductiblePriceText, setDeductiblePriceText] = useState("0");
+    const [deductiblePriceText, setDeductiblePriceText] = useState("199");
 
     const [customerFirstNameText, setCustomerFirstNameText] = useState('');
     const [customerLastNameText, setCustomerLastNameText] = useState('');
@@ -1221,6 +1221,7 @@ export default function BuildWarranty() {
 
     const serviceMethod = async (mainURL, method, data, handleSuccess, handleException) => {
         console.log("helo");
+        console.log("saveStatusRef.current" + saveStatusRef.current);
         try {
             const response = await axios.post(mainURL, data);
             if (saveStatusRef.current === 1) {
@@ -1600,7 +1601,7 @@ export default function BuildWarranty() {
                                 // { text: `${data.productName.replace('(', '  (')}`, border: [false, false, false, false], fontSize: 8, bold: false },
                                 { text: `${data.productName.replace('(', '  (')}`, border: [false, false, false, false], fontSize: 8, bold: false },
                                 { text: `Deductible:`, border: [false, false, false, false], fontSize: 8, bold: true },
-                                { text: `${data.deductible}`, border: [false, false, false, false], fontSize: 8, bold: false }
+                                { text: `$199.00`, border: [false, false, false, false], fontSize: 8, bold: false }
                             ],
                             [
                                 { text: `Max Protection:`, border: [false, false, false, false], fontSize: 8, bold: true },
@@ -2219,7 +2220,7 @@ export default function BuildWarranty() {
                                 { text: `Warranty Plan:`, border: [false, false, false, false], fontSize: 8, bold: true },
                                 { text: `${data.productName}`, border: [false, false, false, false], fontSize: 8, bold: false },
                                 { text: `Deductible:`, border: [false, false, false, false], fontSize: 8, bold: true },
-                                { text: `${data.deductible}`, border: [false, false, false, false], fontSize: 8, bold: false }
+                                { text: `$199.00`, border: [false, false, false, false], fontSize: 8, bold: false }
                             ],
                             [
                                 { text: `Max Protection:`, border: [false, false, false, false], fontSize: 8, bold: true },
@@ -3951,7 +3952,7 @@ export default function BuildWarranty() {
                                 { text: `Warranty Plan:`, border: [false, false, false, false], fontSize: 8, bold: true },
                                 { text: `${data.productName.replace('(', '  (')}`, border: [false, false, false, false], fontSize: 8, bold: false },
                                 { text: `Deductible:`, border: [false, false, false, false], fontSize: 8, bold: true },
-                                { text: `${data.deductible} `, border: [false, false, false, false], fontSize: 8, bold: false }
+                                { text: `$199.00 `, border: [false, false, false, false], fontSize: 8, bold: false }
                             ],
 
                             [
@@ -5986,8 +5987,8 @@ export default function BuildWarranty() {
                             ],
                             [
                                 { text: `Deductible:  `, fontSize: 9, bold: true, border: [false, false, false, true] },
-                                { text: `${data.deductibleText} `, fontSize: 8, border: [false, false, false, true] },
-                                { text: `$${deductible}`, fontSize: 8, border: [false, false, false, true], alignment: 'right' }
+                                { text: ``, fontSize: 8, border: [false, false, false, true] },
+                                { text: `$199.00`, fontSize: 8, border: [false, false, false, true], alignment: 'right' }
                             ],
 
                             [
@@ -6046,6 +6047,7 @@ export default function BuildWarranty() {
     }
 
     const handleSuccess = (data) => {
+        console.log("SaveStatus data", data)
         setSeverity("success");
         if (saveStatusRef.current === 1) {
             setMessage(data.data.message);
@@ -7496,28 +7498,51 @@ Exceptions:
                                                                     </Typography>
                                                                     <TextField
                                                                         required
+                                                                        fullWidth
                                                                         value={postalCode}
-                                                                        MenuProps={{
-                                                                            PaperProps: {
-                                                                                style: {
-                                                                                    maxHeight: 200,
-                                                                                },
-                                                                            },
+                                                                        onChange={(e) => {
+                                                                            let input = e.target.value;
+
+                                                                            // remove all spaces first
+                                                                            input = input.replace(/\s+/g, "");
+
+                                                                            // restrict strictly to 6 characters
+                                                                            if (input.length > 6) {
+                                                                                input = input.slice(0, 6);
+                                                                            }
+
+                                                                            setPostalCode(input.toUpperCase());
                                                                         }}
-                                                                        onChange={(e) => { setPostalCode(e.target.value); setPostalCodeText(e.target.value); }}
-                                                                        sx={{
-                                                                            '& .MuiOutlinedInput-root': {
-                                                                                '& fieldset': {
-                                                                                    borderColor: 'lightgray', // Default border color
-                                                                                },
-                                                                                '&:hover fieldset': {
-                                                                                    borderColor: 'lightgray', // Hover border color
-                                                                                },
-                                                                                '&.Mui-focused fieldset': {
-                                                                                    borderColor: 'lightgray', // Keep the same color on focus
-                                                                                },
-                                                                            },
+                                                                        onBlur={() => {
+                                                                            let cleaned = postalCode.replace(/\s+/g, "");
+
+                                                                            // ensure exactly 6 characters
+                                                                            if (cleaned.length !== 6) {
+                                                                                alert("Postal code must be 6 characters (A1A 1A1)");
+                                                                                setPostalCode("");
+                                                                                setPostalCodeText("");
+                                                                                return;
+                                                                            }
+
+                                                                            // insert space after 3rd
+                                                                            cleaned = cleaned.slice(0, 3) + " " + cleaned.slice(3);
+
+                                                                            // force uppercase
+                                                                            cleaned = cleaned.toUpperCase();
+
+                                                                            const regex = /^[A-Z0-9]{3}\s[A-Z0-9]{3}$/;
+
+                                                                            if (!regex.test(cleaned)) {
+                                                                                alert("Postal code must be in format A1A 1A1");
+                                                                                setPostalCode("");
+                                                                                setPostalCodeText("");
+                                                                                return;
+                                                                            }
+
+                                                                            setPostalCode(cleaned);
+                                                                            setPostalCodeText(cleaned);
                                                                         }}
+                                                                        placeholder="A1A 1A1"
                                                                     />
                                                                 </FormControl>
 
@@ -7526,28 +7551,31 @@ Exceptions:
                                                                         <Typography component="span" color="error">*</Typography></Typography>
                                                                     <TextField
                                                                         required
-
+                                                                        fullWidth
                                                                         value={customerPhone}
                                                                         onChange={(e) => {
-                                                                            const input = e.target.value;
-                                                                            if (/^\d{0,12}$/.test(input)) {
-                                                                                setCustomerPhone(e.target.value);
-                                                                                setCustomerPhoneText(e.target.value);
+                                                                            let input = e.target.value;
+
+                                                                            // remove everything except digits
+                                                                            input = input.replace(/\D/g, "");
+
+                                                                            // limit to 10 digits
+                                                                            if (input.length > 10) {
+                                                                                input = input.slice(0, 10);
                                                                             }
+
+                                                                            // apply formatting (111) 111-1111
+                                                                            if (input.length > 6) {
+                                                                                input = `(${input.slice(0, 3)}) ${input.slice(3, 6)}-${input.slice(6)}`;
+                                                                            } else if (input.length > 3) {
+                                                                                input = `(${input.slice(0, 3)}) ${input.slice(3)}`;
+                                                                            } else if (input.length > 0) {
+                                                                                input = `(${input}`;
+                                                                            }
+
+                                                                            setCustomerPhone(input);
                                                                         }}
-                                                                        sx={{
-                                                                            '& .MuiOutlinedInput-root': {
-                                                                                '& fieldset': {
-                                                                                    borderColor: 'lightgray', // Default border color
-                                                                                },
-                                                                                '&:hover fieldset': {
-                                                                                    borderColor: 'lightgray', // Hover border color
-                                                                                },
-                                                                                '&.Mui-focused fieldset': {
-                                                                                    borderColor: 'lightgray', // Keep the same color on focus
-                                                                                },
-                                                                            },
-                                                                        }}
+                                                                        placeholder="(111) 111-1111"
                                                                     />
                                                                 </FormControl>
 
@@ -7584,7 +7612,6 @@ Exceptions:
                                                                         <Typography component="span" color="error">*</Typography></Typography>
                                                                     <TextField
                                                                         required
-
                                                                         value={driverLicence}
                                                                         onChange={(e) => { setDriverLicence(e.target.value); setDriverLicenceText(e.target.value) }}
                                                                         sx={{
@@ -7608,7 +7635,6 @@ Exceptions:
                                                                         <Typography component="span" color="error">*</Typography></Typography>
                                                                     <Select
                                                                         required
-
                                                                         labelId="demo-simple-select-label"
                                                                         id="demo-simple-select"
                                                                         value={customerLanguage}

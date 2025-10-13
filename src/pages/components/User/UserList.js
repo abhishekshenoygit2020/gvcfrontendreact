@@ -37,8 +37,11 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 
 const UserList = () => {
-    const dealership = ApplicationStore().getStorage('dealership');
     const user_type = ApplicationStore().getStorage('user_type');
+    const [dealership, setDealership] = useState(
+        user_type === "admin" ? 0 : ApplicationStore().getStorage("dealership")
+    );
+
     const user_email = ApplicationStore().getStorage('user_email');
     const navigate = useNavigate();
     const [alertOpen, setAlertopen] = useState(false);
